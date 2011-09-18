@@ -18,23 +18,17 @@
 */
 
 #include <list>
-// uncomment to disable assert() calls
-// #define NDEBUG
 #include <cassert>
 #include <iostream>
 #include <sstream>
 
 #include <boost/foreach.hpp>
 
-//#include "point.hpp"
-//#include "triangle.hpp"
-//#include "numeric.hpp"
 #include "octree.hpp"
 #include "octnode.hpp"
 #include "volume.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 //**************** Octree ********************/
 

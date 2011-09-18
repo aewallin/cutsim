@@ -29,13 +29,11 @@
 #include <cmath>
 
 #include <boost/foreach.hpp>
-#include <boost/function.hpp>
+//#include <boost/function.hpp>
 
-//#include "octnode.hpp"
 #include "glvertex.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 /// a vertex/point in 3D, with (x,y,z) coordinates of type GLfloat
 /// normal is (nx,ny,nz)

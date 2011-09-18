@@ -22,10 +22,9 @@
 
 #include "glvertex.hpp"
 
-namespace ocl
-{
+namespace cutsim {
     
-// class Triangle;
+
 
 /// axis-aligned bounding-box
 class Bbox {

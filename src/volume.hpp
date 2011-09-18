@@ -25,17 +25,10 @@
 #include <cassert>
 
 #include "bbox.hpp"
-//#include "cylcutter.hpp"
-//#include "p3.hpp"
 #include "glvertex.hpp"
 
-namespace ocl
-{
+namespace cutsim {
     
-//class Point;
-//class Triangle;
-//class MillingCutter;
-
 /// base-class for defining implicit volumes from which to build octrees
 /// an implicit volume is defined as a function dist(Point p)
 /// which returns a negative value inside the volume and a positive volume outside

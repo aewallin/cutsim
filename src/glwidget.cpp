@@ -26,8 +26,7 @@
 
 #include "glwidget.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 #define PI 3.1415926535897932
 

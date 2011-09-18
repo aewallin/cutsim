@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -20,8 +19,7 @@
 
 #include "marching_cubes.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 // run mc on one Octnode
 std::vector< std::vector< GLVertex >  > MarchingCubes::mc_node(const Octnode* node) {

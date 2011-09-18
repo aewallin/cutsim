@@ -22,11 +22,8 @@
 #include <iostream>
 
 #include "bbox.hpp"
-//#include "point.hpp"
-//#include "triangle.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 //************* axis-aligned Bounding-Box **************/
 

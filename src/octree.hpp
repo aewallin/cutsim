@@ -28,15 +28,11 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-//#include "p3.hpp"
-//#include "triangle.hpp"
 #include "bbox.hpp"
 #include "gldata.hpp"
-//#include "glvertedata.hpp"
 #include "marching_cubes.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 class Octnode;
 class OCTVolume;
@@ -130,4 +126,4 @@ class Octree {
 
 } // end namespace
 #endif
-// end file octree.h
+// end file octree.hpp

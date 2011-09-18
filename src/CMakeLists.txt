@@ -72,24 +72,22 @@ ENDIF(OPENMP_FOUND)
 # for cutsim, find OpenGL and Qt.
 #
 
-    MESSAGE(STATUS "Cutting simulation requires OpenGL and Qt4...")
-    find_package(OpenGL REQUIRED)
-    if(OPENGL_FOUND)
-        MESSAGE(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
-    endif(OPENGL_FOUND)
-    
-    FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
-    message(STATUS " qmake = ${QT_QMAKE_EXECUTABLE}") 
-    INCLUDE(${QT_USE_FILE})
-    MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
-    
-    set (MOC_HEADERS  # these headers need Qt MOCing
-        ${cutsim_SOURCE_DIR}/glwidget.hpp
-    )
-    
+MESSAGE(STATUS "Cutting simulation requires OpenGL and Qt4...")
+find_package(OpenGL REQUIRED)
+if(OPENGL_FOUND)
+    MESSAGE(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
+endif(OPENGL_FOUND)
+
+FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
+message(STATUS " qmake = ${QT_QMAKE_EXECUTABLE}") 
+INCLUDE(${QT_USE_FILE})
+MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
+
+set (MOC_HEADERS  # these headers need Qt MOCing
+    ${cutsim_SOURCE_DIR}/glwidget.hpp
+)
     
 # this defines the source-files
-
 
 set( CUTSIM_SRC
     ${cutsim_SOURCE_DIR}/volume.cpp
@@ -99,7 +97,6 @@ set( CUTSIM_SRC
     ${cutsim_SOURCE_DIR}/glwidget.cpp 
     ${cutsim_SOURCE_DIR}/gldata.cpp 
     ${cutsim_SOURCE_DIR}/bbox.cpp 
-        
 )
 
 set( CUTSIM_INCLUDE_FILES
@@ -111,7 +108,6 @@ set( CUTSIM_INCLUDE_FILES
     ${cutsim_SOURCE_DIR}/gldata.hpp
     ${cutsim_SOURCE_DIR}/glvertex.hpp
     ${cutsim_SOURCE_DIR}/glwidget.hpp
-    # ${cutsim_SOURCE_DIR}/p3.hpp
 )
 
 
@@ -119,34 +115,32 @@ set( CUTSIM_INCLUDE_FILES
 include_directories( ${cutsim_SOURCE_DIR} )
 
 
-
-
 # this is the cutting sim
-    qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
-    add_library(cutsim SHARED 
-        ${CUTSIM_SRC}
-        ${MOC_OUTFILES}
-    )
-    target_link_libraries(cutsim  ${OPENGL_LIBRARIES})
+qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
+add_library(cutsim SHARED 
+    ${CUTSIM_SRC}
+    ${MOC_OUTFILES}
+)
+target_link_libraries(cutsim  ${OPENGL_LIBRARIES})
 
 
-    install(
-        TARGETS cutsim
-        LIBRARY 
-        DESTINATION lib/cutsim
-        ARCHIVE DESTINATION lib/cutsim
-        PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-    )
-    # this installs the c++ include headers
-    install(
-        FILES ${CUTSIM_INCLUDE_FILES}
-        DESTINATION include/cutsim
-        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-    )
+install(
+    TARGETS cutsim
+    LIBRARY 
+    DESTINATION lib/cutsim
+    ARCHIVE DESTINATION lib/cutsim
+    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# this installs the c++ include headers
+install(
+    FILES ${CUTSIM_INCLUDE_FILES}
+    DESTINATION include/cutsim
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+)
 
 
-# "make package" stuff
- 
+# "make package" stuff 
 execute_process(
     COMMAND dpkg --print-architecture
     OUTPUT_VARIABLE DEB_ARCHITECTURE

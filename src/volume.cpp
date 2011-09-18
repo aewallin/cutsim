@@ -21,16 +21,10 @@
 #include <cassert>
 #include <cmath>
 
-//#include "point.hpp"
-//#include "triangle.hpp"
-//#include "millingcutter.hpp"
-//#include "cylcutter.hpp"
 
-// #include "numeric.hpp"
 #include "volume.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 
 

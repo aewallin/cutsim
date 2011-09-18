@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -38,12 +37,9 @@
 #include <vector>
 
 #include "gldata.hpp"
-//#include "p3.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
-// #define PI 3.14159265
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + (i))
 

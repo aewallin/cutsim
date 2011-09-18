@@ -50,17 +50,17 @@ class Cutsim : public QObject {
 
 public:
     Cutsim () {
-        ocl::GLVertex octree_center(0,0,0);
+        cutsim::GLVertex octree_center(0,0,0);
         unsigned int max_depth = 7;
-        tree = new ocl::Octree(10.0, max_depth, octree_center );
+        tree = new cutsim::Octree(10.0, max_depth, octree_center );
         std::cout << " tree before init: " << tree->str() << "\n";
         tree->init(2u);
         tree->debug=false;
         std::cout << " tree after init: " << tree->str() << "\n";
         
-        ocl::SphereOCTVolume stock_sphere;
+        cutsim::SphereOCTVolume stock_sphere;
         stock_sphere.radius = 7;
-        stock_sphere.center = ocl::GLVertex(0,0,0);
+        stock_sphere.center = cutsim::GLVertex(0,0,0);
         stock_sphere.calcBB();
         stock_sphere.invert = true;
         
@@ -78,12 +78,12 @@ public:
         std::cout << " AFTER diff: " << tree->str() << "\n";
         */
         
-        mc = new ocl::MarchingCubes();
+        mc = new cutsim::MarchingCubes();
         tree->setIsoSurf(mc);
         //tree->debug=true;
         tree->debug=false;
     } 
-    void setGLData(ocl::GLData* gldata) {
+    void setGLData(cutsim::GLData* gldata) {
         // this is the GLData that corresponds to the tree
         g = gldata;
         g->setTriangles(); // mc: triangles, dual_contour: quads
@@ -99,9 +99,9 @@ public:
 public slots:
     void cut() { // demo slot of doing a cutting operation on the tree with a volume.
         std::cout << " cut! called \n";
-        ocl::SphereOCTVolume s;
+        cutsim::SphereOCTVolume s;
         s.radius = 2;
-        s.center = ocl::GLVertex(4,4,4);
+        s.center = cutsim::GLVertex(4,4,4);
         s.calcBB();
         s.invert = false;
         //std::cout << " before diff: " << tree->str() << "\n";
@@ -114,8 +114,8 @@ public slots:
         tree->diff_negative( &s );
         stop = std::clock();
         
-        std::cout << " diff(): " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-        std::cout << " diff(): " << tim.elapsed() <<'\n';
+        std::cout << " diff(): std::clock:" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+        std::cout << " diff(): boost::timer:" << tim.elapsed() <<'\n';
         
         tim.restart();
         start = std::clock();
@@ -123,22 +123,22 @@ public slots:
         updateGL();
         stop = std::clock();
         
-        std::cout << " updateGL(): " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-        std::cout << " updateGL(): " << tim.elapsed() <<'\n';
+        std::cout << " updateGL() std::clock: " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+        std::cout << " updateGL() boost::timer: " << tim.elapsed() <<'\n';
         //std::cout << " AFTER diff: " << tree->str() << "\n";
 
         tim.restart();
         start = std::clock();
         g->updateVBO();
         stop = std::clock();
-        std::cout << " updateVBO(): " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-        std::cout << " updateVBO(): " << tim.elapsed() <<'\n';
+        std::cout << " updateVBO(): std::clock: " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+        std::cout << " updateVBO(): boost::timer: " << tim.elapsed() <<'\n';
     }
     
 private:
-    ocl::MarchingCubes* mc; // the isosurface-extraction algorithm to use
-    ocl::Octree* tree; // this is the stock model
-    ocl::GLData* g; // this is the graphics object drawn on the screen, representing the stock
+    cutsim::MarchingCubes* mc; // the isosurface-extraction algorithm to use
+    cutsim::Octree* tree; // this is the stock model
+    cutsim::GLData* g; // this is the graphics object drawn on the screen, representing the stock
 };
 
 #endif

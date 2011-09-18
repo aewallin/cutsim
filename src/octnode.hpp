@@ -26,15 +26,11 @@
 #include <set>
 #include <vector>
 
-//#include "point.hpp"
 #include "volume.hpp"
-//#include "triangle.hpp"
 #include "bbox.hpp"
-//#include "p3.hpp"
 #include "glvertex.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 /// Octnode represents a node in the octree.
 ///

@@ -31,8 +31,7 @@
 #include "octnode.hpp"
 #include "gldata.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 /// Marching-cubes isosurface extraction from distance field stored in Octree
 /// see http://en.wikipedia.org/wiki/Marching_cubes

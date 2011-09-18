@@ -26,8 +26,7 @@
 
 #include "octnode.hpp"
 
-namespace ocl
-{
+namespace cutsim {
 
 unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
     return addVertex( GLVertex(x,y,z,r,g,b) );

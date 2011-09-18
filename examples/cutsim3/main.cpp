@@ -14,10 +14,10 @@ int main( int argc, char **argv ) {
     
     // create a new GLWidget, which inherits from QGLWidget. This is the OpenGL view.
     // it displays GLData objects.
-    ocl::GLWidget *w = new ocl::GLWidget();
+    cutsim::GLWidget *w = new cutsim::GLWidget();
     
     // create and return a new GLData object for us
-    ocl::GLData* g = w->addObject();
+    cutsim::GLData* g = w->addObject();
     Cutsim cs;
     QObject::connect( w, SIGNAL(sig()), &cs, SLOT(cut()) );
     
