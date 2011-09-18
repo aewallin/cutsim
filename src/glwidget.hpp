@@ -75,8 +75,10 @@ class GLWidget : public QGLWidget {
         void rotateView(const QPoint& newPos);
         void keyPressEvent( QKeyEvent *e ) {
             std::cout << e->key() << " pressed.\n";
-            if ( e->key() == Qt::Key_C )
+            if ( e->key() == Qt::Key_C ) {
+                std::cout << " emitting sig().\n";
                 emit sig();
+            }
             return;
         }
         void mouseMoveEvent( QMouseEvent *e ) {

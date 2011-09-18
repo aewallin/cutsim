@@ -76,11 +76,9 @@ struct VertexData {
             std::cout << pIdx << " ";
         }
     }
-
     inline void addPolygon( unsigned int idx ) { polygons.insert( idx ); }
     inline void removePolygon(unsigned int idx ) { polygons.erase( idx ); }
     inline bool empty() { return polygons.empty(); }
-
 // DATA
     /// The set of polygons. Each polygon has an uint index which is stored here.
     /// Note: we want to access polygons from highest index to lowest, thus compare with "greater"

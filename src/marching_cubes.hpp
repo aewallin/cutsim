@@ -27,11 +27,8 @@
 
 #include <boost/foreach.hpp>
 
-//#include "p3.hpp"
-//#include "triangle.hpp"
 #include "bbox.hpp"
 #include "octnode.hpp"
-//#include "numeric.hpp"
 #include "gldata.hpp"
 
 namespace ocl
@@ -43,7 +40,6 @@ namespace ocl
 /// (Note: there is no cpp file, all code is here in the .h file)
 class MarchingCubes {
     public:
-        //typedef P3<double> Point;
         MarchingCubes() {}
         virtual ~MarchingCubes() { }
         /// run mc on one Octnode, return triangles

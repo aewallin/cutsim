@@ -50,10 +50,13 @@ unsigned int GLData::addVertex(float x, float y, float z, float r, float g, floa
 
 
 void GLData::removeVertex( unsigned int vertexIdx ) {
-    //std::cout << "GLData::removeVertex( " << vertexIdx << " )\n";
+    //std::cout << "GLData::removeVertex( " << vertexIdx << " with " << vertexDataArray[vertexIdx].polygons.size() << " polys )\n";
     
     // i) for each polygon of this vertex, call remove_polygon:
-    BOOST_FOREACH( unsigned int polygonIdx, vertexDataArray[vertexIdx].polygons ) {
+    typedef std::set< unsigned int, std::greater<unsigned int> > PolygonSet;
+    PolygonSet pset = vertexDataArray[vertexIdx].polygons;
+    BOOST_FOREACH( unsigned int polygonIdx, pset ) {
+        //std::cout << " removeVertex( " << vertexIdx << " calling removePolygon( " << polygonIdx << " )\n";
         removePolygon( polygonIdx );
     }
     // ii) overwrite with last vertex:
@@ -63,6 +66,7 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
         vertexDataArray[vertexIdx] = vertexDataArray[lastIdx];
         // notify octree-node with new index here!
         // vertex that was at lastIdx is now at vertexIdx
+        //std::cout << " swapindex( " << lastIdx << " - " << vertexIdx << ")\n";
         vertexDataArray[vertexIdx].node->swapIndex( lastIdx, vertexIdx );
         
         // request each polygon to re-number this vertex.
@@ -78,6 +82,7 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
     vertexArray.resize( vertexArray.size()-1 );
     vertexDataArray.resize( vertexDataArray.size()-1 );
     assert( vertexArray.size() == vertexDataArray.size() );
+    //std::cout << " removeVertex done.\n";
 }
 
 int GLData::addPolygon( std::vector<GLuint>& verts) {
@@ -91,10 +96,11 @@ int GLData::addPolygon( std::vector<GLuint>& verts) {
 }
 
 void GLData::removePolygon( unsigned int polygonIdx) {
-    //std::cout << " removePolygon( " << polygonIdx << " )\n";
+    //std::cout << "   GLData::removePolygon( " << polygonIdx << " )\n";
     unsigned int idx = polyVerts*polygonIdx; // start-index for polygon
+    
     // i) request remove for each vertex in polygon:
-    for (int m=0; m<polyVerts ; ++m)
+    for (int m=0; m<polyVerts ; ++m) // this polygon has the following 3/4 vertices. we call removePolygon on them all
         vertexDataArray[ indexArray[idx+m]   ].removePolygon(polygonIdx);
     
     // check for orphan vertices (?), and delete them (?)
@@ -112,6 +118,7 @@ void GLData::removePolygon( unsigned int polygonIdx) {
         }
     }
     indexArray.resize( indexArray.size()-polyVerts ); // shorten array
+    //std::cout << "   removePolygon( " << polygonIdx << " ) done.\n";
 } 
 
 void GLData::genVBO() {

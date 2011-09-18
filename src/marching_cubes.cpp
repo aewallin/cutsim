@@ -44,6 +44,12 @@ std::vector< std::vector< GLVertex >  > MarchingCubes::mc_node(const Octnode* no
         triangle.push_back( vertices[ triTable[edgeTableIndex][i+1  ] ] );
         triangle.push_back( vertices[ triTable[edgeTableIndex][i+2  ] ] );
         
+        // calculate normal
+        GLVertex n = (triangle[0]-triangle[1]).cross( triangle[0]-triangle[2] );
+        n.normalize();
+        triangle[0].setNormal(n.x,n.y,n.z);
+        triangle[1].setNormal(n.x,n.y,n.z);
+        triangle[2].setNormal(n.x,n.y,n.z);
         //tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
         //                          vertices[ triTable[edgeTableIndex][i+1] ], 
         //                          vertices[ triTable[edgeTableIndex][i+2] ]  )
@@ -95,7 +101,7 @@ std::vector<GLVertex> MarchingCubes::interpolated_vertices(const Octnode* node, 
 // to generate a new iso-surface point on the idx1-idx2 edge
 GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
     // p = p1 - f1 (p2-p1)/(f2-f1)
-    assert( !isZero_tol( node->f[idx2] - node->f[idx1]  ) ); // sign of dist-field should change on the edge (avoid divide by zero)
+    assert( fabs( node->f[idx2] - node->f[idx1]  ) > 1E-3 ); // sign of dist-field should change on the edge (avoid divide by zero)
     return *(node->vertex[idx1]) -( *(node->vertex[idx2])-(*(node->vertex[idx1])) ) * 
                                     (1.0/(node->f[idx2] - node->f[idx1])) *  node->f[idx1];
 }

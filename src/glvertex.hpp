@@ -25,9 +25,11 @@ struct GLVertex {
         nz=z;
         // normalize:
         GLfloat norm = sqrt( x*x+y*y+z*z );
-        nx /= norm;
-        ny /= norm;
-        nz /= norm;
+        if (norm != 1.0 ) {
+            nx /= norm;
+            ny /= norm;
+            nz /= norm;
+        }
     }
     //void str() {
     //    std::cout << "(" << x << ", " << y << ", " << z << ")"; 

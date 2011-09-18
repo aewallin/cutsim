@@ -129,7 +129,9 @@ void Octree::diff_negative(const OCTVolume* vol) {
 
 // subtract vol from the Octnode curremt
 void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
-
+    if (debug)
+        std::cout << " diff_negative " << current->depth << "\n";
+        
     if ( current->isLeaf() ) { // process only leaf-nodes
         current->evaluate( vol ); // this evaluates the distance field
                               // and sets the inside/outside flags
@@ -138,6 +140,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
             // inside nodes should be deleted
             
             // if (parent) {
+            
             if (debug) {
                 double dist = ( *(current->center) -  GLVertex(4,4,4)).norm();
                 std::cout << " inside node, remove!: " << current->str() << " d= " << dist << " \n";
@@ -171,25 +174,38 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
             }
             //}
         } else if (current->outside) {
+            if (debug)
+                std::cout << " " << current->depth << " outside, do nothing.\n";
             // do nothing to outside  leaf nodes.
             // this terminates recursion.
         } else {// these are intermediate (netiher inside nor outside) leaf nodes
             if ( current->depth < (this->max_depth) ) { 
+                if (debug)
+                    std::cout << " " << current->depth << " not in/out. subdivide.\n";
                 // subdivide, if possible
                 current->subdivide();                                   assert( current->childcount == 8 );
                 for(int m=0;m<8;++m) {
                     assert(current->child[m]); // when we subdivide() there must be a child.
-                    if ( vol->bb.overlaps( current->child[m]->bb ) )
+                    if ( vol->bb.overlaps( current->child[m]->bb ) ) {
+                        if (debug)
+                            std::cout << " " << current->depth << " calling diff on NEW child " << m << "\n";
                         diff_negative( current->child[m], vol); // call diff on child
+                    }
                 }
             } else { 
                 // max depth reached, intermediate node, but can't subdivide anymore
+                assert( current->depth == (this->max_depth) );
+                if (debug)
+                    std::cout << " " << current->depth << " at max depth, can't subdivide.\n";
             }
         }
     } else { // not a leaf, so go deeper into tree
         for(int m=0;m<8;++m) { 
             if ( current->child[m] ) {
                 if ( vol->bb.overlaps( current->child[m]->bb ) )
+                    if (debug)
+                        std::cout << " " << current->depth << " not leaf. calling diff on child " << m << "\n";
+                    
                     diff_negative( current->child[m], vol); // call diff on child
             }
         }
@@ -203,9 +219,7 @@ void Octree::updateGL(Octnode* current) {
         // since valid(), do nothing. terminate recursion here as early as possible.
     } else if ( current->isLeaf() && current->surface()  && !current->valid() ) {  // 
         // this is a leaf and a surface-node
-        // std::vector<ocl::Triangle> node_tris = mc->mc_node(current);
         BOOST_FOREACH( std::vector< GLVertex > poly, mc->mc_node(current) ) {
-            
             double r=1,gr=0,b=0;
             std::vector<unsigned int> polyIndexes;
             for (unsigned int m=0;m< poly.size() ;++m) { // Three for triangles, FOUR for quads
@@ -244,20 +258,18 @@ void Octree::updateGL(Octnode* current) {
 
 
 void Octree::remove_node_vertices(Octnode* current ) {
-    /*
-    if ( !current->vertexSet.empty() ) {
-        std::cout << " removing " << current->vertexSet.size() << " vertices \n";
-        //char c;
-        //std::cin >> c;     
-    }*/
-          
+    if (debug)
+        std::cout << " remove_node_vertices ....";
+        
     while( !current->vertexSet.empty() ) {
         std::set<unsigned int>::iterator first = current->vertexSet.begin();
         unsigned int delId = *first;
         current->removeIndex( delId );
         g->removeVertex( delId );
+        //std::cout << "removing " << delId << " size= " << current->vertexSet.size() << "\n";
     }
-    
+    if (debug)
+        std::cout << " done.\n";
     // when done, set should be empty
     assert( current->vertexSet.empty() );
 }

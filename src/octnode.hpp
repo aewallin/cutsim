@@ -125,20 +125,17 @@ class Octnode {
         void addIndex(unsigned int id) { 
             std::set<unsigned int>::iterator found = vertexSet.find( id );
             assert( found == vertexSet.end() ); // we should not have id
-            
             vertexSet.insert(id); 
         }
         void swapIndex(unsigned int oldId, unsigned int newId) {
             std::set<unsigned int>::iterator found = vertexSet.find(oldId);
             assert( found != vertexSet.end() ); // we must have oldId
-            
             vertexSet.erase(oldId);
             vertexSet.insert(newId);
         }
         void removeIndex(unsigned int id) {
             std::set<unsigned int>::iterator found = vertexSet.find( id );
             assert( found != vertexSet.end() ); // we must have id
-            
             vertexSet.erase(id);
         }
         

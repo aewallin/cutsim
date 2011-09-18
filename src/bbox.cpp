@@ -18,6 +18,8 @@
 */
 
 #include <cassert>
+#include <sstream>
+#include <iostream>
 
 #include "bbox.hpp"
 //#include "point.hpp"
@@ -139,8 +141,8 @@ double Bbox::operator[](const unsigned int idx) const{
 
 std::ostream &operator<<(std::ostream &stream, const Bbox b) {
   stream << " Bbox \n";
-  stream << " min= "<< b.minpt <<"\n";
-  stream << " max= "<< b.maxpt <<"\n";
+  //stream << " min= "<< b.minpt <<"\n";
+  //stream << " max= "<< b.maxpt <<"\n";
   return stream;
 }
 

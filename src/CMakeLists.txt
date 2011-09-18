@@ -98,6 +98,7 @@ set( CUTSIM_SRC
     ${cutsim_SOURCE_DIR}/marching_cubes.cpp
     ${cutsim_SOURCE_DIR}/glwidget.cpp 
     ${cutsim_SOURCE_DIR}/gldata.cpp 
+    ${cutsim_SOURCE_DIR}/bbox.cpp 
         
 )
 
@@ -105,8 +106,10 @@ set( CUTSIM_INCLUDE_FILES
     ${cutsim_SOURCE_DIR}/octnode.hpp
     ${cutsim_SOURCE_DIR}/octree.hpp
     ${cutsim_SOURCE_DIR}/volume.hpp
+    ${cutsim_SOURCE_DIR}/bbox.hpp
     ${cutsim_SOURCE_DIR}/marching_cubes.hpp
     ${cutsim_SOURCE_DIR}/gldata.hpp
+    ${cutsim_SOURCE_DIR}/glvertex.hpp
     ${cutsim_SOURCE_DIR}/glwidget.hpp
     # ${cutsim_SOURCE_DIR}/p3.hpp
 )
