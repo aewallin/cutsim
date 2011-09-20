@@ -28,7 +28,7 @@
 //tok: 0   1      2        3       4       5       6        7  8       9       10      11 
 helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
     
-    double a1,a2,e1,e2,e3,ea,eb,ec,hdist;
+    double a1,a2,e1,e2,e3,ea,eb,ec;
     //  x=y=z=a1=a2=e1=e2=e3=ea=eb=ec=0;
     // e = end pose position
 
@@ -51,7 +51,7 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
     ea = tok2d(9); //a
     eb = tok2d(10); //b
     ec = tok2d(11); //c
-  
+    start = status.getStartPose().loc;
     /// Shuffle variables around based on the active plane.
     switch (status.getPlane()) {
         /*
@@ -75,12 +75,13 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
             status.setEndPose(Point(e1,e2,e3));
             axis = Point(0,0,1); // rotate around Z-axis
             center = Point(a1,a2,start.z);
-            hdist = e3 - start.z; // change in z-coordinate, i.e. helix instead of arc.
+            hdist = e3 - start.z; // change in z-coordinate, if nonzero then this is a helix instead of an arc.
     }
     status.setMotionType(HELICAL);
-    start = status.getStartPose().loc;
+    
     end = status.getEndPose().loc; 
-
+    radius = start.Distance(center);
+    
 /* //skip arc if zero length; caught this bug thanks to tort.ngc
     cout << "Skipped zero-length arc at N" << getN() << endl;
     status.setEndDir(status.getPrevEndDir());
@@ -98,7 +99,7 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
         planar = true;
         arc();
     }
-
+    
 
     // FIXME - check for gaps
 
@@ -133,10 +134,11 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
 void helicalMotion::helix(  ) {
   //if (uio::debuggingOn()) cout << "helix" << endl;
   double pU,pV;
-  double radius = start.Distance(center);
+  //double 
   
   
-    std::cout << "helix radius=" << radius << " rot=" << rotation << std::endl;
+    std::cout << "  helix: radius=" << radius << " rot=" << rotation << std::endl;
+    std::cout << "  helix: hdist=" << hdist <<  std::endl;
   /*
   gp_Pnt2d p1,p2;
   Handle(Geom_CylindricalSurface) cyl = new Geom_CylindricalSurface(gp_Ax2(center,axis) , radius);
@@ -204,6 +206,8 @@ void helicalMotion::helix(  ) {
 /// Create an arc, place it in myUnSolid
 
 void helicalMotion::arc() {
+    
+    std::cout << " arc: start=" << start.str() << " center=" << center.str() << " end=" << end.str() << " axis=" << axis.str() << "\n";
   //gp_Vec Va = gp_Vec(axis);     //vector along arc's axis
   //if the endpoints are the same, assume it's a complete circle
   //previous behaviour was to assume no motion

@@ -51,6 +51,8 @@ class helicalMotion: protected canonMotion {
     Point center;
     Point axis;
     Point start, end;
+    double radius;
+    double hdist;
     int rotation;
 };
 
