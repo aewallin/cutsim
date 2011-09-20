@@ -32,9 +32,10 @@
 //#include <BRepTools.hxx> // OpenCascade?
 
 
-//#include "canonLine.hh"
+#include "canonLine.hpp"
 // DUMMY
 
+/*
 class canonLine {
     public:
         static canonLine* canonLineFactory(std::string l) {
@@ -47,6 +48,8 @@ class canonLine {
         }
         std::string myLine;
 };
+*/
+
 
 //#include "machineStatus.hh"
 

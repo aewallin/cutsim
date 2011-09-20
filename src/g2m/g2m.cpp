@@ -43,6 +43,7 @@
 //#include "canonMotionless.hh"
 
 #include "nanotimer.hpp"
+#include "machineStatus.hpp"
 //#include "dispShape.hh"
 
 // contrib/salome
@@ -352,10 +353,10 @@ bool g2m::processCanonLine (std::string l) {
     canonLine* cl;
     if (lineVector.size()==0) { 
         // no status exists, so make one up.
-        cl = canonLine::canonLineFactory(l); //,  machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )   ); 
+        cl = canonLine::canonLineFactory(l, machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )  ); //,  machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )   ); 
     } else {
         // use the last element status
-        cl = canonLine::canonLineFactory(l); //,  *(lineVector.back())->getStatus()  ); 
+        cl = canonLine::canonLineFactory(l, machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )  ); //,  *(lineVector.back())->getStatus()  ); 
     }
     
     lineVector.push_back(cl); // cl stored here!
@@ -377,10 +378,10 @@ bool g2m::processCanonLine (std::string l) {
     
     
     // return true when we reach end-of-program
-    /*
+    
     if (!cl->isMotion())
-        return ( (canonMotionless*)cl )->isNCend();
-    */
+        return  cl->isNCend();
+    
         
     return false;
 }

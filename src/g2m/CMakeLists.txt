@@ -13,26 +13,27 @@ include_directories (
 set ( g2m_HDRS
     g2m.hpp
     #canon.hh
-    #canonLine.hh
-    #canonMotionless.hh
+    canonLine.hpp
+    canonMotionless.hpp
     #canonMotion.hh
     #linearMotion.hh
     #helicalMotion.hh
     #tool.hh
-    #machineStatus.hh
+    machineStatus.hpp
     nanotimer.hpp
+    point.hpp
     )
 
 set ( g2m_SRCS
     g2m.cpp
     #canon.cc
-    #canonLine.cc
-    #canonMotionless.cc
+    canonLine.cpp
+    canonMotionless.cpp
     #canonMotion.cc
     #linearMotion.cc
     #helicalMotion.cc
     #tool.cc
-    #machineStatus.cc
+    machineStatus.cpp
     nanotimer.cpp
  )
 
