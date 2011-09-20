@@ -31,14 +31,14 @@ canonMotion::canonMotion(std::string canonL, machineStatus prevStatus): canonLin
 }
 
 /// for STRAIGHT_* and ARC_FEED, first 3 are always xyz and last 3 always abc
-gp_Ax1 canonMotion::getPoseFromCmd() {
+Pose canonMotion::getPoseFromCmd() {
   double x,y,z;
 
   //need 3,4,5,and -3,-2,-1
   x = tok2d(3);
   y = tok2d(4);
   z = tok2d(5);
-  gp_Pnt p(x,y,z); 
+  Point p(x,y,z); 
 
 /* FIXME
   double a,b,c;
@@ -51,8 +51,8 @@ gp_Ax1 canonMotion::getPoseFromCmd() {
 */
   //for now we take the easy way out
   
-  gp_Dir d(0,0,1); //vertical, NO ROTATION!
-  return gp_Ax1(p,d);
+  Point d(0,0,1); //vertical, NO ROTATION!
+  return Pose(p,d);
 }
 
 /**

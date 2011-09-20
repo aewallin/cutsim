@@ -46,7 +46,9 @@ It runs the interpreter, and creates a canonLine object for each canonical
 class g2m : public QObject {
   Q_OBJECT;
   public:
-    g2m()  { }
+    g2m()  { 
+        debug=false;
+    }
     void interpret_file();
     void setFile(std::string infile) {
         file = QString::fromStdString(infile);
@@ -57,6 +59,7 @@ class g2m : public QObject {
     void setInterp(std::string interp_binary) {
         interp = QString::fromStdString(interp_binary);
     }
+    void setDebug(bool d) {debug=d;}
   protected:    
     bool chooseToolTable();
     void interpret();
@@ -64,10 +67,11 @@ class g2m : public QObject {
     bool startInterp(QProcess &tc);
     void infoMsg(std::string s);
 
-    static std::vector<canonLine*> lineVector;
+    std::vector<canonLine*> lineVector;
     QString file;
     QString tooltable;
     QString interp;
+    bool debug;
 };
 
 #endif //GTOM_HH

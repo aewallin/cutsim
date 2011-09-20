@@ -21,10 +21,6 @@ struct Point {
     
     double x,y,z;
 };
-typedef Point gp_Dir;
-typedef Point gp_Pnt;
-
-
 
 struct Pose {
     Pose() {}
@@ -36,6 +32,5 @@ struct Pose {
     Point dir;
 };
 
-typedef Pose gp_Ax1;
 
 #endif 

@@ -26,9 +26,6 @@
 #include <cmath>
 #include <limits.h>
 
-//#include <gp_Pnt.hxx>
-//#include <gp_Dir.hxx>
-
 #include "point.hpp"
 #include "canonMotion.hpp"
 #include "canonLine.hpp"
@@ -45,16 +42,15 @@ class helicalMotion: protected canonMotion {
   public:
     helicalMotion(std::string canonL, machineStatus prevStatus);
     MOTION_TYPE getMotionType() {return HELICAL;};
-    //const TopoDS_Shape& getShape() {return myShape;};
-    //void assembleSolid();
+
   private:
-    void helix(gp_Pnt start, gp_Pnt end);
-    void arc(gp_Pnt start, gp_Pnt end);
+    void helix(Point start, Point end);
+    void arc(Point start, Point end);
     //void arc(gp_Pnt start, gp_Vec startVec, gp_Pnt end);
     bool planar;
-    gp_Pnt center;
+    Point center;
+    Point axis;
     int rotation;
-    gp_Dir axis;
 };
 
 #endif //HELICALMOTION_HH

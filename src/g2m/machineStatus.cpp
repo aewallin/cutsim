@@ -33,7 +33,7 @@ machineStatus::machineStatus(const machineStatus& oldStatus) {
     plane = oldStatus.plane;
     endPose = startPose = oldStatus.endPose;
     myTool = oldStatus.myTool;
-    endDir = gp_Dir(0,0,-1);
+    endDir = Point(0,0,-1);
     prevEndDir = oldStatus.endDir;
     first = oldStatus.first;
     motionType = NOT_DEFINED;
@@ -51,7 +51,7 @@ This constructor is only to be used when initializing the simulation; it would n
 \param initial is the initial pose of the machine, as determined by the interp from the variable file.
 \sa machineStatus(machineStatus const& oldStatus)
 */
-machineStatus::machineStatus(gp_Ax1 initial) {
+machineStatus::machineStatus(Pose initial) {
   clearAll();
   //theTool = new ballnoseTool(0.0625,0.3125); //1/16" tool. TODO: use EMC's tool table for tool sizes
   startPose = endPose = initial;
@@ -65,8 +65,8 @@ void machineStatus::clearAll() {
   coolant.flood = false;
   coolant.mist = false;
   coolant.spindle = false;
-  endPose = startPose = gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1));
-  endDir = prevEndDir = gp_Dir(0,0,-1);
+  endPose = startPose = Pose( Point(0,0,0), Point(0,0,1));
+  endDir = prevEndDir = Point(0,0,-1);
   spindleStat = OFF;
   myTool = -1;
   motionType = NOT_DEFINED;
@@ -96,11 +96,11 @@ Set end points, and call addToBounds to add points to bndbox. For an arc or heli
 *  the edge must be added from its ctor with addArcToBbox.
 \sa addArcToBbox(TopoDS_Edge e)
 */
-void machineStatus::setEndPose(gp_Pnt p) {
-  endPose = gp_Ax1( p, gp_Dir(0,0,1) );
+void machineStatus::setEndPose( Point p) {
+  endPose = Pose( p, Point(0,0,1) );
 
 }
-void machineStatus::setEndPose(gp_Ax1 newPose) {
+void machineStatus::setEndPose( Pose newPose) {
   endPose = newPose;
 
 }

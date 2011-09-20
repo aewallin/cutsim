@@ -37,97 +37,46 @@
 #include "nanotimer.hpp"
 #include "machineStatus.hpp"
 
-
-//init static members
-std::vector<canonLine*> g2m::lineVector;
-
 void g2m::interpret_file() {
-  lineVector.clear();
-  //uio::hideGrid();
-  //interpDone = false;
+    lineVector.clear();
+    nanotimer timer;
+    timer.start();
 
-/*
-  if (fromCmdLine) {
-    file = uio::window()->getArg(1);
-    if (!uio::fileExists(file))  {
-      fromCmdLine = false;  //the file doesn't exist, we'll ask for a file
-    }
-  }
-  if (!fromCmdLine) {
-    file = QFileDialog::getOpenFileName ( uio::window(), "Choose input file", "./ngc-in", "All types (*.ngc *.canon);;G-Code (*.ngc);;Canon (*.canon)" );
-  }
-  fromCmdLine = false;  //so that if a second file is processed, this time within gui, the program won't use the one from the command line instead
-*/
-  nanotimer timer;
-  timer.start();
-
-   
-  if ( file.endsWith(".ngc") ) {
-    interpret(); // reads from file
+    if ( file.endsWith(".ngc") ) {
+        QString msg = " interpreting: " + file; //.toStdString()
+        infoMsg( msg.toStdString() ); 
+        interpret(); // reads from file
     //if (!success) 
     //    return;
-  } else if (file.endsWith(".canon")) { //just process each line
+    } else if (file.endsWith(".canon")) { //just process each line
     if (!chooseToolTable()) {
-      infoMsg("Can't find tool table. Aborting.");
-      return;
+        infoMsg("Can't find tool table. Aborting.");
+        return;
     }
     std::ifstream inFile(file.toAscii());
     std::string sLine;
     while(std::getline(inFile, sLine)) {
-      if (sLine.length() > 1) {  //helps to prevent segfault in canonLine::cmdMatch()
-        processCanonLine(sLine); // requires no interpret()
-      }
+        if (sLine.length() > 1) {  //helps to prevent segfault in canonLine::cmdMatch()
+            processCanonLine(sLine); // requires no interpret()
+        }
     }
-  } else {
-    infoMsg("File name must end with .ngc or .canon!");
-    return;
-  }
+    } else {
+        infoMsg("File name must end with .ngc or .canon!");
+        infoMsg(file.toStdString() ); 
+        return;
+    }
 
-  //interpDone = true;  
-  //for g2m_threaded. tells threads they can quit when they reach the end of the vector.
+    double e = timer.getElapsedS();
+    std::cout << "Total time to process that file: " << timer.humanreadable(e).toStdString() << std::endl;
 
-  //must be called before canonLine solids are created, because it calculates the minimum tool length
-  //createBlankWorkpiece();
-  
-  // what does this do?
-  //canon::buildTools(tooltable.toStdString(),minToolLength);
-
-  //createThreads();  //does nothing in g2m. overridden in g2m_threaded.
-
-  //in g2m, this creates the solids
-  //overridden in g2m_threaded - waits for the threads to finish
-  //finishAllSolids(timer);
-
-  //now display the workpiece
-  //if ( solidToggle ) {
-  //  dispShape wp(workpiece);
-  //  wp.display();
-  //}
-
-  double e = timer.getElapsedS();
-  std::cout << "Total time to process that file: " << timer.humanreadable(e).toStdString() << std::endl;
-
-  //uio::fitAll();
 }
 
 ///ask for a tool table, even if one is configured - user may wish to change it
 bool g2m::chooseToolTable() {
-    /*
-  QString loc;
-  bool ttconf = uio::conf().contains("rs274/tool-table");
-  if (ttconf) {
-    //passing the file name as the path means that it is preselected
-    loc = uio::conf().value("rs274/tool-table").toString();
-  } else {
-    loc =  "/usr/share/doc/emc2/examples/sample-configs/sim";
-  }
-  tooltable = QFileDialog::getOpenFileName ( uio::window(), "Locate tool table", loc, "EMC2 new-style tool table (*.tbl)" );
-    */
   if (!QFileInfo(tooltable).exists()){
     infoMsg(" cannot find tooltable! ");
     return false;
   }
-  // uio::conf().setValue("rs274/tool-table",tooltable);
   return true;
 }
 
@@ -214,41 +163,25 @@ void g2m::interpret() {
   if (!foundEOF) {
     infoMsg("Warning: file data not terminated correctly. If the file is terminated correctly, this indicates a problem interpreting the file.");
   }
-  //success = true;
+
   return;
 }
 
 // input string is a canon-string from rs274
 bool g2m::processCanonLine (std::string l) {
-    nanotimer nt;
-    nt.start();
     canonLine* cl;
     if (lineVector.size()==0) { 
         // no status exists, so make one up.
-        cl = canonLine::canonLineFactory(l, machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )  ); //,  machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )   ); 
+        cl = canonLine::canonLineFactory(l, machineStatus( Pose( Point(0,0,0), Point(0,0,1) ) )  );
     } else {
         // use the last element status
         cl = canonLine::canonLineFactory(l,  *(lineVector.back())->getStatus()  ); 
     }
-    
-    lineVector.push_back(cl); // cl stored here!
-    
-/* need to highlight the first *solid* rather than the first obj
-  if (lineVector.size()==1) {
-    lineVector[1].setFirst(); //different color, etc
-    ///need to do something similar for the last vector...
-}
-*/
+    lineVector.push_back(cl); 
 
-    /*
-    double t = nt.getElapsedS();
-    if ((debug) && (t>.00005)) { //don't print if fast or not debugging
-        cout << "Line " << cl->getLineNum() << "/N" << cl->getN() << " - time " << nt.humanreadable(t).toStdString() << endl;
-    }
-    */
-    //cl->checkErrors();
-    
-    
+    if ( debug ) 
+        std::cout << "Line " << cl->getLineNum() << "/N" << cl->getN() <<  std::endl;
+
     // return true when we reach end-of-program
     if (!cl->isMotion())
         return  cl->isNCend();

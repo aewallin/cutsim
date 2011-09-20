@@ -42,8 +42,8 @@ You cannot create objects of this class - instead, create an object of a class
 class canonLine {
   public:
     const std::string getLine() {return myLine;};
-    const gp_Ax1 getStart() {return status.getStartPose(); };
-    const gp_Ax1 getEnd() {return status.getEndPose(); };
+    const Pose getStart() {return status.getStartPose(); };
+    const Pose getEnd() {return status.getEndPose(); };
     int getN(); //returns the number after N on the line, -1 if none
     int getLineNum() {return tok2i(0);} //returns the canon line number
     const std::string getCanonType();

@@ -29,7 +29,7 @@
 linearMotion::linearMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
   status.setMotionType(getMotionType());
   status.setEndPose(getPoseFromCmd());
-  gp_Pnt a,b;
+  Point a,b;
   a = status.getStartPose().loc;
   b = status.getEndPose().loc;
   std::cout << " linear feed: " << a.str() << " to " << b.str() << "\n";

@@ -50,23 +50,21 @@ Important: 'pose' refers to how the machine's axes are positioned,
 */
 class machineStatus {
   protected:
-    gp_Ax1 startPose, endPose;
+    Pose startPose, endPose;
     double F,S;  //feedrate, spindle speed
-    
     coolantStruct coolant;
-    gp_Dir startDir, endDir, prevEndDir;
+    Point startDir, endDir, prevEndDir;
     bool first,lastMotionWasTraverse;
     toolNumber myTool;
-    
     MOTION_TYPE motionType;
     SPINDLE_STATUS spindleStat;
     CANON_PLANE plane;
   public:
     machineStatus(machineStatus const& oldStatus);
-    machineStatus(gp_Ax1 initial);
+    machineStatus(Pose initial);
     void setMotionType(MOTION_TYPE m);
-    void setEndPose(gp_Ax1 newPose);
-    void setEndPose(gp_Pnt p);
+    void setEndPose(Pose newPose);
+    void setEndPose(Point p);
     void addToBounds();
     void setFeed(const double f) {F=f;};
     void setSpindleSpeed(const double s) {S=s;};
@@ -78,14 +76,14 @@ class machineStatus {
     double getSpindleSpeed() const {return S;};
     SPINDLE_STATUS getSpindleStatus() const {return spindleStat;};
     const coolantStruct getCoolant() {return coolant;};
-    const gp_Ax1 getStartPose() {return startPose;};
-    const gp_Ax1 getEndPose() {return endPose;};
+    const Pose getStartPose() {return startPose;};
+    const Pose getEndPose() {return endPose;};
     CANON_PLANE getPlane() const {return plane;};
-    void setEndDir(gp_Dir d) {endDir = d;};
-    void setStartDir(gp_Dir d) {startDir = d;};
-    const gp_Dir getStartDir() const {return startDir;};
-    const gp_Dir getEndDir() const {return endDir;};
-    const gp_Dir getPrevEndDir() const {return prevEndDir;};
+    void setEndDir( Point d) {endDir = d;};
+    void setStartDir( Point d) {startDir = d;};
+    const Point getStartDir() const {return startDir;};
+    const Point getEndDir() const {return endDir;};
+    const Point getPrevEndDir() const {return prevEndDir;};
     void clearAll(void);
     bool isFirst() {return first;};
     toolNumber getToolNum() {return myTool;};

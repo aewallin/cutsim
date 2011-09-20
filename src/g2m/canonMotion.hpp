@@ -49,7 +49,7 @@ class canonMotion: protected canonLine {
     bool isMotion() {return true;};
   protected:
     canonMotion(std::string canonL, machineStatus prevStatus);
-    gp_Ax1 getPoseFromCmd();
+    Pose getPoseFromCmd();
 };
 
 #endif //CANONMOTION_HH

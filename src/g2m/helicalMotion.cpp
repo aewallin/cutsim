@@ -25,12 +25,13 @@
 
 helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
     status.setMotionType(HELICAL);
-    gp_Pnt start, end;
+    Point start, end;
     start = status.getStartPose().loc;
     //end must be set after determining which plane is in use
     planar = true;
     double a1,a2,e1,e2,e3,ea,eb,ec,hdist;
     //  x=y=z=a1=a2=e1=e2=e3=ea=eb=ec=0;
+    // e = end pose position
 
     e1 = tok2d(3); //first_end
     e2 = tok2d(4); //second_end
@@ -48,22 +49,22 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
     ** a,b,c remain in order
     */
     case CANON_PLANE_XZ:
-      status.setEndPose(gp_Pnt(e2,e3,e1));
-      axis = gp_Dir(0,1,0);
-      center = gp_Pnt(a2,start.y,a1);
+      status.setEndPose( Point(e2,e3,e1) );
+      axis = Point(0,1,0);
+      center = Point(a2,start.y,a1);
       hdist = e3 - start.y;
       break;
     case CANON_PLANE_YZ:
-      status.setEndPose(gp_Pnt(e3,e1,e2));
-      axis = gp_Dir(1,0,0);
-      center = gp_Pnt(start.x,a1,a2);
+      status.setEndPose( Point(e3,e1,e2));
+      axis = Point(1,0,0);
+      center = Point(start.x,a1,a2);
       hdist = e3 - start.x;
       break;
     case CANON_PLANE_XY:
     default:
-      status.setEndPose(gp_Pnt(e1,e2,e3));
-      axis = gp_Dir(0,0,1);
-      center = gp_Pnt(a1,a2,start.z);
+      status.setEndPose(Point(e1,e2,e3));
+      axis = Point(0,0,1);
+      center = Point(a1,a2,start.z);
       hdist = e3 - start.z;
   }
   end = status.getEndPose().loc; //Location();
@@ -91,8 +92,8 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
 
     /// Find vector direction at start and end of the edge, and save them in status
     double f,l,fd,ld;
-    gp_Pnt fp,lp;
-    gp_Pnt fv,lv;
+    Point fp,lp;
+    Point fv,lv;
 
     //BRepAdaptor_Curve bac(TopoDS::Edge(myUnSolid));
 
@@ -119,7 +120,7 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
 
 
 /// Create a helix, place it in myUnSolid
-void helicalMotion::helix( gp_Pnt start, gp_Pnt end ) {
+void helicalMotion::helix( Point start, Point end ) {
   //if (uio::debuggingOn()) cout << "helix" << endl;
   double pU,pV;
   double radius = start.Distance(center);
@@ -188,7 +189,7 @@ void helicalMotion::helix( gp_Pnt start, gp_Pnt end ) {
 }
 
 /// Create an arc, place it in myUnSolid
-void helicalMotion::arc(gp_Pnt start, gp_Pnt end) {
+void helicalMotion::arc(Point start, Point end) {
   //gp_Vec Va = gp_Vec(axis);     //vector along arc's axis
   //if the endpoints are the same, assume it's a complete circle
   //previous behaviour was to assume no motion
