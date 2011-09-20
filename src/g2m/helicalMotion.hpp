@@ -44,12 +44,13 @@ class helicalMotion: protected canonMotion {
     MOTION_TYPE getMotionType() {return HELICAL;};
 
   private:
-    void helix(Point start, Point end);
-    void arc(Point start, Point end);
+    void helix();
+    void arc();
     //void arc(gp_Pnt start, gp_Vec startVec, gp_Pnt end);
     bool planar;
     Point center;
     Point axis;
+    Point start, end;
     int rotation;
 };
 

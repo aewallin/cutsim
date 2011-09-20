@@ -79,11 +79,12 @@ class machineStatus {
     const Pose getStartPose() {return startPose;};
     const Pose getEndPose() {return endPose;};
     CANON_PLANE getPlane() const {return plane;};
-    void setEndDir( Point d) {endDir = d;};
     void setStartDir( Point d) {startDir = d;};
     const Point getStartDir() const {return startDir;};
+    void setEndDir( Point d) {endDir = d;};
     const Point getEndDir() const {return endDir;};
     const Point getPrevEndDir() const {return prevEndDir;};
+    
     void clearAll(void);
     bool isFirst() {return first;};
     toolNumber getToolNum() {return myTool;};
