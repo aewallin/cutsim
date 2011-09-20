@@ -27,7 +27,7 @@
 
 #include "canonMotion.hpp"
 #include "machineStatus.hpp"
-//#include "tool.hh"
+
 
 /**
 \class linearMotion
@@ -40,7 +40,6 @@ class linearMotion: protected canonMotion {
   public:
     linearMotion(std::string canonL, machineStatus prevStatus);
     MOTION_TYPE getMotionType();
-    //const TopoDS_Shape& getShape() {return myShape;};
     void assembleSolid();
 };
 

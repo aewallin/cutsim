@@ -1,6 +1,8 @@
 /***************************************************************************
  *   Copyright (C) 2010 by Mark Pictor                                     *
  *   mpictor@gmail.com                                                     *
+ *   modifications Copyright (C) 2011 by Anders Wallin                     *
+ *   anders.e.e.wallin@gmail.com                                           *      
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -29,33 +31,8 @@
 #include <QString>
 #include <QProcess>
 #include <QObject>
-//#include <BRepTools.hxx> // OpenCascade?
-
 
 #include "canonLine.hpp"
-// DUMMY
-
-/*
-class canonLine {
-    public:
-        static canonLine* canonLineFactory(std::string l) {
-            return new canonLine(l);
-        }
-    protected:
-        canonLine(std::string l) {
-            std::cout << "canonLine: " << l ;
-            myLine = l;
-        }
-        std::string myLine;
-};
-*/
-
-
-//#include "machineStatus.hh"
-
-//#include "nanotimer.hh"
-//#include "uio.hh"  // tokenizer
-
 
 /**
 \class g2m
@@ -69,66 +46,19 @@ It runs the interpreter, and creates a canonLine object for each canonical
 class g2m : public QObject {
   Q_OBJECT;
   public:
-    g2m(  )  {
-        std::cout << "g2m() ctor\n";
-    }
-
-    //void start (QString file);
-    //bool isOK() {return success;};
+    g2m()  { }
     void interpret_file();
-
-  //public slots:
-    
-    //void slotToggleSolid();
-    
-  protected:
-    //QAction* solidAction;
-    //TopoDS_Shape workpiece;
-    
-    //void subtractWorkpiece(uint index);
-    //void createBlankWorkpiece();
-    //double minToolLength;
-    
+  protected:    
     bool chooseToolTable();
     void interpret();
     bool processCanonLine(std::string l);
     bool startInterp(QProcess &tc);
     void infoMsg(std::string s);
     void sleepSecond();
-    void sleep(double t);
-    
+
     static std::vector<canonLine*> lineVector;
     QString file;
     QString tooltable;
-    
-    //bool solidToggle;
-    //bool fromCmdLine;
-    //bool success;
-    //bool debug;
-    //void statusBarUp(QString s, double avgtime);
-    //void makeSolid(uint index);
-    //static bool interpDone;
-   
-    
-    ///used to determine if a shape needs to be dumped
-    //inline bool shouldDump(int a,bool dumpPrev = false) {
-    //    int d=uio::getDump();
-    //    return( uio::debuggingOn() && ( (d==-1) || (d==a) || (dumpPrev && (d==a+1)) ) );
-    //};
-    ///dump shape s to file named n
-    //inline void dumpBrep(std::string n, TopoDS_Shape s) {
-    //    BRepTools::Write(s,n.c_str());
-    //};
-    
-    // OCC-stuff?
-    //TopoDS_Shape heal(const TopoDS_Shape & s, uint index);
-
-    //functions overridden by g2m_threaded to make threading work
-    //virtual void finishAllSolids(nanotimer &timer);
-    //virtual void createThreads() {};
-    //virtual void lockMutex() {};
-    //virtual void unlockMutex() {};
-    //virtual void waitOnThreads(nanotimer &timer) {};
 
 };
 

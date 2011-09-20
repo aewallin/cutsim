@@ -22,27 +22,20 @@
 
 #include <map>
 #include <limits.h> //to fix "error: INT_MIN was not declared in this scope"
-//#include <Bnd_Box.hxx>
-//#include <TopoDS_Edge.hxx>
-//#include <gp_Pnt.hxx>
 
-//#include "tool.hh"
-//#include "canon.hh"
 
 #include "point.hpp"
 
 enum CANON_PLANE {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ};
+enum SPINDLE_STATUS {OFF,CW,CCW,BRAKE};
+enum MOTION_TYPE { NOT_DEFINED, MOTIONLESS, HELICAL, STRAIGHT_FEED, TRAVERSE };
+
 struct coolantStruct {
     bool flood; 
     bool mist; 
     bool spindle;
 };
-enum SPINDLE_STATUS {OFF,CW,CCW,BRAKE};
 
-enum MOTION_TYPE { NOT_DEFINED, MOTIONLESS, HELICAL, STRAIGHT_FEED, TRAVERSE };
-struct pntPair {
-    Point a,b;
-};
 
 typedef int toolNumber;
 
@@ -59,13 +52,14 @@ class machineStatus {
   protected:
     gp_Ax1 startPose, endPose;
     double F,S;  //feedrate, spindle speed
-    SPINDLE_STATUS spindleStat;
+    
     coolantStruct coolant;
     gp_Dir startDir, endDir, prevEndDir;
     bool first,lastMotionWasTraverse;
-    //static Bnd_Box traverseBbox,feedBbox;
-    MOTION_TYPE motionType;
     toolNumber myTool;
+    
+    MOTION_TYPE motionType;
+    SPINDLE_STATUS spindleStat;
     CANON_PLANE plane;
   public:
     machineStatus(machineStatus const& oldStatus);
@@ -95,9 +89,7 @@ class machineStatus {
     void clearAll(void);
     bool isFirst() {return first;};
     toolNumber getToolNum() {return myTool;};
-    //void addArcToBbox(TopoDS_Edge e); //LINEAR_* is added automagically
-    //static pntPair getTraverseBounds();  //bnd_box for *_TRAVERSE
-    //static pntPair getFeedBounds(); //bnd_box for *_FEED
+
 
   private:
     machineStatus();  //prevent use of this ctor by making it private 

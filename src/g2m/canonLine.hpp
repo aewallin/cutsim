@@ -25,28 +25,10 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
-
 #include <limits.h>
 
-//#include <Handle_AIS_Shape.hxx>
-
-//#include "canon.hh"
 #include "machineStatus.hpp"
 #include "point.hpp"
-//#include "tool.hh"
-
-//TODO: add methods to set and get display options for the obj - i.e. color, shading, ...
-//so objs with trouble can be highlighted. same for start and end move, rapid, canned cycles(?), ...
-
-//enum DISPLAY_MODE { NO_DISP,           //this object is not displayed
-//                    THIN_MOTION,       //show myUnSolid for canonMotion, and nothing else
-//                   THIN,              //show myUnSolid for all
-//                    ONLY_MOTION,       //show myShape for canonMotion, or myUnSolid if solid fails
-//                    BEST               //show solid where possible, myUnSolid otherwise
-//                  };
-
-
-
 
 /**
 \class canonLine
@@ -64,21 +46,15 @@ class canonLine {
     const gp_Ax1 getEnd() {return status.getEndPose(); };
     int getN(); //returns the number after N on the line, -1 if none
     int getLineNum() {return tok2i(0);} //returns the canon line number
-    
-    const machineStatus* getStatus() {return &status;} //returns the machine's status after execution of this canon line
-    
-    // produce a canonLine based on string l, and previous machineStatus s
-    static canonLine* canonLineFactory (std::string l, machineStatus s);
     const std::string getCanonType();
-    
-    //virtual void display()=0;
+    const machineStatus* getStatus() {return &status;} //returns the machine's status after execution of this canon line
     virtual MOTION_TYPE getMotionType() { return NOT_DEFINED;} //= 0;
     virtual bool isMotion() {return false;} // = 0;
     virtual bool isNCend() {return false;}
     
-    //void setDispMode(DISPLAY_MODE m) {dispMode = m;};
-    //void setSolidDone() {solidIsDone=true;};
-    //bool isSolidDone() {return solidIsDone;};
+    // produce a canonLine based on string l, and previous machineStatus s
+    static canonLine* canonLineFactory (std::string l, machineStatus s);
+    
     inline std::string cantok(unsigned int n) {
       if (n < canonTokens.size()) {
         return canonTokens[n]; 
@@ -89,41 +65,25 @@ class canonLine {
       }
     }
     const std::string getLnum();
-    //bool checkErrors() {return solidErrors && unsolidErrors;};
-    //const TopoDS_Shape& getUnSolid() {return myUnSolid;};
-    //virtual const TopoDS_Shape& getShape()=0;
     
   protected:
-    canonLine(std::string canonL, machineStatus prevStatus); // protected, create through factory
-    std::string myLine;
-    machineStatus status; //the machine's status *after* execution of this canon line
-    std::vector<std::string> canonTokens; // the tokens are here, after tokenizing myLine
-    
+    // protected ctor, create through factory
+    canonLine(std::string canonL, machineStatus prevStatus); 
     double tok2d(unsigned int n);
     int tok2i(unsigned int n, unsigned int offset=0);
-    void tokenize();
-    void tokenize(std::string str, std::vector<std::string>& tokenV, const std::string& delimiters = "(), ");
-    
+    void tokenize(std::string str, std::vector<std::string>& tokenV, const std::string& delimiters = "(), ");    
     const std::string getCanonicalCommand();
-
-    //TODO: color the displayed shape if one or both of these are true
-    //bool solidErrors;
-    //bool unsolidErrors;
-    //bool solidIsDone;
     
     ///return true if the canonical command for this line matches 'm'
     inline bool cmdMatch(std::string m) {
-      if (canonTokens.size() < 3)
-        return false;
-      return (m.compare(canonTokens[2]) == 0); //compare returns zero for a match
+        if (canonTokens.size() < 3)
+            return false;
+        return (m.compare(canonTokens[2]) == 0); //compare returns zero for a match
     };
 
-    //DISPLAY_MODE dispMode;
-    /** \var myUnSolid
-    Use to store a 2d shape for non-motion commands, or to store the tool path for motion.
-    */
-    //TopoDS_Shape myUnSolid;
-    //Handle(AIS_Shape) aisShape;
+    std::string myLine; // the canon-line
+    machineStatus status; //the machine's status *after* execution of this canon line
+    std::vector<std::string> canonTokens; // the tokens are here, after tokenizing myLine
 };
 
 #endif //CANONLINE_HH

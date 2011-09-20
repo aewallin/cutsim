@@ -42,8 +42,6 @@ class canonMotionless: protected canonLine {
     canonMotionless(std::string canonL, machineStatus prevStatus);
     bool isMotion() {return false;};
     MOTION_TYPE getMotionType() {return MOTIONLESS;};
-    //const TopoDS_Shape& getShape() {return canonLine::getUnSolid();};
-    //void display();
     ///returns true if this command is a valid terminator for the NC file (i.e.
     bool isNCend() {return ncEnd;};
   protected:

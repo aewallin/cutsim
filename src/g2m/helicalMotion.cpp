@@ -20,29 +20,8 @@
 #include <string>
 #include <climits>
 
-/*
-#include <Precision.hxx>
-#include <Handle_Geom_CylindricalSurface.hxx>
-#include <Geom_CylindricalSurface.hxx>
-#include <Geom2d_TrimmedCurve.hxx>
-#include <BRepAdaptor_Curve.hxx>
-#include <GC_MakeArcOfCircle.hxx>
-#include <GC_MakeCircle.hxx>
-#include <BRepBuilderAPI_MakeEdge.hxx>
-#include <GCE2d_MakeSegment.hxx>
-#include <GeomAPI_ProjectPointOnSurf.hxx>
-#include <TopoDS_Edge.hxx>
-#include <TopoDS.hxx>
-#include <gp_Ax1.hxx>
-#include <gp_Ax2.hxx>
-#include <BRepBuilderAPI_MakeFace.hxx>
-#include <BRepBuilderAPI_Transform.hxx>
-#include <TopExp_Explorer.hxx>
-*/
-
 #include "helicalMotion.hpp"
 #include "machineStatus.hpp"
-//#include "uio.hh"
 
 helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
     status.setMotionType(HELICAL);
@@ -235,48 +214,3 @@ void helicalMotion::arc(gp_Pnt start, gp_Pnt end) {
   }*/
   
 }
-
-/*
-void helicalMotion::arc(gp_Pnt start, gp_Vec startVec, gp_Pnt end) {
-  if (uio::debuggingOn()) cout << "arc" << endl;
-  Handle(Geom_TrimmedCurve) Tc;
-  Tc = GC_MakeArcOfCircle ( start, startVec, end );
-  myUnSolid = BRepBuilderAPI_MakeEdge ( Tc );
-}
-*/
-
-///build solid from faces FIXME INCOMPLETE
-
-/*
-void helicalMotion::assembleSolid() {
-  gp_Pnt a,b;
-  a = status.getStartPose().Location();
-  b = status.getEndPose().Location();
-
-  gp_Trsf ta;
-  ta.SetTranslation(gp::Origin(),a);
-  gp_Trsf tar = trsfRotDirDir(gp::DY(),status.getStartDir());
-  gp_Trsf tb;
-  tb.SetTranslation(gp::Origin(),a);
-  gp_Trsf tbr = trsfRotDirDir(gp::DY(),status.getEndDir());
-
-  TopoDS_Wire tool = TopoDS::Wire(getTool(status.getToolNum())->getProfile());
-  TopoDS_Face toolb = BRepBuilderAPI_MakeFace(tool);
-  TopoDS_Face toola = toolb; //for end a
-
-  BRepBuilderAPI_Transform(toola,tar); //rotate
-  BRepBuilderAPI_Transform(toola,ta); //shift from origin to start
-  BRepBuilderAPI_Transform(toolb,tbr); //rotate
-  BRepBuilderAPI_Transform(toolb,tb);  //shift
-
-
-
-  TopExp_Explorer ex(toola,TopAbs_VERTEX);
-  for (;ex.More();ex.Next()) {
-    //for each vertex, get an edge and trsf it to start at that vertex
-    //TODO use helix() or arc() to create those edges - should be one for each side
-    //TODO make changes to ctor to save some useful data - i.e. axis, radius, etc
-    //TODO use bool planar
-  }
-
-}*/

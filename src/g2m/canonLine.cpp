@@ -24,28 +24,17 @@
 
 #include <cassert>
 
-//#include <Precision.hxx>
-
 #include "canonLine.hpp"
 
 #include "machineStatus.hpp"
 #include "canonMotionless.hpp"
-//#include "canonMotion.hh"
 #include "linearMotion.hpp"
 #include "helicalMotion.hpp"
-//#include "uio.hh"
 
 
 // note, the constructor is protected!
-canonLine::canonLine(std::string canonL, machineStatus prevStatus): myLine(canonL), status(prevStatus) {
-                        
-
-  //myUnSolid.Nullify();
-  tokenize(); //splits myLine using delimiters
-  //solidErrors = false;
-  //unsolidErrors = false;
-  //solidIsDone = false;
-  //aisShape = 0;
+canonLine::canonLine(std::string canonL, machineStatus prevStatus): myLine(canonL), status(prevStatus) {                       
+  tokenize(myLine,canonTokens);
 }
 
 
@@ -95,11 +84,7 @@ const std::string canonLine::getLnum() {
   return ((getN()==-1) ? (cantok(0)) : (cantok(1)));
 }
 
-///tokenize myLine with the default delimiters `(), `
-///\sa uio::tokenize(std::string str,std::vector<std::string>& tokenV,const std::string& delimiters)
-inline void canonLine::tokenize() {
-  tokenize(myLine,canonTokens); 
-}
+
 
 //from http://oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
 //0 is canon line

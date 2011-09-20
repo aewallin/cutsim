@@ -19,10 +19,9 @@
 ***************************************************************************/
 #include "canonMotionless.hpp"
 #include "machineStatus.hpp"
-//#include "uio.hh"
+
 #include <string>
-//#include <BRepBuilderAPI_MakeVertex.hxx>
-//#include <AIS_Shape.hxx>
+
 
 canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):canonLine(canonL, prevStatus) {
     match = true;
@@ -153,14 +152,3 @@ canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):c
         std::cout << m;
     }
 }
-
-/*
-void canonMotionless::display() {
-  if ((dispMode == THIN) || (dispMode == BEST)) {
-    aisShape = new AIS_Shape(myUnSolid);
-  } else return;
-//  uio::context()->SetMaterial ( aisShape, NoM, Standard_True );
-//  uio::context()->SetDisplayMode ( aisShape,Standard_Integer(dMode),Standard_False );
-  uio::context()->Display ( aisShape );
-}*/
-

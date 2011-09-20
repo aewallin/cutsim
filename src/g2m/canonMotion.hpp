@@ -25,15 +25,9 @@
 #include <cmath>
 #include <limits.h>
 
-//#include <TopoDS_Edge.hxx>
-//#include <TopoDS_Shape.hxx>
-
 #include "machineStatus.hpp"
 #include "canonLine.hpp"
 
-//for STRAIGHT_TRAVERSE, STRAIGHT_FEED, ARC_FEED
-
-//enum SOLID_MODE { SWEPT,BRUTEFORCE,ASSEMBLED };
 /**
 \class canonMotion
 \brief This class is for the canonical commands STRAIGHT_TRAVERSE, STRAIGHT_FEED, and ARC_FEED.
@@ -52,27 +46,10 @@ Also, rapid and traverse are used interchangeably, at least in my comments...
 class canonMotion: protected canonLine {
   public:
     virtual MOTION_TYPE getMotionType() {return NOT_DEFINED;}
-    //virtual const TopoDS_Shape& getShape() = 0;
-    //TopoDS_Shape toolAtStart();
     bool isMotion() {return true;};
-    //bool solErrors() {return solidErrors;};
-    //bool isVolumeSuspect() {return sweepIsSuspect;};
-    //void setSolidMode(SOLID_MODE s) {solidMode = s;};
-    //void computeSolid();
-    //void display();
   protected:
     canonMotion(std::string canonL, machineStatus prevStatus);
-    //TopoDS_Shape myShape;
     gp_Ax1 getPoseFromCmd();
-    //bool sweepIsSuspect;
-    //void sweepSolid();
-    //void dumpSweep();
-    //void dumpSubtract();
-    //void bruteForceSolid();
-    //virtual void assembleSolid()=0;
-    //gp_Trsf trsfRotDirDir(gp_Dir first, gp_Dir second,gp_Pnt center = gp::Origin());
-    //void addToolMaybe();
-    //SOLID_MODE solidMode;
 };
 
 #endif //CANONMOTION_HH

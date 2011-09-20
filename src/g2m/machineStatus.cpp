@@ -18,18 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-//#include <BRepBndLib.hxx>
-//#include <Bnd_Box.hxx>
-
 #include <iostream>
 #include <sstream>
 
 #include "machineStatus.hpp"
-//#include "uio.hh"
 
-//millTool* machineStatus::theTool = 0;
-//Bnd_Box machineStatus::traverseBbox;
-//Bnd_Box machineStatus::feedBbox;
 
 machineStatus::machineStatus(const machineStatus& oldStatus) {
     //FIXME: segfault on next line when modelling a second file?!
@@ -99,48 +92,19 @@ void machineStatus::setMotionType(MOTION_TYPE m) {
 
 
 /** \fn setEndPose
-Set end points, and call addToBounds to add points to bndbox. For an arc or helix, the edge must be added from its ctor with addArcToBbox.
+Set end points, and call addToBounds to add points to bndbox. For an arc or helix,
+*  the edge must be added from its ctor with addArcToBbox.
 \sa addArcToBbox(TopoDS_Edge e)
 */
 void machineStatus::setEndPose(gp_Pnt p) {
   endPose = gp_Ax1( p, gp_Dir(0,0,1) );
-  //addToBounds();
+
 }
 void machineStatus::setEndPose(gp_Ax1 newPose) {
   endPose = newPose;
-  //addToBounds();
+
 }
 
-
-/*
-void machineStatus::addToBounds() {
-  if (first) {
-    if (uio::debuggingOn()) infoMsg("not adding to bndbox");
-    return;
-  }
-  if (motionType == NOT_DEFINED) {
-    if (uio::debuggingOn()) infoMsg("error, mtype not defined");
-  } else if (motionType == STRAIGHT_FEED) {
-    if (uio::debuggingOn()) infoMsg("adding to feed bndbox");
-    gp_Pnt a,b;
-    a=startPose.Location();
-    b=endPose.Location();
-
-    ///don't add the start of a vertical STRAIGHT_FEED if the previous motion was TRAVERSE
-    //what about the end of a vert S_F when next motion is TRAVERSE? pita to implement...
-    double angTol = .0175;
-    if (a.SquareDistance(b)>Precision::Confusion() && !( gp_Vec(a,b).IsParallel(gp::DZ(),angTol) && lastMotionWasTraverse )) {
-      feedBbox.Add(a);
-    }
-    feedBbox.Add(b);
-  } else if (motionType == TRAVERSE) {
-    if (uio::debuggingOn()) infoMsg("adding to traverse bndbox");
-    traverseBbox.Add(startPose.Location());
-    traverseBbox.Add(endPose.Location());
-  } else {
-    //if (uio::debuggingOn()) infoMsg("warning, motion type = "+uio::toString(motionType));
-  }
-}*/
 
 void machineStatus::setTool(toolNumber n) {
     //std::cout << "adding tool " << n << ".\n";
@@ -148,51 +112,7 @@ void machineStatus::setTool(toolNumber n) {
     //canon::addTool(n);
 }
 
-///if not first, add an arc or helix to feedBbox. STRAIGHT_* is added in setEndPose()
-/*
-void machineStatus::addArcToBbox(TopoDS_Edge e) {
-  if (!first) {
-    infoMsg("adding to bndbox");
-    BRepBndLib::Add(e,feedBbox);
-  }
-}*/
 
 
-/*
-pntPair machineStatus::getTraverseBounds() {
-  pntPair b;
-  if (!traverseBbox.IsVoid()) {
-    double aXmin,aYmin,aZmin, aXmax,aYmax,aZmax;
-    traverseBbox.Get (aXmin,aYmin,aZmin, aXmax,aYmax,aZmax );
-    b.a=gp_Pnt(aXmin,aYmin,aZmin);
-    b.b=gp_Pnt(aXmax,aYmax,aZmax);
-  } else {
-    b.a=gp_Pnt(0,0,0);
-    b.b=gp_Pnt(0,0,0);
-  }
-  return b;
-}*/
 
-/*
-pntPair machineStatus::getFeedBounds() {
-  double aXmin,aYmin,aZmin, aXmax,aYmax,aZmax;
-  pntPair b;
-  int fail = 0;
-  if (!feedBbox.IsVoid()) {
-    try {
-      feedBbox.Get ( aXmin,aYmin,aZmin, aXmax,aYmax,aZmax );
-      b.a=gp_Pnt(aXmin,aYmin,aZmin);
-      b.b=gp_Pnt(aXmax,aYmax,aZmax);
-    } catch (Standard_ConstructionError) {
-      fail = 1;
-    }
-  } else {
-    fail = 2;
-  }
-  if (fail) {
-    uio::infoMsg("feedBbox problem - " + uio::toString(fail));
-    abort();
-  }
-  return b;
-}*/
 

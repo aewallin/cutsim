@@ -20,19 +20,17 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 **************************************************************************/
 
-
 #include <cstdio>
 #include <QString>
-//#include "uio.hh"
 
 #include "nanotimer.hpp"
 
 //clock_gettime requires librt
 //CLOCK_MONOTONIC_RAW requires kernel 2.6.28 and libc6 >> 2.11.2
 //with earlier kernels use CLOCK_MONOTONIC or CLOCK_REALTIME
-//#ifndef CLOCK_MONOTONIC_RAW
-//#define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
-//#endif
+#ifndef CLOCK_MONOTONIC_RAW
+#define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
+#endif
 
 
 void nanotimer::start() {
@@ -56,18 +54,18 @@ double nanotimer::getElapsedS(){
 }
 
 QString nanotimer::humanreadable(double s) {
-  QString out;// = "";
+  QString out;
   if (s > 60) {
     int m;
     m = s/60;
     s = s-(double)(m*60);
-    out = m /*uio::toString(m)*/ + QString("m, ");
+    out = QString::number(m)  + QString("m, ");
   }
   if (s > .01) {
-    out += s; /*uio::toString(s)*/ 
+    out += QString::number(s); 
     out += "s";
   } else {
-    out = s*1000000; /*uio::toString(s*1000000)*/ 
+    out = QString::number(s*1000000); 
     out += "us";
   }
   return out;
@@ -85,9 +83,3 @@ void timer::stopTimer( ) {
   return res.tv_sec + res.tv_usec/1000000.0; // 10^6 uSec per second
 }*/
 
-/* more accurate
-!!! REQUIRES librt.so
-timespec ts;
-clock_gettime(CLOCK_REALTIME, &ts); // Works on Linux
-CLOCK_MONOTONIC_RAW // kernel 2.6.28+
-*/
