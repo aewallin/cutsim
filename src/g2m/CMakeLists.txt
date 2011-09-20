@@ -15,9 +15,9 @@ set ( g2m_HDRS
     #canon.hh
     canonLine.hpp
     canonMotionless.hpp
-    #canonMotion.hh
-    #linearMotion.hh
-    #helicalMotion.hh
+    canonMotion.hpp
+    linearMotion.hpp
+    helicalMotion.hpp
     #tool.hh
     machineStatus.hpp
     nanotimer.hpp
@@ -29,9 +29,9 @@ set ( g2m_SRCS
     #canon.cc
     canonLine.cpp
     canonMotionless.cpp
-    #canonMotion.cc
-    #linearMotion.cc
-    #helicalMotion.cc
+    canonMotion.cpp
+    linearMotion.cpp
+    helicalMotion.cpp
     #tool.cc
     machineStatus.cpp
     nanotimer.cpp

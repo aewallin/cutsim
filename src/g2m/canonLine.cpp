@@ -31,8 +31,8 @@
 #include "machineStatus.hpp"
 #include "canonMotionless.hpp"
 //#include "canonMotion.hh"
-//#include "linearMotion.hh"
-//#include "helicalMotion.hh"
+#include "linearMotion.hpp"
+#include "helicalMotion.hpp"
 //#include "uio.hh"
 
 
@@ -148,19 +148,15 @@ canonLine * canonLine::canonLineFactory (std::string l , machineStatus s) {
     std::cout << l; // print the line
     if ( (cmnt!=std::string::npos) || (msg!=std::string::npos) ) {
         std::cout << " MotionLess \n";
-        //return new canonLine(l,s);
         return new canonMotionless(l,s); // comment or message, no motion
     } else if (lin!=std::string::npos) { 
-        std::cout << " linearMotion \n";
-        return new canonLine(l,s);
-        //return new linearMotion(l,s);  // straight traverse or straight feed
+        // std::cout << " linearMotion \n";
+        return new linearMotion(l,s);  // straight traverse or straight feed
     } else if (af!=std::string::npos) { 
         std::cout << " helicalMotion \n";
-        return new canonLine(l,s);
-        //return new helicalMotion(l,s); // arc or helix
+        return new helicalMotion(l,s); // arc or helix
     } else { 
         std::cout << " not motion command canonMotionless \n";
-        //return new canonLine(l,s);
         return new canonMotionless(l,s); //canonical command is not a motion command
     }
 }

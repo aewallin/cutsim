@@ -356,7 +356,7 @@ bool g2m::processCanonLine (std::string l) {
         cl = canonLine::canonLineFactory(l, machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )  ); //,  machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )   ); 
     } else {
         // use the last element status
-        cl = canonLine::canonLineFactory(l, machineStatus( gp_Ax1(gp_Pnt(0,0,0),gp_Dir(0,0,1)) )  ); //,  *(lineVector.back())->getStatus()  ); 
+        cl = canonLine::canonLineFactory(l,  *(lineVector.back())->getStatus()  ); 
     }
     
     lineVector.push_back(cl); // cl stored here!
