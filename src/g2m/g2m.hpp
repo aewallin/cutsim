@@ -42,7 +42,7 @@ class canonLine {
         }
     protected:
         canonLine(std::string l) {
-            std::cout << "canonLine: " << l << "\n";
+            std::cout << "canonLine: " << l ;
             myLine = l;
         }
         std::string myLine;
@@ -63,10 +63,13 @@ It runs the interpreter, and creates a canonLine object for each canonical
 * Eventually it will enable the user to see which gcode line creates which 
 * bit of the path, and vice versa.
 */
-class g2m: public QObject {
+class g2m : public QObject {
   Q_OBJECT;
   public:
-    g2m();
+    g2m(  )  {
+        std::cout << "g2m() ctor\n";
+    }
+
     //void start (QString file);
     //bool isOK() {return success;};
     void interpret_file();
@@ -88,7 +91,7 @@ class g2m: public QObject {
     bool processCanonLine(std::string l);
     bool startInterp(QProcess &tc);
     void infoMsg(std::string s);
-    //void sleepSecond();
+    void sleepSecond();
     
     static std::vector<canonLine*> lineVector;
     QString file;

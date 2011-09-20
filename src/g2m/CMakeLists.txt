@@ -5,7 +5,6 @@ add_definitions ( -Wall )
 
 find_package ( Qt4 REQUIRED )
 
-
 include ( ${QT_USE_FILE} )
 include_directories (
     ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
@@ -41,7 +40,7 @@ set ( g2m_SRCS
 set ( g2m_MOCS g2m.hpp )
 QT4_WRAP_CPP(MOCS ${g2m_MOCS})
 
-add_library ( g2m SHARED ${g2model_SRCS}  ${MOCS} ) # ${g2m_HDRS} 
+add_library ( g2m SHARED ${g2m_SRCS}  ${MOCS}  ) # ${g2m_HDRS} 
 target_link_libraries ( g2m  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} )
 
 # install the shared library

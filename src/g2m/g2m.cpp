@@ -75,7 +75,8 @@
 std::vector<canonLine*> g2m::lineVector;
 //bool g2m::interpDone = false;
 
-g2m::g2m() {
+//g2m::g2m() {
+//    std::cout << "g2m() ctor\n";
     //QMenu* myMenu = new QMenu("gcode");
 
     //QAction* myAction = new QAction ( "Create 3D Model...", this );
@@ -112,7 +113,7 @@ g2m::g2m() {
         }
     }
     * */
-}
+//}
 
 /*
 void g2m::slotToggleSolid() {
@@ -220,8 +221,9 @@ bool g2m::chooseToolTable() {
   }
   tooltable = QFileDialog::getOpenFileName ( uio::window(), "Locate tool table", loc, "EMC2 new-style tool table (*.tbl)" );
     */
-  tooltable = "test.tbl";
+  tooltable = "table.tbl";
   if (!QFileInfo(tooltable).exists()){
+    infoMsg(" cannot find tooltable! ");
     return false;
   }
   // uio::conf().setValue("rs274/tool-table",tooltable);
@@ -248,7 +250,7 @@ bool g2m::startInterp(QProcess &tc) {
     }*/
     
     
-    interp = "rs274";
+    interp = "/home/anders/emc2-dev/bin/rs274";
     
     if (!chooseToolTable())
         return false;
@@ -303,12 +305,15 @@ void g2m::interpret() {
           if (lineLength != -1 ) {
             foundEOF = processCanonLine(line); // line is a canon-line
           } else {  //shouldn't get here!
+          
+            std::cout << " ERROR: lineLength= " << lineLength << "  fails="<< fails << "\n";
             fails++;
             //sleepSecond();
           }
         } else {
-          fails++;
-          //sleepSecond();
+            std::cout << " ERROR: toCanon.canReadLine() fails="<< fails << "\n";
+            fails++;
+            sleepSecond();
         }
     } while ( (fails < 100) &&
            ( (toCanon.canReadLine()) ||
@@ -389,15 +394,15 @@ void g2m::statusBarUp(QString s, double avgtime) {
 }*/
 
 ///Sleep 1s and process events
-/*
+
 void g2m::sleepSecond() {
-    uio::window()->statusBar()->clearMessage();
-    uio::window()->statusBar()->showMessage("Waiting for interpreter...");
+    //uio::window()->statusBar()->clearMessage();
+    std::cout << "Waiting for interpreter... \n";
     QTime dieTime = QTime::currentTime().addSecs(1);
     while( QTime::currentTime() < dieTime )
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 100);
     return;
-}*/
+}
 
 void g2m::infoMsg(std::string s) {
     std::cout << s << std::endl;
