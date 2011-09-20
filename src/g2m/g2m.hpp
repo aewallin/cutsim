@@ -92,6 +92,7 @@ class g2m : public QObject {
     bool startInterp(QProcess &tc);
     void infoMsg(std::string s);
     void sleepSecond();
+    void sleep(double t);
     
     static std::vector<canonLine*> lineVector;
     QString file;
