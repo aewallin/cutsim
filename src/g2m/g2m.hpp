@@ -48,18 +48,26 @@ class g2m : public QObject {
   public:
     g2m()  { }
     void interpret_file();
+    void setFile(std::string infile) {
+        file = QString::fromStdString(infile);
+    }
+    void setToolTable(std::string tbl_file) {
+        tooltable = QString::fromStdString(tbl_file);
+    }
+    void setInterp(std::string interp_binary) {
+        interp = QString::fromStdString(interp_binary);
+    }
   protected:    
     bool chooseToolTable();
     void interpret();
     bool processCanonLine(std::string l);
     bool startInterp(QProcess &tc);
     void infoMsg(std::string s);
-    void sleepSecond();
 
     static std::vector<canonLine*> lineVector;
     QString file;
     QString tooltable;
-
+    QString interp;
 };
 
 #endif //GTOM_HH

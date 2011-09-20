@@ -60,7 +60,7 @@ void g2m::interpret_file() {
 */
   nanotimer timer;
   timer.start();
-   file = "cds.ngc";
+
    
   if ( file.endsWith(".ngc") ) {
     interpret(); // reads from file
@@ -123,7 +123,6 @@ bool g2m::chooseToolTable() {
   }
   tooltable = QFileDialog::getOpenFileName ( uio::window(), "Locate tool table", loc, "EMC2 new-style tool table (*.tbl)" );
     */
-  tooltable = "tooltable.tbl";
   if (!QFileInfo(tooltable).exists()){
     infoMsg(" cannot find tooltable! ");
     return false;
@@ -133,27 +132,7 @@ bool g2m::chooseToolTable() {
 }
 
 bool g2m::startInterp(QProcess &tc) {
-    //bool success = true;
-    QString interp;
 
-    //  if the user has specified a location for the interpreter, use it. if not, guess.
-    //  if that fails, ask. save the result.
-    //  QSettings settings("camocc.googlecode.com","cam-occ");
-    
-    /*
-    interp = uio::conf().value("rs274/binary","/usr/bin/rs274").toString();
-    if (!QFileInfo(interp).isExecutable()) {
-        uio::infoMsg("Tried to use " + interp.toStdString() + " as the interpreter, but it doesn't exist or isn't executable.");
-        interp = QFileDialog::getOpenFileName ( uio::window(), "Locate rs274 interpreter", "~", "EMC2 stand-alone interpreter (rs274)" );
-        if (!QFileInfo(interp).isExecutable()) {
-          return false;
-        }
-        uio::conf().setValue("rs274/binary",interp);
-    }*/
-    
-    
-    interp = "/home/anders/emc2-dev/bin/rs274";
-    
     if (!chooseToolTable())
         return false;
     
@@ -182,9 +161,6 @@ void g2m::interpret() {
     
     if (!startInterp(toCanon)) // finds rs274, reads tooltable, start interpreter
         return;
-
-    //uio::window()->statusBar()->clearMessage();
-    //uio::window()->statusBar()->showMessage("Starting interpreter...");
     
     if (!toCanon.waitForReadyRead(1000) ) {
         if ( toCanon.state() == QProcess::NotRunning ){
@@ -196,28 +172,23 @@ void g2m::interpret() {
         toCanon.close();
         return;
     }
-    // rs274  has now run correctly?
+    
+    // rs274  has now started correctly, and is ready to read ngc-file
     qint64 lineLength;
     char line[260];
     int fails = 0;
-  
     do {
         if (toCanon.canReadLine()) {
-          lineLength = toCanon.readLine(line, sizeof(line));
+          lineLength = toCanon.readLine(line, sizeof(line)); // read one output line from rs274
           if (lineLength != -1 ) {
             foundEOF = processCanonLine(line); // line is a canon-line
-            //lineVector.resize( lineVector.size() +1 );
-            //sleep(0.1);
           } else {  //shouldn't get here!
-          
             std::cout << " ERROR: lineLength= " << lineLength << "  fails="<< fails << "\n";
             fails++;
-            //sleepSecond();
           }
         } else {
             std::cout << " ERROR: toCanon.canReadLine() fails="<< fails << "\n";
             fails++;
-            sleepSecond();
         }
         toCanon.waitForReadyRead();
     } while ( (fails < 100) &&
@@ -279,26 +250,11 @@ bool g2m::processCanonLine (std::string l) {
     
     
     // return true when we reach end-of-program
-    
     if (!cl->isMotion())
         return  cl->isNCend();
-    
-        
+
     return false;
 }
-
-
-///Sleep 1s and process events
-void g2m::sleepSecond() {
-    std::cout << "Waiting for interpreter... (ERROR ?) \n";
-    sleep(1);
-    QTime dieTime = QTime::currentTime().addSecs(1);
-    while( QTime::currentTime() < dieTime )
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 100);
-    return;
-}
-
-
 
 void g2m::infoMsg(std::string s) {
     std::cout << s << std::endl;

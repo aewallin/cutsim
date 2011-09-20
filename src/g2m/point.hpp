@@ -24,15 +24,18 @@ struct Point {
 typedef Point gp_Dir;
 typedef Point gp_Pnt;
 
-struct gp_Ax1 {
-    gp_Ax1() {}
-    gp_Ax1( gp_Pnt a, gp_Dir b ) {
+
+
+struct Pose {
+    Pose() {}
+    Pose( Point a, Point b ) {
         loc = a;
-        vdir = b;
+        dir = b;
     }
     Point loc;
-    Point vdir;
+    Point dir;
 };
 
+typedef Pose gp_Ax1;
 
 #endif 

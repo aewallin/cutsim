@@ -84,8 +84,6 @@ const std::string canonLine::getLnum() {
   return ((getN()==-1) ? (cantok(0)) : (cantok(1)));
 }
 
-
-
 //from http://oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
 //0 is canon line
 //1 is gcode Nnnnnn line
@@ -96,9 +94,9 @@ const std::string canonLine::getLnum() {
 \param delimiters defaults to: both parenthesis, comma, space
 \sa tokenize()
 */
-void canonLine::tokenize(std::string str,
-             std::vector<std::string>& tokenV,
-             const std::string& delimiters) {
+void canonLine::tokenize(   std::string str,
+                            std::vector<std::string>& tokenV,
+                            const std::string& delimiters       ) {
   // Skip delimiters at beginning.
   std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
   // Find first "non-delimiter".
@@ -135,7 +133,6 @@ canonLine * canonLine::canonLineFactory (std::string l , machineStatus s) {
         std::cout << " MotionLess \n";
         return new canonMotionless(l,s); // comment or message, no motion
     } else if (lin!=std::string::npos) { 
-        // std::cout << " linearMotion \n";
         return new linearMotion(l,s);  // straight traverse or straight feed
     } else if (af!=std::string::npos) { 
         std::cout << " helicalMotion \n";
