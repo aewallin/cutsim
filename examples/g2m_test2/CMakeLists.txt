@@ -1,4 +1,4 @@
-project(g2m_example1)
+project(g2m_example2)
 
 cmake_minimum_required(VERSION 2.4)
 

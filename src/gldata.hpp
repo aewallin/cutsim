@@ -38,31 +38,7 @@ namespace cutsim {
 /// a vertex/point in 3D, with (x,y,z) coordinates of type GLfloat
 /// normal is (nx,ny,nz)
 /// color is (r,g,b)
-/*
-struct GLVertex {
-    GLVertex() : x(0), y(0), z(0), r(0), g(0), b(0) {}
-    GLVertex(GLfloat x, GLfloat y, GLfloat z) 
-         : x(x), y(y), z(z), r(0), g(0), b(0) {}
-    GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) 
-         : x(x), y(y), z(z), r(r), g(g), b(b) {}
-    void setNormal(GLfloat x, GLfloat y, GLfloat z) {
-        nx=x;
-        ny=y;
-        nz=z;
-        // normalize:
-        GLfloat norm = sqrt( x*x+y*y+z*z );
-        nx /= norm;
-        ny /= norm;
-        nz /= norm;
-    }
-    void str() {
-        std::cout << "(" << x << ", " << y << ", " << z << ")"; 
-    }
-// DATA
-    GLfloat x,y,z; // position
-    GLfloat r,g,b; // color, 12-bytes offset from position data.
-    GLfloat nx,ny,nz; // normal, 24-bytes offset
-};*/
+
 
 class Octnode;
 
@@ -158,6 +134,8 @@ public:
     void setQuads() {setType(GL_QUADS); polyVerts=4;}
     /// set type to Points
     void setPoints() {setType(GL_POINTS); polyVerts=1;}
+    
+    void setLineStrip() {setType(GL_LINE_STRIP); polyVerts=1;}
     
     void setUsageStaticDraw() {usagePattern = QGLBuffer::StaticDraw;}
     void setUsageDynamicDraw() {usagePattern = QGLBuffer::DynamicDraw;}

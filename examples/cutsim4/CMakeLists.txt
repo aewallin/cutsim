@@ -32,9 +32,17 @@ find_library(CUTSIM_LIBRARY
             PATHS /usr/local/lib/cutsim /usr/lib/cutsim
             DOC "The cutsim library"
 )
-
-# MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 MESSAGE(STATUS "CUTSIM_LIBRARY is now: " ${CUTSIM_LIBRARY})
+
+
+find_library(G2M_LIBRARY 
+            NAMES g2m
+            PATHS /usr/local/lib/g2m /usr/lib/g2m
+            DOC "The g2m library"
+)
+MESSAGE(STATUS "G2M_LIBRARY is now: " ${G2M_LIBRARY})
+
+
 
 #set (MOC_HEADERS cutsim.hpp )
 #qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
@@ -46,6 +54,12 @@ set( OCL_TST_SRC
      # ${MOC_OUTFILES} 
 
 add_executable( ${PROJECT_NAME} ${OCL_TST_SRC} )
-target_link_libraries( ${PROJECT_NAME} ${CUTSIM_LIBRARY} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries( ${PROJECT_NAME} 
+    ${CUTSIM_LIBRARY} 
+    ${G2M_LIBRARY}
+    ${QT_LIBRARIES} 
+    ${Boost_LIBRARIES} 
+    ${OPENGL_LIBRARIES}
+    )
 
 install( TARGETS ${PROJECT_NAME} DESTINATION bin )

@@ -199,7 +199,9 @@ void GLWidget::paintGL()  {
         
         //              mode       idx-count             type             indices*/offset
         glDrawElements( g->type , g->polygonCount() , GLData::index_type, 0);
-         
+        // http://www.opengl.org/sdk/docs/man/xhtml/glDrawElements.xml
+        
+        
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
