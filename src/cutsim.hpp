@@ -36,6 +36,7 @@
 #include "volume.hpp"
 #include "marching_cubes.hpp"
 #include "gldata.hpp"
+#include "glwidget.hpp"
 
 namespace cutsim {
     
@@ -45,15 +46,20 @@ namespace cutsim {
 class Cutsim : public QObject {
     Q_OBJECT
 public:
-    Cutsim () ;
-    void setGLData(cutsim::GLData* gldata) ;
-    void updateGL() ;
+    Cutsim(GLWidget* w);
+    void setGLData();
+    void updateGL();
+    //void setVolume( OCTVolume* vol ) ;
+    void diff_volume( OCTVolume* vol );
 public slots:
     void cut() ;
 private:
-    cutsim::MarchingCubes* mc; // the isosurface-extraction algorithm to use
-    cutsim::Octree* tree; // this is the stock model
-    cutsim::GLData* g; // this is the graphics object drawn on the screen, representing the stock
+    MarchingCubes* mc; // the isosurface-extraction algorithm to use
+    Octree* tree; // this is the stock model
+    GLData* g; // this is the graphics object drawn on the screen, representing the stock
+    GLWidget* widget; // the widget where stock should be displayed
+    //OCTVolume* volume;
+    //std::vector<GLVertex> toolpos;
 };
 
 } // end namespace

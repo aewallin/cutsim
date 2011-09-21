@@ -55,6 +55,7 @@ class OCTVolume {
         }
         /// bounding-box
         Bbox bb;
+        bool invert;
 };
 
 // sub-classes of OCTVolume below:
@@ -72,7 +73,7 @@ class SphereOCTVolume: public OCTVolume {
         /// update the Bbox
         void calcBB();
         double dist(GLVertex& p) const;
-        bool invert;
+
 };
 
 /// cube at center with side-length side
