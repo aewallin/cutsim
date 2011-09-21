@@ -47,6 +47,7 @@ class canonMotion: protected canonLine {
   public:
     virtual MOTION_TYPE getMotionType() {return NOT_DEFINED;}
     bool isMotion() {return true;};
+    virtual std::vector<Point> points() = 0;
   protected:
     canonMotion(std::string canonL, machineStatus prevStatus);
     Pose getPoseFromCmd();

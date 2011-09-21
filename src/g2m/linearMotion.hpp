@@ -40,7 +40,8 @@ class linearMotion: protected canonMotion {
   public:
     linearMotion(std::string canonL, machineStatus prevStatus);
     MOTION_TYPE getMotionType();
-    void assembleSolid();
+    std::vector<Point> points();
+    Point start, end;
 };
 
 #endif //LINEARMOTION_HH

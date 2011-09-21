@@ -29,10 +29,10 @@
 linearMotion::linearMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
   status.setMotionType(getMotionType());
   status.setEndPose(getPoseFromCmd());
-  Point a,b;
-  a = status.getStartPose().loc;
-  b = status.getEndPose().loc;
-  std::cout << " linear feed: " << a.str() << " to " << b.str() << "\n";
+  //Point a,b;
+  start = status.getStartPose().loc;
+  end = status.getEndPose().loc;
+  std::cout << " linear feed: " << start.str() << " to " << end.str() << "\n";
   
   
   //TODO: add support for 5 or 6 axis motion
@@ -54,7 +54,12 @@ linearMotion::linearMotion(std::string canonL, machineStatus prevStatus): canonM
     status.setStartDir(endd); //for linearMotion, same as end.
   }*/
 }
-
+std::vector<Point> linearMotion::points() {
+    std::vector<Point> output;
+    output.push_back( start );
+    output.push_back( end );
+    return output;
+}
 //need to return RAPID for rapids...
 MOTION_TYPE linearMotion::getMotionType() {
   bool traverse = cmdMatch("STRAIGHT_TRAVERSE");

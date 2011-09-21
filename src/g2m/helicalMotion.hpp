@@ -42,18 +42,32 @@ class helicalMotion: protected canonMotion {
   public:
     helicalMotion(std::string canonL, machineStatus prevStatus);
     MOTION_TYPE getMotionType() {return HELICAL;};
-
+    std::vector<Point> points();
   private:
-    void helix();
-    void arc();
+
+    
+    // rotate by cos/sin. from emc2 gcodemodule.cc
+    static void rotate(double &x, double &y, double c, double s) {
+        double tx = x * c - y * s;
+        y = x * s + y * c;
+        x = tx;
+    }
+
+    //void arc();
     //void arc(gp_Pnt start, gp_Vec startVec, gp_Pnt end);
-    bool planar;
-    Point center;
-    Point axis;
+    //bool planar;
+    //Point center;
+    //Point axis;
     Point start, end;
-    double radius;
-    double hdist;
-    int rotation;
+    //double radius;
+    //double hdist;
+    //int rotation;
+    
+    double x1,y1,z1; // endpoint for this move
+    double a,b,c; // abc axis endpoints
+    double rot; // rotation for this move
+    double cx,cy; // center-point for this move
+
 };
 
 #endif //HELICALMOTION_HH

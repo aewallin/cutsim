@@ -28,30 +28,28 @@
 //tok: 0   1      2        3       4       5       6        7  8       9       10      11 
 helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
     
-    double a1,a2,e1,e2,e3,ea,eb,ec;
+    //double a1,a2,e1,e2,e3,ea,eb,ec;
+    
     //  x=y=z=a1=a2=e1=e2=e3=ea=eb=ec=0;
     // e = end pose position
 
     // ( comments relate to XY-plane )
     // see the rs274 spec, www.isd.mel.nist.gov/documents/kramer/RS274NGC_22.pdf or similar
-    e1 = tok2d(3); // first_end
-    e2 = tok2d(4); // second_end
-    
-    a1 = tok2d(5); // first_axis   (x-coord of centerpoint)
-    a2 = tok2d(6); // second_axis  (y-coord of centerpoint)
-    
-    rotation = tok2d(7); //rotation (ccw if rotation==1,cw if rotation==-1)
     // If rotation is positive, the arc is traversed counterclockwise as viewed from the positive end of
     // the coordinate axis perpendicular to the currently selected plane. If rotation is negative, the
     // arc is traversed clockwise.
-
-
-    e3 = tok2d(8); // z-coord of endpoint
     
-    ea = tok2d(9); //a
-    eb = tok2d(10); //b
-    ec = tok2d(11); //c
+    x1 = tok2d(3); // first_end   (x-coord of endpoint)
+    y1 = tok2d(4); // second_end  (y-coord of endpoint
+    cx = tok2d(5); // first_axis   (x-coord of centerpoint)
+    cy = tok2d(6); // second_axis  (y-coord of centerpoint)
+    rot = tok2d(7); //rotation (ccw if rotation==1,cw if rotation==-1), for multipple turns we can have -2, +2, etc.
+    z1 = tok2d(8); // z-coord of endpoint
+    a = tok2d(9);  // a
+    b = tok2d(10); // b
+    c = tok2d(11); // c
     start = status.getStartPose().loc;
+    
     /// Shuffle variables around based on the active plane.
     switch (status.getPlane()) {
         /*
@@ -59,177 +57,265 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
         ** a,b,c remain in order
         */
         case CANON_PLANE_XZ:
-            status.setEndPose(Point(e2,e3,e1));
-            axis =   Point(0,1,0); // rotate around Y-axis
-            center = Point(a2,start.y,a1);
-            hdist = e3 - start.y;
+            status.setEndPose(Point(y1,z1,x1));
+            //axis =   Point(0,1,0); // rotate around Y-axis
+            //center = Point(a2,start.y,a1);
+            //hdist = e3 - start.y;
             break;
         case CANON_PLANE_YZ:
-            status.setEndPose(Point(e3,e1,e2));
-            axis = Point(1,0,0); // rotate around X-axis
-            center = Point(start.x,a1,a2);
-            hdist = e3 - start.x;
+            status.setEndPose(Point(z1,x1,y1));
+            //axis = Point(1,0,0); // rotate around X-axis
+            //center = Point(start.x,a1,a2);
+            //hdist = e3 - start.x;
             break;
         case CANON_PLANE_XY:
             default:
-            status.setEndPose(Point(e1,e2,e3));
-            axis = Point(0,0,1); // rotate around Z-axis
-            center = Point(a1,a2,start.z);
-            hdist = e3 - start.z; // change in z-coordinate, if nonzero then this is a helix instead of an arc.
+            status.setEndPose(Point(x1,y1,z1));
+            //axis = Point(0,0,1); // rotate around Z-axis
+            //center = Point(a1,a2,start.z);
+            //hdist = e3 - start.z; // change in z-coordinate, if nonzero then this is a helix instead of an arc.
     }
     status.setMotionType(HELICAL);
-    
     end = status.getEndPose().loc; 
-    radius = start.Distance(center);
+    //radius = start.Distance(center);
+    points();
+}
+
+
+/// Create points along the helix
+#define CIRCLE_FUZZ (0.000001) // from libnml/posemath/posemath.h
+// #define M_PI (3.141592653589793)
+
+// code adapted from emc2: src/emc/rs274ngc/gcodemodule.cc 
+// function rs274_arc_to_segments()
+std::vector<Point> helicalMotion::points() {
+    unsigned int X, Y, Z; // to shuffle around coords.
+    unsigned int max_segments = 10; // specifies how many points per PI of rotation
+    double n[6], o[6];
     
-/* //skip arc if zero length; caught this bug thanks to tort.ngc
-    cout << "Skipped zero-length arc at N" << getN() << endl;
-    status.setEndDir(status.getPrevEndDir());
-    unsolidErrors = true;
-    //myUnSolid.Nullify()
-  //} else {
-*/
-    //cout << myLine; //endl supplied by helix() or arc()
-    if (fabs(hdist) > 0.000001) {
-        /// Create a helix if the third-axis delta is > .000001.
-        planar = false;
-        helix();
+    // numbering of axes, depending on plane
+    if( status.getPlane() == CANON_PLANE_XY)  { // XY-plane
+        X=0; Y=1; Z=2;
+    } else if (status.getPlane() == CANON_PLANE_YZ) { // YZ-plane
+        X=2; Y=0; Z=1;
+    } else if (status.getPlane() == CANON_PLANE_XZ) {
+        X=1; Y=2; Z=0; // XZ-plane
+    } 
+    
+    n[X] = x1; // end-point, first-coord
+    n[Y] = y1; // end-point, second-coord
+    n[Z] = z1; // end-point, third-coord, i.e helix translation
+    
+    n[3] = a;
+    n[4] = b;
+    n[5] = c;
+    
+    o[0] = start.x;
+    o[1] = start.y;
+    o[2] = start.z;
+    o[3] = 0; //FIXME
+    o[4] = 0; //FIXME
+    o[5] = 0; //FIXME
+    
+    double theta1 = atan2( o[Y]-cy, o[X]-cx); // vector from center to start
+    double theta2 = atan2( n[Y]-cy, n[X]-cx); // vector from center to end
+    
+    if(rot < 0) { // rot = -1
+        while(theta2 - theta1 > -CIRCLE_FUZZ) 
+            theta2 -= 2*M_PI;
+    } else { // rot = 1
+        while(theta2 - theta1 < CIRCLE_FUZZ) 
+            theta2 += 2*M_PI;
+    }
+    
+    // if multi-turn, add the right number of full circles
+    if(rot < -1) 
+        theta2 += 2*M_PI*(rot+1);
+    if(rot > 1) 
+        theta2 += 2*M_PI*(rot-1);
+    
+    // number of steps
+    int steps = std::max( 3, int(max_segments * fabs(theta1 - theta2) / M_PI) ); //  max_segments per M_PI of rotation
+    double rsteps = 1. / steps;
+    double dtheta = theta2 - theta1; // the rotation angle for this helix
+    // n is endpoint
+    // o is startpoint
+    // d is diff.   x,y,z,a,b,c,u,v,w 
+                // 0  1  2  3          4          5          6          7
+    double d[9] = {0, 0, 0, n[3]-o[3], n[4]-o[4], n[5]-o[5] };
+    d[Z] = n[Z] - o[Z]; // helix-translation diff
+    double tx = o[X] - cx; // center to start 
+    double ty = o[Y] - cy; // center to start
+    double dc = cos(dtheta*rsteps);  
+    double ds = sin(dtheta*rsteps);
+    std::vector<Point> output;
+    for(int i=0; i<steps; i++) {
+        double f = (i+1) * rsteps; // varies from 1/rsteps..1 (?)
+        double p[6]; // output point
+        rotate(tx, ty, dc, ds); // rotate center-start vector by a small amount
+        p[X] = tx + cx; // center + rotated point
+        p[Y] = ty + cy;
+        p[Z] = o[Z] + d[Z] * f; // start + helix-translation
+        
+        // simple proportional translation
+        p[3] = o[3] + d[3] * f;
+        p[4] = o[4] + d[4] * f;
+        p[5] = o[5] + d[5] * f;
+
+        Point pt( p[0], p[1], p[2] );
+        std::cout << " arc point: f=" << f << " pt= " << pt.str() << "\n";
+        output.push_back(pt);
+    }
+    return output;
+}
+
+
+#ifdef EMC2_GCODEMODULE_RS274ARC_CODE
+static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
+    //PyObject *canon;
+    double x1, y1, cx, cy, z1, a, b, c, u, v, w;
+    double o[9], n[9], g5xoffset[9], g92offset[9];
+    int rot, plane;
+    int X, Y, Z;
+    double rotation_cos, rotation_sin;
+    int max_segments = 128;
+
+
+    
+        
+    if(!get_attr(canon, "plane", &plane)) return NULL;
+    if(!get_attr(canon, "rotation_cos", &rotation_cos)) return NULL; // rotation-offsets
+    if(!get_attr(canon, "rotation_sin", &rotation_sin)) return NULL; // rotation-offset
+    
+    /*
+    if(!get_attr(canon, "g5x_offset_x", &g5xoffset[0])) return NULL;
+    if(!get_attr(canon, "g5x_offset_y", &g5xoffset[1])) return NULL;
+    if(!get_attr(canon, "g5x_offset_z", &g5xoffset[2])) return NULL;
+    if(!get_attr(canon, "g5x_offset_a", &g5xoffset[3])) return NULL;
+    if(!get_attr(canon, "g5x_offset_b", &g5xoffset[4])) return NULL;
+    if(!get_attr(canon, "g5x_offset_c", &g5xoffset[5])) return NULL;
+    if(!get_attr(canon, "g5x_offset_u", &g5xoffset[6])) return NULL;
+    if(!get_attr(canon, "g5x_offset_v", &g5xoffset[7])) return NULL;
+    if(!get_attr(canon, "g5x_offset_w", &g5xoffset[8])) return NULL;
+    if(!get_attr(canon, "g92_offset_x", &g92offset[0])) return NULL;
+    if(!get_attr(canon, "g92_offset_y", &g92offset[1])) return NULL;
+    if(!get_attr(canon, "g92_offset_z", &g92offset[2])) return NULL;
+    if(!get_attr(canon, "g92_offset_a", &g92offset[3])) return NULL;
+    if(!get_attr(canon, "g92_offset_b", &g92offset[4])) return NULL;
+    if(!get_attr(canon, "g92_offset_c", &g92offset[5])) return NULL;
+    if(!get_attr(canon, "g92_offset_u", &g92offset[6])) return NULL;
+    if(!get_attr(canon, "g92_offset_v", &g92offset[7])) return NULL;
+    if(!get_attr(canon, "g92_offset_w", &g92offset[8])) return NULL;
+    */
+    
+    // numbering of axes, depending on plane
+    if(plane == 1) { // XY-plane
+        X=0; Y=1; Z=2;
+    } else if(plane == 3) { // YZ-plane
+        X=2; Y=0; Z=1;
     } else {
-        /// Otherwise, create an arc.
-        planar = true;
-        arc();
+        X=1; Y=2; Z=0; // XZ-plane
     }
+    n[X] = x1; // end-point, first-coord
+    n[Y] = y1; // end-point, second-coord
+    n[Z] = z1; // end-point, third-coord, i.e helix translation
     
-
-    // FIXME - check for gaps
-
-    /// Find vector direction at start and end of the edge, and save them in status
-    double f,l,fd,ld;
-    Point fp,lp; // first point, last point
-    Point fv,lv; // first vector, last vector
-
-    //BRepAdaptor_Curve bac(TopoDS::Edge(myUnSolid));
-
-    //f = bac.FirstParameter();
-    //l = bac.LastParameter();
-    //bac.D1(f,fp,fv);
-    //bac.D1(l,lp,lv);
-
-/*
-    fd = fp.SquareDistance(start);
-    ld = lp.SquareDistance(start);
-    if ( fd > ld ) { //compare the distances to decide which one is at the start
-      //"first" end (fd) is farther from the starting point, so
-      status.setEndDir(fv);          //use first vector at end
-      status.setStartDir(lv);        //and use last vector at start
-    } else {                         //other way around
-      status.setEndDir(lv);
-      status.setStartDir(fv);
-    }*/
-    // why do we need EndDir and StartDir ?
-}
-
-
-/// Create a helix, place it in myUnSolid
-void helicalMotion::helix(  ) {
-  //if (uio::debuggingOn()) cout << "helix" << endl;
-  double pU,pV;
-  //double 
-  
-  
-    std::cout << "  helix: radius=" << radius << " rot=" << rotation << std::endl;
-    std::cout << "  helix: hdist=" << hdist <<  std::endl;
-  /*
-  gp_Pnt2d p1,p2;
-  Handle(Geom_CylindricalSurface) cyl = new Geom_CylindricalSurface(gp_Ax2(center,axis) , radius);
-  GeomAPI_ProjectPointOnSurf proj;
-  int success = 0;
-
-  //myUnSolid.Nullify();
-  //cout << "Radius " << radius << "   Rot has the value " << rotation << endl;
-  proj.Init(start,cyl);
-  if(proj.NbPoints() > 0) {
-    proj.LowerDistanceParameters(pU, pV);
-    if(proj.LowerDistance() > 1.0e-6 ) {
-      if (uio::debuggingOn())
-        cout << "Point fitting distance " << double(proj.LowerDistance()) << endl;
-    }
-    success++;
-    p1 = gp_Pnt2d(pU,pV);
-  }
-
-  proj.Init(end,cyl);
-  if(proj.NbPoints() > 0) {
-    proj.LowerDistanceParameters(pU, pV);
-    if(proj.LowerDistance() > 1.0e-6 ) {
-      if (uio::debuggingOn())
-        cout << "Point fitting distance " << double(proj.LowerDistance()) << endl;
-    }
-    success++;
-    p2 = gp_Pnt2d(pU,pV);
-  }
-
-  if (success != 2) {
-    if (uio::debuggingOn())
-      cout << "Couldn't create a helix from " << uio::toString(start) << " to " << uio::toString(end)  << ". Replacing with a line." <<endl;
-    unsolidErrors=true;
-    myUnSolid = BRepBuilderAPI_MakeEdge( start, end );
-    return;
-  }*/
-  
-  
-
-  //for the 2d points, x axis is about the circumference.  Units are radians.
-  //change direction if rotation = 1, not if rotation = -1
-  //if (rotation==1) p2.SetX((p1.X()-p2.X())-2*M_PI); << this is wrong!
-  //cout << "p1x " << p1.X() << ", p2x " << p2.X() << endl;
-
-  //switch direction if necessary, only works for simple cases
-  //should always work for G02/G03 because they are not multi-revolution
-  /*
-  if ( (rotation==1) && (p2.X() <= p1.X()) ) {
-    p2.SetX(p2.X()+2*M_PI);
-  } else if ( (rotation==-1) && (p2.X() >= p1.X()) ) {
-    p2.SetX(p2.X()-2*M_PI);
-  }
-  */
-  
-  
-    //cout << "p2x now " << p2.X() << endl;
-
-  //Handle(Geom2d_TrimmedCurve) segment = GCE2d_MakeSegment(p1 , p2);
-  //myUnSolid = BRepBuilderAPI_MakeEdge(segment , cyl);
-
-  return;
-}
-
-/// Create an arc, place it in myUnSolid
-
-void helicalMotion::arc() {
+    n[3] = a;
+    n[4] = b;
+    n[5] = c;
     
-    std::cout << " arc: start=" << start.str() << " center=" << center.str() << " end=" << end.str() << " axis=" << axis.str() << "\n";
-  //gp_Vec Va = gp_Vec(axis);     //vector along arc's axis
-  //if the endpoints are the same, assume it's a complete circle
-  //previous behaviour was to assume no motion
-  /*
-  if (start.SquareDistance(end) < Precision::Confusion()) {
-    //make circle
-    double radius = fabs(center.Distance(start));
-    if (uio::debuggingOn())
-      cout << "Circle with radius " << radius << endl;
-    Handle(Geom_Curve) C;
-    C = GC_MakeCircle ( center, axis, radius);
-    myUnSolid = BRepBuilderAPI_MakeEdge ( C );
-  } else {
-    gp_Vec Vr = gp_Vec(center,start);   //vector from center to start
-    gp_Vec startVec = Vr^Va;      //find perpendicular vector using cross product
-    if (rotation==1)
-      startVec *= -1;
-    if (uio::debuggingOn())
-      cout << "Arc with vector at start: " << uio::toString(startVec) << endl;
-    Handle(Geom_TrimmedCurve) Tc;
-    Tc = GC_MakeArcOfCircle ( start, startVec, end );
-    myUnSolid = BRepBuilderAPI_MakeEdge ( Tc );
-  }*/
-  
+    n[6] = u;
+    n[7] = v;
+    n[8] = w;
+    
+    for(int ax=0; ax<9; ax++) 
+        o[ax] -= g5xoffset[ax]; // offset
+        
+    unrotate(o[0], o[1], rotation_cos, rotation_sin); // only rotates in XY (?)
+    
+    for(int ax=0; ax<9; ax++) 
+        o[ax] -= g92offset[ax]; // offset
+
+    double theta1 = atan2( o[Y]-cy, o[X]-cx); // vector from center to start
+    
+    double theta2 = atan2( n[Y]-cy, n[X]-cx); // vector from center to end
+    
+    // "unwind" theta2 ?
+    if(rot < 0) { // rot = -1
+        while(theta2 - theta1 > -CIRCLE_FUZZ) 
+            theta2 -= 2*M_PI;
+    } else { // rot = 1
+        while(theta2 - theta1 < CIRCLE_FUZZ) 
+            theta2 += 2*M_PI;
+    }
+
+    // if multi-turn, add the right number of full circles
+    if(rot < -1) 
+        theta2 += 2*M_PI*(rot+1);
+    if(rot > 1) 
+        theta2 += 2*M_PI*(rot-1);
+        
+    // number of steps
+    int steps = std::max( 3, int(max_segments * fabs(theta1 - theta2) / M_PI) ); //  max_segments per M_PI of rotation
+    double rsteps = 1. / steps;
+    double dtheta = theta2 - theta1; // the rotation angle for this helix
+    // n is endpoint
+    // o is startpoint
+    
+    // d is diff.   x,y,z,a,b,c,u,v,w 
+                // 0  1  2  3          4          5          6          7
+    double d[9] = {0, 0, 0, n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
+    d[Z] = n[Z] - o[Z]; // helix-translation diff
+
+    double tx = o[X] - cx; // center to start 
+    double ty = o[Y] - cy; // center to start
+    double dc = cos(dtheta*rsteps);  
+    double ds = sin(dtheta*rsteps);
+    
+    PyObject *segs = PyList_New(steps); // list of output segments
+    // generate segments:
+    for(int i=0; i<steps-1; i++) {
+        double f = (i+1) * rsteps; // varies from 0..1 (?)
+        double p[9]; // point
+        rotate(tx, ty, dc, ds); // rotate center-start vector by a small amount
+        p[X] = tx + cx; // center + rotated point
+        p[Y] = ty + cy;
+        p[Z] = o[Z] + d[Z] * f; // start + helix-translation
+        
+        // simple proportional translation
+        p[3] = o[3] + d[3] * f;
+        p[4] = o[4] + d[4] * f;
+        p[5] = o[5] + d[5] * f;
+        p[6] = o[6] + d[6] * f;
+        p[7] = o[7] + d[7] * f;
+        p[8] = o[8] + d[8] * f;
+        
+        // offset
+        for(int ax=0; ax<9; ax++) 
+            p[ax] += g92offset[ax];
+        rotate(p[0], p[1], rotation_cos, rotation_sin); // rotation offset on XY
+        // offset
+        for(int ax=0; ax<9; ax++) 
+            p[ax] += g5xoffset[ax];
+        // appends segment to the segs-list (?)
+        PyList_SET_ITEM(segs, i,
+            Py_BuildValue("ddddddddd", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]));
+    }
+
+// since we reversed g92, rotation-offset, and g5x, these need to be reapplied before
+// adding the final point.
+    // apply g92 offset
+    for(int ax=0; ax<9; ax++) 
+        n[ax] += g92offset[ax];
+    // rotate
+    rotate(n[0], n[1], rotation_cos, rotation_sin);
+    // apply g5x offset
+    for(int ax=0; ax<9; ax++) 
+        n[ax] += g5xoffset[ax];
+    
+    // apply a final point at the end of the list.
+    PyList_SET_ITEM(segs, steps-1,
+            Py_BuildValue("ddddddddd", n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8]));
+    return segs;
 }
+#endif

@@ -55,20 +55,7 @@ Pose canonMotion::getPoseFromCmd() {
   return Pose(p,d);
 }
 
-/**
-Creates a transform that rotates from first to second, about center
-NOTE: when rotating and translating, do rotation first!
-*/
-/*
-gp_Trsf canonMotion::trsfRotDirDir(gp_Dir first, gp_Dir second, gp_Pnt center) {
-  gp_Dir perpendicular = first^second; //perpendicular to both first and second
-  gp_Ax1 ax(center,perpendicular);
-  Standard_Real ang = ax.Direction().Angle(second);
-  gp_Trsf t;
-  t.SetRotation(ax,ang);
-  return t;
-}
-*/
+
 
 
 
