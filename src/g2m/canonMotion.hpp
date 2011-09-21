@@ -28,6 +28,8 @@
 #include "machineStatus.hpp"
 #include "canonLine.hpp"
 
+namespace g2m {
+
 /**
 \class canonMotion
 \brief This class is for the canonical commands STRAIGHT_TRAVERSE, STRAIGHT_FEED, and ARC_FEED.
@@ -52,5 +54,8 @@ class canonMotion: protected canonLine {
     canonMotion(std::string canonL, machineStatus prevStatus);
     Pose getPoseFromCmd();
 };
+
+
+} // end namespace 
 
 #endif //CANONMOTION_HH

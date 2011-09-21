@@ -22,9 +22,9 @@
 
 #include <map>
 #include <limits.h> //to fix "error: INT_MIN was not declared in this scope"
-
-
 #include "point.hpp"
+
+namespace g2m {
 
 enum CANON_PLANE {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ};
 enum SPINDLE_STATUS {OFF,CW,CCW,BRAKE};
@@ -93,4 +93,7 @@ class machineStatus {
   private:
     machineStatus();  //prevent use of this ctor by making it private 
 };
+
+} // end namespace
+
 #endif //MACHINESTATUS_HH

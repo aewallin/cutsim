@@ -30,6 +30,7 @@
 #include "machineStatus.hpp"
 #include "point.hpp"
 
+namespace g2m {
 /**
 \class canonLine
 \brief A canonLine object represents one canonical command.
@@ -51,7 +52,7 @@ class canonLine {
     virtual MOTION_TYPE getMotionType() { return NOT_DEFINED;} //= 0;
     virtual bool isMotion() {return false;} // = 0;
     virtual bool isNCend() {return false;}
-    
+    virtual std::vector<Point> points() { return std::vector<Point>(); }
     // produce a canonLine based on string l, and previous machineStatus s
     static canonLine* canonLineFactory (std::string l, machineStatus s);
     
@@ -85,5 +86,7 @@ class canonLine {
     machineStatus status; //the machine's status *after* execution of this canon line
     std::vector<std::string> canonTokens; // the tokens are here, after tokenizing myLine
 };
+
+} // end namespace
 
 #endif //CANONLINE_HH

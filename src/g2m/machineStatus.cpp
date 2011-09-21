@@ -23,6 +23,7 @@
 
 #include "machineStatus.hpp"
 
+namespace g2m {
 
 machineStatus::machineStatus(const machineStatus& oldStatus) {
     //FIXME: segfault on next line when modelling a second file?!
@@ -113,6 +114,6 @@ void machineStatus::setTool(toolNumber n) {
 }
 
 
-
+}
 
 

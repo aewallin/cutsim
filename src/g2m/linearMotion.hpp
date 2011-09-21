@@ -28,6 +28,7 @@
 #include "canonMotion.hpp"
 #include "machineStatus.hpp"
 
+namespace g2m {
 
 /**
 \class linearMotion
@@ -43,5 +44,7 @@ class linearMotion: protected canonMotion {
     std::vector<Point> points();
     Point start, end;
 };
+
+} // end namespace
 
 #endif //LINEARMOTION_HH

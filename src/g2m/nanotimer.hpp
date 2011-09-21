@@ -24,6 +24,8 @@
 #include <time.h>
 #include <string>
 
+namespace g2m {
+
 class nanotimer {
   private:
     timespec begin;
@@ -34,5 +36,9 @@ class nanotimer {
     double getElapsedS();
     static QString humanreadable(double s);
 };
+
+
+}
+
 
 #endif //NANOTIMER_HH

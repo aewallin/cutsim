@@ -28,9 +28,13 @@
 //clock_gettime requires librt
 //CLOCK_MONOTONIC_RAW requires kernel 2.6.28 and libc6 >> 2.11.2
 //with earlier kernels use CLOCK_MONOTONIC or CLOCK_REALTIME
+
+namespace g2m {
+
 #ifndef CLOCK_MONOTONIC_RAW
 #define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
 #endif
+
 
 
 void nanotimer::start() {
@@ -83,3 +87,4 @@ void timer::stopTimer( ) {
   return res.tv_sec + res.tv_usec/1000000.0; // 10^6 uSec per second
 }*/
 
+} // end namespace

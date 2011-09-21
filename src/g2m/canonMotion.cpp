@@ -25,6 +25,7 @@
 #include "canonLine.hpp"
 #include "point.hpp"
 
+namespace g2m {
 
 canonMotion::canonMotion(std::string canonL, machineStatus prevStatus): canonLine(canonL,prevStatus) {
 
@@ -56,6 +57,6 @@ Pose canonMotion::getPoseFromCmd() {
 }
 
 
-
+} // end namespace
 
 

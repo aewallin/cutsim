@@ -29,6 +29,8 @@
 #include "canonLine.hpp"
 #include "machineStatus.hpp"
 
+namespace g2m {
+
 /**
 \class canonMotionless
 \brief A canonical command that (generally) does not cause or alter axis motion
@@ -47,5 +49,7 @@ class canonMotionless: protected canonLine {
   protected:
     bool match, handled, ncEnd;
 };
+
+} // end namespace
 
 #endif //CANONMOTIONLESS_HH

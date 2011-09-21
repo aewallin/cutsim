@@ -31,6 +31,7 @@
 #include "linearMotion.hpp"
 #include "helicalMotion.hpp"
 
+namespace g2m {
 
 // note, the constructor is protected!
 canonLine::canonLine(std::string canonL, machineStatus prevStatus): myLine(canonL), status(prevStatus) {                       
@@ -130,16 +131,14 @@ canonLine * canonLine::canonLineFactory (std::string l , machineStatus s) {
     */
     std::cout << l; // print the line
     if ( (cmnt!=std::string::npos) || (msg!=std::string::npos) ) {
-        std::cout << " MotionLess \n";
         return new canonMotionless(l,s); // comment or message, no motion
     } else if (lin!=std::string::npos) { 
         return new linearMotion(l,s);  // straight traverse or straight feed
     } else if (af!=std::string::npos) { 
-        std::cout << " helicalMotion \n";
         return new helicalMotion(l,s); // arc or helix
     } else { 
-        std::cout << " not motion command canonMotionless \n";
         return new canonMotionless(l,s); //canonical command is not a motion command
     }
 }
 
+} // end namespace

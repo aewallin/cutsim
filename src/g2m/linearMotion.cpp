@@ -25,6 +25,7 @@
 #include "canonMotion.hpp"
 #include "canonLine.hpp"
 
+namespace g2m {
 
 linearMotion::linearMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
   status.setMotionType(getMotionType());
@@ -32,7 +33,7 @@ linearMotion::linearMotion(std::string canonL, machineStatus prevStatus): canonM
   //Point a,b;
   start = status.getStartPose().loc;
   end = status.getEndPose().loc;
-  std::cout << " linear feed: " << start.str() << " to " << end.str() << "\n";
+  // std::cout << " linear feed: " << start.str() << " to " << end.str() << "\n";
   
   
   //TODO: add support for 5 or 6 axis motion
@@ -70,3 +71,4 @@ MOTION_TYPE linearMotion::getMotionType() {
   }
 }
 
+} // end namespace

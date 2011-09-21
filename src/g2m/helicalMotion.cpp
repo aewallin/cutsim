@@ -23,6 +23,8 @@
 #include "helicalMotion.hpp"
 #include "machineStatus.hpp"
 
+namespace g2m {
+
 // example from cds.ngc:
 //     231 N2250  ARC_FEED(3.5884, 1.9116, 3.5000, 2.0000, -1, 1.8437, 0.0000, 0.0000, 0.0000)
 //tok: 0   1      2        3       4       5       6        7  8       9       10      11 
@@ -163,11 +165,16 @@ std::vector<Point> helicalMotion::points() {
         p[5] = o[5] + d[5] * f;
 
         Point pt( p[0], p[1], p[2] );
-        std::cout << " arc point: f=" << f << " pt= " << pt.str() << "\n";
+        //std::cout << " arc point: f=" << f << " pt= " << pt.str() << "\n";
         output.push_back(pt);
     }
     return output;
 }
+
+
+} // end namespace
+
+
 
 
 #ifdef EMC2_GCODEMODULE_RS274ARC_CODE
@@ -318,4 +325,5 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
             Py_BuildValue("ddddddddd", n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8]));
     return segs;
 }
+
 #endif

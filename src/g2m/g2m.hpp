@@ -34,6 +34,8 @@
 
 #include "canonLine.hpp"
 
+namespace g2m {
+
 /**
 \class g2m
 \brief This class does the high level stuff for creating a model from gcode.
@@ -60,6 +62,9 @@ class g2m : public QObject {
         interp = QString::fromStdString(interp_binary);
     }
     void setDebug(bool d) {debug=d;}
+    std::vector<canonLine*> getCanonLines() {
+        return lineVector;
+    }
   protected:    
     bool chooseToolTable();
     void interpret();
@@ -74,4 +79,6 @@ class g2m : public QObject {
     bool debug;
 };
 
+
+} // end namespace
 #endif //GTOM_HH

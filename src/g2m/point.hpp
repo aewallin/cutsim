@@ -5,6 +5,8 @@
 #ifndef POINT_HPP
 #define POINT_HPP
 
+namespace g2m {
+
 struct Point {
     Point():x(0),y(0),z(0) {}
     Point(double a, double b, double c):x(a),y(b),z(c) {}
@@ -32,5 +34,5 @@ struct Pose {
     Point dir;
 };
 
-
+} // end namespace
 #endif 

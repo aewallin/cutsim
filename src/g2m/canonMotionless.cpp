@@ -22,6 +22,7 @@
 
 #include <string>
 
+namespace g2m {
 
 canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):canonLine(canonL, prevStatus) {
     match = true;
@@ -144,7 +145,7 @@ canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):c
     if ( (!match || !handled) ) {
         std::string m;
         if (!handled) {
-            m = "Unhandled canonical command ("+cantok(2)+")";
+            m = "Unhandled canonical command ("+cantok(2)+")\n";
         } else {
             //m = "Unknown canonical command ("+cantok(2)+") at " + cantok(0) + " " + cantok(1);
             m = "No match for " + canonL;
@@ -152,3 +153,6 @@ canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):c
         std::cout << m;
     }
 }
+
+
+} // end namespace

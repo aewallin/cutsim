@@ -31,6 +31,8 @@
 #include "canonLine.hpp"
 #include "machineStatus.hpp"
 
+namespace g2m {
+
 /**
 \class helicalMotion
 \brief For the canonical command ARC_FEED.
@@ -69,5 +71,7 @@ class helicalMotion: protected canonMotion {
     double cx,cy; // center-point for this move
 
 };
+
+} // end namespace 
 
 #endif //HELICALMOTION_HH

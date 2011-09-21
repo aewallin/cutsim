@@ -37,6 +37,8 @@
 #include "nanotimer.hpp"
 #include "machineStatus.hpp"
 
+namespace g2m {
+
 void g2m::interpret_file() {
     lineVector.clear();
     nanotimer timer;
@@ -194,7 +196,7 @@ void g2m::infoMsg(std::string s) {
 }
 
 
-
+} // end namespace
 
 
 
