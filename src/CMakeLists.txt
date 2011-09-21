@@ -85,6 +85,7 @@ MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
 
 set (MOC_HEADERS  # these headers need Qt MOCing
     ${cutsim_SOURCE_DIR}/glwidget.hpp
+    ${cutsim_SOURCE_DIR}/cutsim.hpp 
 )
     
 # this defines the source-files
@@ -97,6 +98,7 @@ set( CUTSIM_SRC
     ${cutsim_SOURCE_DIR}/glwidget.cpp 
     ${cutsim_SOURCE_DIR}/gldata.cpp 
     ${cutsim_SOURCE_DIR}/bbox.cpp 
+    ${cutsim_SOURCE_DIR}/cutsim.cpp 
 )
 
 set( CUTSIM_INCLUDE_FILES
@@ -108,6 +110,7 @@ set( CUTSIM_INCLUDE_FILES
     ${cutsim_SOURCE_DIR}/gldata.hpp
     ${cutsim_SOURCE_DIR}/glvertex.hpp
     ${cutsim_SOURCE_DIR}/glwidget.hpp
+    ${cutsim_SOURCE_DIR}/cutsim.hpp 
 )
 
 

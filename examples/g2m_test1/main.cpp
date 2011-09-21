@@ -3,7 +3,7 @@
 
 int main( int argc, char **argv ) {
     
-    g2m g;
+    g2m::g2m g;
     
     g.setFile("/home/anders/Desktop/cutsim/examples/g2m_test1/cds.ngc");
     g.setToolTable("/home/anders/Desktop/cutsim/examples/g2m_test1/tooltable.tbl");
