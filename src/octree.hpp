@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/* 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -103,13 +102,10 @@ class Octree {
         void setIsoSurf(MarchingCubes* m) {mc = m;}
         bool debug;
     protected:
-        
         // run isosurface-algorithm on current Octnode, and push gl-data to GLData
         void updateGL(Octnode* current);
-        
         /// recursively traverse the tree subtracting vol
         void diff_negative(Octnode* current, const OCTVolume* vol);
-        
         /// remove vertices associated with the current node
         void remove_node_vertices(Octnode* current );
     // DATA

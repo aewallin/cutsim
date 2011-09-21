@@ -29,7 +29,6 @@
 #include <cmath>
 
 #include <boost/foreach.hpp>
-//#include <boost/function.hpp>
 
 #include "glvertex.hpp"
 
@@ -173,12 +172,14 @@ public:
     
     GLenum polygonMode_face; // face = GL_FRONT | GL_BACK  | GL_FRONT_AND_BACK
     GLenum polygonMode_mode; // mode = GL_POINT, GL_LINE, GL_FILL
-
+    void setPolygonModeFill () {
+        polygonMode_mode = GL_FILL;
+    }
     /// translation to be applied before drawing
     // fixme: use translation matrix instead.
     GLVertex pos;
         
-// constants and tupedefs
+// constants and typedefs
     typedef GLVertex vertex_type;
     static const GLenum index_type = GL_UNSIGNED_INT;
     static const GLenum coordinate_type = GL_FLOAT;

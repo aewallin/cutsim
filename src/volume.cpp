@@ -43,7 +43,7 @@ double SphereOCTVolume::dist(GLVertex& p ) const {
     if (invert)
         return -(d-radius);
     else 
-        return d-radius;
+        return d-radius; // positive outside. negative inside.
 }
 
 /// set the bounding box values
@@ -86,13 +86,15 @@ void CubeVolume::calcBB() {
 
 double CubeVolume::dist(GLVertex& p) const {
     double m;
-    m = p.x;
-    if ( fabs(m) < fabs(p.y) ) 
-        m = p.y;
-    if (fabs(m) < fabs(p.z) )
-        m = p.z;
+    m = p.x-center.x;
+    
+    if ( fabs(m) < fabs(p.y-center.y) ) 
+        m = p.y-center.y;
+    if (fabs(m) < fabs(p.z-center.z) )
+        m = p.z-center.z;
     // m is now the maximum coordinate
-    return -(m-side);
+    bool sign = (invert ? -1.0 : 1.0 );
+    return (sign)*( fabs(m)- side/2.0);
     
     //return 0;
 }
@@ -103,17 +105,23 @@ bool CubeVolume::isInside(GLVertex& p) const
     x = ( (p.x >= (center.x-side/2)) && (p.x <= (center.x+side/2)) );
     y = ( (p.y >= (center.y-side/2)) && (p.y <= (center.y+side/2)) );
     z = ( (p.z >= (center.z-side/2)) && (p.z <= (center.z+side/2)) );
-    if ( x && y && z )
-        return true;
+    
+    bool r_val;
+    if (invert)
+        r_val=true;
     else
-        return false;
+        r_val=false;
+    
+    if ( x && y && z )
+        return r_val;
+    else
+        return !r_val;
 }
 
 
 //************* Box *******************/
 
-BoxOCTVolume::BoxOCTVolume()
-{
+BoxOCTVolume::BoxOCTVolume() {
     corner = GLVertex(0,0,0); 
     v1 = GLVertex(1,0,0); 
     v2 = GLVertex(0,1,0);
@@ -128,8 +136,7 @@ void BoxOCTVolume::calcBB() {
     bb.addPoint(corner+v3);
 }
 
-bool BoxOCTVolume::isInside(GLVertex& p) const
-{
+bool BoxOCTVolume::isInside(GLVertex& p) const {
     /*
     // translate to origo
     Point pt = p - corner;

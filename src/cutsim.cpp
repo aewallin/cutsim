@@ -27,20 +27,28 @@ Cutsim::Cutsim (GLWidget* w): widget(w) {
     unsigned int max_depth = 7;
     tree = new cutsim::Octree(10.0, max_depth, octree_center );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
-    tree->init(2u);
+    tree->init(3u);
     tree->debug=false;
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
     
     
-    SphereOCTVolume stock_sphere;
-    stock_sphere.radius = 7;
-    stock_sphere.center = cutsim::GLVertex(0,0,0);
-    stock_sphere.calcBB();
-    stock_sphere.invert = true;
-    tree->diff_negative( &stock_sphere );
+    SphereOCTVolume stock;
+    stock.radius = 7;
+    stock.center = cutsim::GLVertex(0,0,0);
+    
+    
+    /*
+    CubeVolume stock;
+    stock.side = 4;
+    stock.center = cutsim::GLVertex(1,1,-2.1);
+    */
+    
+    stock.calcBB();
+    stock.invert = true;
+    tree->diff_negative( &stock );
+
     std::cout << " tree after stock-cut: " << tree->str() << "\n";
-    
-    
+
     
     /*
     ocl::SphereOCTVolume s;
@@ -53,6 +61,8 @@ Cutsim::Cutsim (GLWidget* w): widget(w) {
     */
     
     mc = new cutsim::MarchingCubes();
+    mc->setColor(0,1,1);
+    
     tree->setIsoSurf(mc);
     //tree->debug=true;
     tree->debug=false;
@@ -71,6 +81,7 @@ void Cutsim::setGLData() {
     g->setTriangles(); // mc: triangles, dual_contour: quads
     g->setPosition(0,0,0); // position offset (?used)
     g->setUsageDynamicDraw();
+    g->setPolygonModeFill(); 
     tree->setGLData(g);
 }
 
@@ -80,6 +91,7 @@ void Cutsim::updateGL() {
 }
 
 void Cutsim::diff_volume( OCTVolume* volume ) {
+    mc->setColor(0,1,0);
     //volume->invert = inv;
     std::clock_t start, stop;
     std::cout << " before diff: " << tree->str() << "\n";
@@ -112,6 +124,9 @@ void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with 
     std::clock_t start, stop;
     boost::timer tim;
     
+    diff_volume( &s );
+    
+    /*
     std::cout << " diff_negative() ..\n";
     tim.restart();
     start = std::clock();
@@ -137,6 +152,7 @@ void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with 
     stop = std::clock();
     std::cout << " updateVBO(): std::clock: " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
     std::cout << " updateVBO(): boost::timer: " << tim.elapsed() <<'\n';
+    */
 }
     
 

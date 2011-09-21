@@ -36,17 +36,22 @@ struct GLVertex {
          : x(x), y(y), z(z), r(0), g(0), b(0) {}
     GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) 
          : x(x), y(y), z(z), r(r), g(g), b(b) {}
-    void setNormal(GLfloat x, GLfloat y, GLfloat z) {
-        nx=x;
-        ny=y;
-        nz=z;
+    void setNormal(GLfloat xn, GLfloat yn, GLfloat zn) {
+        nx=xn;
+        ny=yn;
+        nz=zn;
         // normalize:
-        GLfloat norm = sqrt( x*x+y*y+z*z );
+        GLfloat norm = sqrt( nx*nx+ny*ny+nz*nz );
         if (norm != 1.0 ) {
             nx /= norm;
             ny /= norm;
             nz /= norm;
         }
+    }
+    void setColor(GLfloat red, GLfloat green, GLfloat blue) {
+        r=red;
+        g=green;
+        b=blue;
     }
     //void str() {
     //    std::cout << "(" << x << ", " << y << ", " << z << ")"; 

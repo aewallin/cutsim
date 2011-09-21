@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -43,6 +42,11 @@ class MarchingCubes {
         virtual ~MarchingCubes() { }
         /// run mc on one Octnode, return triangles
         std::vector< std::vector< GLVertex >  > mc_node(const Octnode* node);
+        void setColor(GLfloat r, GLfloat g, GLfloat b) {
+            red=r;
+            green=g;
+            blue=b;
+        }
     protected:
         /// generate the interpolated vertices required for triangle construction
         std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
@@ -55,6 +59,7 @@ class MarchingCubes {
         static const unsigned int edgeTable[256];
         /// Marching-Cubes triangle table
         static const int triTable[256][16]; 
+        GLfloat red,green,blue; // current color for vertices
 };
 
 

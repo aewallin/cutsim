@@ -71,7 +71,7 @@ void GLWidget::initializeGL() {
     
     // set up lights/shading
     //set the global lighting / shading params
-    glShadeModel(GL_SMOOTH); // or GL_FLAT
+    //glShadeModel(GL_SMOOTH); // or GL_FLAT
     //glEnable(GL_NORMALIZE); //or not (computationally expensive!)
     glEnable(GL_LIGHTING);
     //set the global ambient light
@@ -95,12 +95,13 @@ void GLWidget::initializeGL() {
 
     // set up a light:
     //GLfloat diffuseLight[] = {1,0,0,1};
-    GLfloat ambientLight[] = {.5,0,0,1};
+    GLfloat ambientLight[] = {0.5,0.5,0.5,1};
     //GLfloat specularLight[] = {1,1,1,1};
     //glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     //glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
     glEnable(GL_LIGHT0); //enable the light
+    
     // set last term to 0 for a spotlight (see chp 5 in ogl prog guide)
     GLfloat lightpos[] = {10,10,10,1};
     glLightfv(GL_LIGHT0,GL_POSITION, lightpos);
@@ -121,11 +122,12 @@ void GLWidget::initializeGL() {
     //                GL_SHININESS,
     //                GL_AMBIENT_AND_DIFFUSE, or
     //                GL_COLOR_INDEXES.
-    GLfloat ambientMat[] = {.5,0,0,0.5}; // rgba reflectance
+    GLfloat ambientMat[] = {0.2,0.2,0.2,1.0}; // rgba reflectance1
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambientMat);
     //glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-
-
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
+    
     // glEnable(GL_DEPTH_TEST);
     genVBO();  
 }
@@ -176,9 +178,8 @@ void GLWidget::paintGL()  {
     BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
         //glLoadIdentity();
         //glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
-        
         // apply a transformation-matrix here !?
-        
+
         if ( !g->bind() ) // bind the vbo
             assert(0);
         
@@ -187,17 +188,16 @@ void GLWidget::paintGL()  {
         // mode = GL_POINT, GL_LINE, GL_FILL
         glPolygonMode( g->polygonMode_face, g->polygonMode_mode ); 
         
-        
-        glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
         
-        // coords/vert, type, stride, pointer/offset
+        // coords/vert, type, stride, offset
         glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset));
-        glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); // color is offset 12-bytes from position
+        glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); 
         glNormalPointer( GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::normal_offset));
         
-        //              mode       idx-count             type             indices*/offset
+        //              mode       idx-count             type             offset
         glDrawElements( g->type , g->polygonCount() , GLData::index_type, 0);
         // http://www.opengl.org/sdk/docs/man/xhtml/glDrawElements.xml
         

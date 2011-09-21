@@ -44,7 +44,6 @@ Octree::Octree(double scale, unsigned int  depth, GLVertex& centerp) {
 }
 
 Octree::~Octree() {
-    //std::cout << " ~Octree() \n";
     delete root;
     root = 0;
 }
@@ -214,14 +213,13 @@ void Octree::updateGL(Octnode* current) {
     } else if ( current->isLeaf() && current->surface()  && !current->valid() ) {  // 
         // this is a leaf and a surface-node
         BOOST_FOREACH( std::vector< GLVertex > poly, mc->mc_node(current) ) {
-            double r=1,gr=0,b=0;
+            //double r=1,gr=0,b=0; 
             std::vector<unsigned int> polyIndexes;
             for (unsigned int m=0;m< poly.size() ;++m) { // Three for triangles, FOUR for quads
                 //unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
                 //                        boost::bind(&Octnode::swapIndex, current, _1, _2)) ; // add vertex to GL
                 
-                unsigned int vertexId =  g->addVertex( poly[m].x, poly[m].y, poly[m].z, r,gr,b,
-                                        current ); // add vertex to GL
+                unsigned int vertexId =  g->addVertex( poly[m].x, poly[m].y, poly[m].z, poly[m].r, poly[m].g, poly[m].b, current ); // add vertex to GL
                 current->addIndex( vertexId ); // associate node with vertex
                 g->setNormal( vertexId, poly[m].nx, poly[m].ny, poly[m].nz );
                 polyIndexes.push_back( vertexId );

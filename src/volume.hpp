@@ -89,7 +89,6 @@ class CubeVolume: public OCTVolume {
         /// update bounding-box
         void calcBB();
         double dist(GLVertex& p) const;
-        // {return -1;}
 };
 
 /// cylinder volume

@@ -48,6 +48,10 @@ std::vector< std::vector< GLVertex >  > MarchingCubes::mc_node(const Octnode* no
         triangle[0].setNormal(n.x,n.y,n.z);
         triangle[1].setNormal(n.x,n.y,n.z);
         triangle[2].setNormal(n.x,n.y,n.z);
+        // setColor
+        triangle[0].setColor(red,green,blue);
+        triangle[1].setColor(red,green,blue);
+        triangle[2].setColor(red,green,blue);
         //tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
         //                          vertices[ triTable[edgeTableIndex][i+1] ], 
         //                          vertices[ triTable[edgeTableIndex][i+2] ]  )
