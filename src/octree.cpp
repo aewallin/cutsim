@@ -115,45 +115,19 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
-// subtract vol from the root
-void Octree::diff_negative(const OCTVolume* vol) {
-    diff_negative( this->root, vol);
-}
-
-// subtract vol from the Octnode curremt
+// subtract vol from the Octnode current
 void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
     if (debug)
         std::cout << " diff_negative " << current->depth << "\n";
         
     if ( current->isLeaf() ) { // process only leaf-nodes
-        current->evaluate( vol ); // this evaluates the distance field
-                              // and sets the inside/outside flags
-                              
+        current->evaluate( vol ); // this evaluates the distance field and sets the inside/outside flags
         if ( current->inside  ) { 
             // inside nodes should be deleted
-            
-            // if (parent) {
-            
             if (debug) {
-                double dist = ( *(current->center) -  GLVertex(4,4,4)).norm();
-                std::cout << " inside node, remove!: " << current->str() << " d= " << dist << " \n";
-                if ( dist > 3.0 ) {
-                    std::cout << " corners: \n";
-                    for(int m=0;m<8;++m) {
-                        double dist2 = ( *(current->vertex[m]) -  GLVertex(7,7,7)).norm();
-                        //std::cout << *(current->vertex[m]) << " d= " << dist2 << " \n";
-                    }
-                    std::cout << " f-values: \n";
-                    for(int m=0;m<8;++m) {
-                        std::cout << current->f[m] << " ";
-                    }
-                    std::cout << "\n";
-                }
-                //assert( dist < 3.0 );
+                std::cout << " inside node, remove!: " << current->str() << " \n";
             }
-            
             remove_node_vertices(current);
-            
             Octnode* parent = current->parent;                          assert( parent );
             unsigned int delete_index = current->idx;                   assert( delete_index >=0 && delete_index <=7 ); 
             delete parent->child[ delete_index ]; // call destructor!
@@ -161,11 +135,14 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
             --parent->childcount;
             assert( parent->childcount >=0 && parent->childcount <=8);
             if (parent->childcount == 0)  { // if the parent has become a leaf node
-                //diff_negative(parent, vol); // this causes segfault...
+                //diff_negative(parent, vol); // this causes segfault... WHY?
                 parent->evaluate( vol ); // back up the tree
+                if (! parent->inside ) {
+                    std::cout << " !parent->inside \n" << parent->printF() << "\n";
+                }
                 assert( parent->inside  ); // then it is itself inside
             }
-            //}
+            
         } else if (current->outside) {
             if (debug)
                 std::cout << " " << current->depth << " outside, do nothing.\n";
@@ -206,39 +183,26 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
 
 }
 
+// starting at current, update the isosurface
 void Octree::updateGL(Octnode* current) {
-    // starting at current, update the isosurface
     if (current->valid() ) {
-        // since valid(), do nothing. terminate recursion here as early as possible.
+        return; // since valid(), do nothing. terminate recursion here as early as possible.
     } else if ( current->isLeaf() && current->surface()  && !current->valid() ) {  // 
         // this is a leaf and a surface-node
         BOOST_FOREACH( std::vector< GLVertex > poly, mc->mc_node(current) ) {
-            //double r=1,gr=0,b=0; 
             std::vector<unsigned int> polyIndexes;
             for (unsigned int m=0;m< poly.size() ;++m) { // Three for triangles, FOUR for quads
-                //unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
-                //                        boost::bind(&Octnode::swapIndex, current, _1, _2)) ; // add vertex to GL
-                
                 unsigned int vertexId =  g->addVertex( poly[m].x, poly[m].y, poly[m].z, poly[m].r, poly[m].g, poly[m].b, current ); // add vertex to GL
                 current->addIndex( vertexId ); // associate node with vertex
                 g->setNormal( vertexId, poly[m].nx, poly[m].ny, poly[m].nz );
                 polyIndexes.push_back( vertexId );
             }
-            assert( polyIndexes.size() == 3 );
             g->addPolygon(polyIndexes); // add poly to GL
             current->setValid(); // isosurface is now valid for this node!
         }
-    } else if ( current->isLeaf() && !current->surface() && !current->valid() ) { //leaf, but no surface
-        // remove vertices, if any
-        //std::cout << " octree updateGL REMOVE VERTEX case \n";
-        //remove_node_vertices(current );
-        //assert(0);
-        /*
-        BOOST_FOREACH(unsigned int vId, current->vertexSet ) {
-            g->removeVertex(vId);
-        }
-        current->clearIndex();
-        current->setValid();*/
+    } else if ( current->isLeaf() && !current->surface() && !current->valid() ) { 
+        //leaf, but no surface
+        current->setValid(); // ??
     } else {
         for (int m=0;m<8;++m) { // go deeper into tree, if !valid
             if ( current->hasChild(m)  && !current->valid() ) { // 
@@ -249,21 +213,20 @@ void Octree::updateGL(Octnode* current) {
 }
 
 
+// we store the gl-vertices associated with this node in the vertexSet
+// when a node is deleted, we here remove each vertex by calling g->removeVertex()
+// this also removes any associated polygons
 void Octree::remove_node_vertices(Octnode* current ) {
     if (debug)
         std::cout << " remove_node_vertices ....";
-        
-    while( !current->vertexSet.empty() ) {
-        std::set<unsigned int>::iterator first = current->vertexSet.begin();
-        unsigned int delId = *first;
+    while( !current->vertexSetEmpty() ) {
+        unsigned int delId = current->vertexSetTop();
         current->removeIndex( delId );
         g->removeVertex( delId );
-        //std::cout << "removing " << delId << " size= " << current->vertexSet.size() << "\n";
     }
     if (debug)
         std::cout << " done.\n";
-    // when done, set should be empty
-    assert( current->vertexSet.empty() );
+    assert( current->vertexSetEmpty() ); // when done, set should be empty
 }
 
 // string repr

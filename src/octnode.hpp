@@ -38,58 +38,31 @@ namespace cutsim {
 /// the distance field at each corner vertex is stored.
 class Octnode {
     public:
-        //typedef P3<double> Point;
-        
-        Octnode(){};
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth);
         virtual ~Octnode();
-        
         /// create all eight children of this node
-        void subdivide(); // create children
+        void subdivide(); 
         /// evaluate the vol.dist() function for this node
         void evaluate(const OCTVolume* vol);
-        void setValid() {
-            isosurface_valid = true;
-            // try to propagate valid up the tree:
-            if (parent) 
-                parent->setChildValid( idx );
-        }
-        void setChildValid( unsigned int id ) {
-            // called by a child[id]
-            childStatus |= octant[id];
-            if (childStatus == 255) { // all children valid
-                setValid();
-            }
-        }
-        inline void setChildInValid( unsigned int id ) {
-            childStatus &= ~octant[id];
-        }
         
-        void setInValid() { 
-            isosurface_valid = false;
-            if ( parent && !parent->valid() )  {// update parent status also
-                parent->setInValid();
-                parent->setChildInValid(idx);
-            }
-        }
-        inline bool valid() const {
-            return isosurface_valid;
-        }
-        inline bool surface() const { // surface nodes are neither inside nor outside
-            return ( !inside && !outside );
-        }
-        inline bool hasChild(int n) {
-            return (this->child[n] != NULL);
-        }
-        inline bool isLeaf() {return childcount==0;}
+    // manipulate the valid-flag
+        void setValid();
+        void setChildValid( unsigned int id );
+        inline void setChildInValid( unsigned int id );
+        void setInValid();
+        bool valid() const;
+        
+        // surface nodes are neither inside nor outside
+        inline bool surface() const { return ( !inside && !outside ); }
+        inline bool hasChild(int n) { return (this->child[n] != NULL); }
+        inline bool isLeaf() {return (childcount==0);}
     // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;
         /// pointer to parent node
         Octnode* parent;
         /// number of children
-        
         unsigned int childcount;
         /// The eight corners of this node
         std::vector<GLVertex*> vertex; 
@@ -108,8 +81,7 @@ class Octnode {
         unsigned int idx; // index of node
         /// the scale of this node, i.e. distance from center out to corner vertices
         double scale; // distance from center to vertices
-        /// flag for checking if evaluate() has run
-        bool evaluated;
+
         /// bounding-box corresponding to this node
         Bbox bb;
     
@@ -117,28 +89,19 @@ class Octnode {
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
-        
-        void addIndex(unsigned int id) { 
-            std::set<unsigned int>::iterator found = vertexSet.find( id );
-            assert( found == vertexSet.end() ); // we should not have id
-            vertexSet.insert(id); 
-        }
-        void swapIndex(unsigned int oldId, unsigned int newId) {
-            std::set<unsigned int>::iterator found = vertexSet.find(oldId);
-            assert( found != vertexSet.end() ); // we must have oldId
-            vertexSet.erase(oldId);
-            vertexSet.insert(newId);
-        }
-        void removeIndex(unsigned int id) {
-            std::set<unsigned int>::iterator found = vertexSet.find( id );
-            assert( found != vertexSet.end() ); // we must have id
-            vertexSet.erase(id);
-        }
-        
+    
+    // for manipulating vertexSet
+        void addIndex(unsigned int id);
+        void swapIndex(unsigned int oldId, unsigned int newId);
+        void removeIndex(unsigned int id);
+        bool vertexSetEmpty() {return vertexSet.empty(); }
+        unsigned int vertexSetTop() { return *(vertexSet.begin()); }
+        std::string printF();
+    protected:  
         // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;
-
-    protected:   
+        /// flag for checking if evaluate() has run
+        bool evaluated;
         /// return center of child with index n
         GLVertex* childcenter(int n); // return position of child centerpoint
 // DATA
@@ -149,8 +112,10 @@ class Octnode {
 // STATIC
         /// the direction to the vertices, from the center 
         static const GLVertex direction[8];
-        /// bit masts for the status
+        /// bit masks for the status
         static const char octant[8];
+    private:
+        Octnode(){}
 };
 
 } // end namespace

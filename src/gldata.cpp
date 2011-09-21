@@ -126,10 +126,11 @@ void GLData::genVBO() {
 }
 
 void GLData::updateVBO() {
-    std::cout << "GLData updateVBO vertexArray.size()= " << vertexArray.size() << " indexArray.size()=" << indexArray.size()<< "\n";
+    //std::cout << "gldata.cpp GLData updateVBO vertexArray.size()= " << vertexArray.size() << " indexArray.size()=" << indexArray.size()<< "\n";
     updateBuffer( vertexBuffer, vertexArray );
+    //std::cout << "updateBuffer (vertexBuffer) done.\n" << std::flush;
     updateBuffer( indexBuffer, indexArray );
-    std::cout << "GLData updateVBO EXIT\n";
+    //std::cout << "gldata.cpp GLData updateVBO EXIT\n" << std::flush;
 }
 
 bool GLData::bind() {

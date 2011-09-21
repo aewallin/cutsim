@@ -63,7 +63,7 @@ void GLWidget::initializeGL() {
     std::cout << "initializeGL()\n";
     glShadeModel(GL_SMOOTH);
     glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
+    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
     
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClearDepth(1.0f);

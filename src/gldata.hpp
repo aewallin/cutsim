@@ -192,18 +192,26 @@ protected:
     
     template <class Data>
     void updateBuffer(  QGLBuffer* buffer, Data& d) {
-        if (!buffer->bind())
-            assert(0);
+        //std::cout << " gldata.hpp updateBuffer() \n" << std::flush ;
+        if (!buffer->bind()) {
+            std::cout << " gldata.hpp ERROR could not bind buffer data.size()="<< d.size() << "\n";
+            //assert(0);
+        }
+        //std::cout << " gldata.hpp updateBuffer() BOUND \n" << std::flush ;
         buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
+        //std::cout << " gldata.hpp updateBuffer() ALLOCATED \n" << std::flush ;
         buffer->release();
+        //std::cout << " gldata.hpp updateBuffer() RELEASED \n" << std::flush ;
     }
     
     template <class Data>
     QGLBuffer* makeBuffer(  QGLBuffer::Type t, Data& d) {
         QGLBuffer* buffer = new QGLBuffer(t);
         buffer->create();
-        if (!buffer->bind())
-            assert(0);
+        if (!buffer->bind()) {
+            std::cout << " gldata.hpp ERROR could not bind buffer data.size()="<< d.size() << "\n";
+            //assert(0);
+        }
         buffer->setUsagePattern( usagePattern );
         //std::cout << " allocating " << sizeof(typename Data::value_type)*d.size() << " bytes.\n";
         buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );

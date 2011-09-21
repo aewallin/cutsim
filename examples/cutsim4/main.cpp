@@ -30,7 +30,10 @@ int main( int argc, char **argv ) {
     // create a new GLWidget, which inherits from QGLWidget. This is the OpenGL view.
     // it displays GLData objects.
     cutsim::GLWidget *w = new cutsim::GLWidget(); // this is the only widget of the window, so automagically fills the space?
-    cutsim::Cutsim* cs = new cutsim::Cutsim(w);
+    
+    unsigned int max_depth=9;
+    double octree_cube_side=10.0;
+    cutsim::Cutsim* cs = new cutsim::Cutsim(octree_cube_side , max_depth, w);
     QObject::connect( w, SIGNAL(sig()), cs, SLOT( cut() ) );
     
     cutsim::GLData* path = w->addObject();
@@ -48,30 +51,24 @@ int main( int argc, char **argv ) {
         }
     }
     path->setLineStrip();
-    
-    
-    
-    
-   /*
-    cutsim::CubeVolume* stock = new cutsim::CubeVolume();
-    stock->center = cutsim::GLVertex(2,2,-2);
-    stock->side = 4;
-    stock->invert = true;
-    stock->calcBB();
-*/
+   
+    //cutsim::CubeVolume* stock = new cutsim::CubeVolume();
+    //stock->center = cutsim::GLVertex(2,2,-2.1);
+    //stock->side = 4;
 
-
-
-    /*
-    cutsim::SphereOCTVolume* stock = new cutsim::SphereOCTVolume();
+    
+    cutsim::SphereVolume* stock = new cutsim::SphereVolume();
     stock->radius = 2;
     stock->center = cutsim::GLVertex(0,0,0);
-    stock->calcBB();
-    stock->invert = true;
-    cs->diff_volume(stock);
-    */
     
-    cs->updateGL(); // update GL-data
+    stock->calcBB();
+    stock->invert = true; // invert true. means negative-f inside stock, positive outside.
+    cs->setColor(0,1,1);
+    cs->diff_volume(stock);
+    delete stock;
+  
+    
+    //cs->updateGL(); // update GL-data
     
     // show the main window
     w->show();

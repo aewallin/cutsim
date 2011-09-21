@@ -46,13 +46,13 @@ class OCTVolume {
         /// default constructor
         OCTVolume(){};
         /// return true if Point p is inside volume
-        virtual bool isInside(GLVertex& p) const = 0;
+        //virtual bool isInside(GLVertex& p) const = 0;
         /// return signed distance from volume surface to Point p
         virtual double dist(GLVertex& p) const = 0;
         /// return true if Point p is in the bounding box
-        bool isInsideBB(GLVertex& p) const {
-            return bb.isInside( p );
-        }
+       // bool isInsideBB(GLVertex& p) const {
+        //    return bb.isInside( p );
+       // }
         /// bounding-box
         Bbox bb;
         bool invert;
@@ -69,7 +69,7 @@ class SphereVolume: public OCTVolume {
         GLVertex center;
         /// radius of sphere
         double radius;
-        bool isInside(GLVertex& p) const;
+        //bool isInside(GLVertex& p) const;
         /// update the Bbox
         void calcBB();
         double dist(GLVertex& p) const;
@@ -85,13 +85,14 @@ class CubeVolume: public OCTVolume {
         GLVertex center;
         /// side length of cube
         double side;
-        bool isInside(GLVertex& p) const;
+       // bool isInside(GLVertex& p) const;
         /// update bounding-box
         void calcBB();
         double dist(GLVertex& p) const;
 };
 
 /// cylinder volume
+/*
 class CylinderOCTVolume: public OCTVolume {
     public:
         /// default constructor
@@ -106,12 +107,13 @@ class CylinderOCTVolume: public OCTVolume {
         /// update the bounding box
         void calcBB();
         double dist(GLVertex& p) const {return -1;}
-};
+};*/
 
 /// box-volume
 /// from corner, go out in the three directions v1,v2,v3
 /// interior points = corner + a*v1 + b*v2 + c*v3  
 /// where a, b, c are in [0,1]
+/*
 class BoxOCTVolume: public OCTVolume {
     public:
         /// default constructor
@@ -195,24 +197,25 @@ class BoxOCTVolume: public OCTVolume {
             // v1 radial
             // v2 along move
             // v3 axial(z-dir)
-            /*
-            GLVertex v1xy = v1;
-            v1xy.z = 0;
             
-            GLVertex v2xy = v2;
-            v2xy.z = 0;
+            //GLVertex v1xy = v1;
+            //v1xy.z = 0;
+            
+            //GLVertex v2xy = v2;
+            //v2xy.z = 0;
             
             // projection along each vector, in turn
             // this only works if the vectors are orthogonal
-            double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
-            if ( (t1 < 0.0) || (t1>1.0) )
-                return false;
-            */
+            //double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
+            //if ( (t1 < 0.0) || (t1>1.0) )
+            //    return false;
+            
             //return dist;
         }
-};
+};*/
 
 /// elliptic tube volume
+/*
 class EtubeOCTVolume: public OCTVolume {
     public:
         /// default constructor
@@ -229,7 +232,7 @@ class EtubeOCTVolume: public OCTVolume {
         GLVertex b; // b-axis of ellipse
         bool isInside(GLVertex& p) const;
         double dist(GLVertex& p) const {return -1;}
-};
+};*/
 
 /// cylindrical cutter volume
 /*
@@ -294,6 +297,8 @@ class BullCutterVolume: public OCTVolume {
         double dist(Point& p) const;
 };
 */
+
+/*
 /// plane-volume, useful for cutting stock to shape
 class PlaneVolume: public OCTVolume {
     public:
@@ -310,7 +315,7 @@ class PlaneVolume: public OCTVolume {
         /// update bounding box
         void calcBB();
         double dist(GLVertex& p) const;
-};
+};*/
 
 
 /// cutter-swept volume of a CylCutter

@@ -46,11 +46,14 @@ namespace cutsim {
 class Cutsim : public QObject {
     Q_OBJECT
 public:
-    Cutsim(GLWidget* w);
-    void setGLData();
-    void updateGL();
-    //void setVolume( OCTVolume* vol ) ;
+    Cutsim(double octree_size, unsigned int octree_mac_depth, GLWidget* w);
+    virtual ~Cutsim();
+    //void setGLData();
+    //void updateGL();
     void diff_volume( OCTVolume* vol );
+    void setColor(GLfloat r, GLfloat g, GLfloat b) {
+        red=r; green=g; blue=b;
+    }
 public slots:
     void cut() ;
 private:
@@ -60,6 +63,7 @@ private:
     GLWidget* widget; // the widget where stock should be displayed
     //OCTVolume* volume;
     //std::vector<GLVertex> toolpos;
+    GLfloat red,green,blue;
 };
 
 } // end namespace

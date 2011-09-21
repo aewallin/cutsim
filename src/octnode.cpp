@@ -69,12 +69,11 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     child.resize(8);
     vertex.resize(8);
     f.resize(8);
-    
     if (parent) {
         center = parent->childcenter(idx);
         inside = parent->inside;
         outside = parent->outside;
-    } else {
+    } else { 
         outside = true;
         inside = false;
         center = new GLVertex(0,0,0); // default center for root is (0,0,0)
@@ -84,7 +83,7 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     
     for ( int n=0;n<8;++n) {
         vertex[n] = new GLVertex(*center + direction[n] * scale ) ;
-        f[n] = 1e6;
+        f[n] = 0;
     }
     bb.clear();
     bb.addPoint( *vertex[2] ); // vertex[2] has the minimum x,y,z coordinates
@@ -100,27 +99,25 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
 // call delete on children, vertices, and center
 Octnode::~Octnode() {
     for(int n=0;n<8;++n) {
-        //if (child[n]) {
             delete child[n];
             child[n] = 0;
-        //}
-        //if (vertex[n]) {
             delete vertex[n];
             vertex[n] = 0;
-        //}
     }
-    //if (center) {
-        delete center;
-        center = 0;
-    //}
+    delete center;
+    center = 0;
 }
+
 
 // create the 8 children of this node
 void Octnode::subdivide() {
     if (this->childcount==0) {
         for( int n=0;n<8;++n ) {
-            this->child[n] = new Octnode( this, n , scale/2.0 , depth+1 ); // parent,  idx, scale,   depth
+            Octnode* newnode = new Octnode( this, n , scale/2.0 , depth+1 ); // parent,  idx, scale,   depth
+            this->child[n] = newnode;
+            //newnode->inherit_f();
             ++childcount;
+            
             // optimization: inherit one f[n] from the corner?
         }
     } else {
@@ -128,6 +125,23 @@ void Octnode::subdivide() {
         assert(0); 
     }
 }
+
+                    
+// inherit as well as possible the f-values from parent. (?a good idea? needed?)
+/*
+void Octnode::inherit_f() {
+    assert( this->parent );
+    
+    for (unsigned int i =0 ; i<8 ;i++) {
+        if (i == idx) 
+            f[i] = parent->f[i];
+        else {
+            f[i] = 0.5*(parent->f[idx] + parent->f[i]);  // some kind of linear interpolation
+        }
+    }
+    
+    //evaluated = true; //(?)
+}*/
 
 // evaluate vol->dist() at all the vertices and store in f[]
 // set the insinde/outside flags based on the sings of dist()
@@ -140,12 +154,17 @@ void Octnode::evaluate(const OCTVolume* vol) {
         if ( !evaluated ) {
             f[n] = newf;
             setInValid();
-            //isosurface_valid = false; 
-        } else if( (newf < f[n] )   ) { // only update distance field if new distance is smaller than old stored distance
-            f[n] = newf;
-            setInValid();
-            //isosurface_valid = false; 
-        } 
+        } else {
+        // there is an existing stock. stock=+, void=-
+            if ( f[n] < 0 ) {
+                // do nothing, since we are "cutting air"
+            } else if ( f[n] > 0 ) {
+                if( (newf < f[n] )   ) { 
+                    f[n] = newf;
+                    setInValid();
+                } 
+            }
+        }
         
         // set the flags
         if ( f[n] <= 0.0 ) {// if one vertex is inside
@@ -158,6 +177,52 @@ void Octnode::evaluate(const OCTVolume* vol) {
     evaluated = true;
 }
 
+void Octnode::setValid() {
+    isosurface_valid = true;
+    if (parent) 
+        parent->setChildValid( idx ); // try to propagate valid up the tree:
+}
+void Octnode::setChildValid( unsigned int id ) {
+    childStatus |= octant[id];
+    if (childStatus == 255) { // all children valid...
+        setValid(); // ...so *this valid
+    }
+}
+
+void Octnode::setChildInValid( unsigned int id ) {
+    childStatus &= ~octant[id];
+}
+
+void Octnode::setInValid() { 
+    isosurface_valid = false;
+    if ( parent && !parent->valid() )  {// update parent status also
+        parent->setInValid();
+        parent->setChildInValid(idx);
+    }
+}
+bool Octnode::valid() const {
+    return isosurface_valid;
+}
+
+
+void Octnode::addIndex(unsigned int id) { 
+    std::set<unsigned int>::iterator found = vertexSet.find( id );
+    assert( found == vertexSet.end() ); // we should not have id
+    vertexSet.insert(id); 
+}
+void Octnode::swapIndex(unsigned int oldId, unsigned int newId) {
+    std::set<unsigned int>::iterator found = vertexSet.find(oldId);
+    assert( found != vertexSet.end() ); // we must have oldId
+    vertexSet.erase(oldId);
+    vertexSet.insert(newId);
+}
+
+void Octnode::removeIndex(unsigned int id) {
+    std::set<unsigned int>::iterator found = vertexSet.find( id );
+    assert( found != vertexSet.end() ); // we must have id
+    vertexSet.erase(id);
+}
+
 // return centerpoint of child with index n
 GLVertex* Octnode::childcenter(int n) {
     return  new GLVertex(*center + ( direction[n] * 0.5*scale ));
@@ -167,6 +232,14 @@ GLVertex* Octnode::childcenter(int n) {
 std::ostream& operator<<(std::ostream &stream, const Octnode &n) {
     stream << " node "; //c=" << *(n.center) << " depth=" << n.depth ;     
     return stream;
+}
+
+std::string Octnode::printF() {
+    std::ostringstream o;
+    for (int n=0;n<8;n++) {
+        o << "f[" << n <<"] = " << f[n] << "\n";
+    }
+    return o.str();
 }
 
 // string repr

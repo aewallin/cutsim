@@ -41,7 +41,7 @@ SphereVolume::SphereVolume() {
 double SphereVolume::dist(GLVertex& p ) const {
     double d = (center-p).norm();
     if (invert)
-        return -(d-radius);
+        return -(d-radius); // negative outside, positive inside.
     else 
         return d-radius; // positive outside. negative inside.
 }
@@ -55,8 +55,9 @@ void SphereVolume::calcBB() {
     bb.addPoint( minpt );
 }
 
-bool SphereVolume::isInside(GLVertex& p) const
-{
+/*
+bool SphereVolume::isInside(GLVertex& p) const {
+    std::cout << " isInside !!! \n";
     if (!isInsideBB(p))
         return false;
     
@@ -64,7 +65,7 @@ bool SphereVolume::isInside(GLVertex& p) const
         return true;
     else
         return false;
-}
+}*/
 
 
 //************* Cube **************/
@@ -99,6 +100,7 @@ double CubeVolume::dist(GLVertex& p) const {
     //return 0;
 }
 
+/*
 bool CubeVolume::isInside(GLVertex& p) const
 {
     bool x,y,z;
@@ -116,11 +118,12 @@ bool CubeVolume::isInside(GLVertex& p) const
         return r_val;
     else
         return !r_val;
-}
+}*/
 
 
 //************* Box *******************/
 
+/*
 BoxOCTVolume::BoxOCTVolume() {
     corner = GLVertex(0,0,0); 
     v1 = GLVertex(1,0,0); 
@@ -134,9 +137,9 @@ void BoxOCTVolume::calcBB() {
     bb.addPoint(corner+v1);
     bb.addPoint(corner+v2);
     bb.addPoint(corner+v3);
-}
+}*/
 
-bool BoxOCTVolume::isInside(GLVertex& p) const {
+//bool BoxOCTVolume::isInside(GLVertex& p) const {
     /*
     // translate to origo
     Point pt = p - corner;
@@ -177,19 +180,21 @@ bool BoxOCTVolume::isInside(GLVertex& p) const {
     //if ( (t < 0.0) || (t>1.0) )
     //    return false;
     */
-    return (dist(p) <= 0.0);
+  //  return (dist(p) <= 0.0);
     
-}
+//}
 
 //************* Cylinder **************/
 
+/*
 CylinderOCTVolume::CylinderOCTVolume()
 {
     p1 = GLVertex(0,0,0);
     p2 = GLVertex(1,1,1);
     radius = 1.234;
-}
+}*/
 
+/*
 bool CylinderOCTVolume::isInside(GLVertex& p) const 
 {
     // closest point on axis
@@ -204,8 +209,9 @@ bool CylinderOCTVolume::isInside(GLVertex& p) const
         return true;
     else
         return false;
-}
+}*/
 
+/*
 /// calculate the bounding-box 
 void CylinderOCTVolume::calcBB()
 {
@@ -241,9 +247,11 @@ void CylinderOCTVolume::calcBB()
     bb.addPoint( zmin2 );
     
     
-}
+}*/
+
 //************* EtubeOCTVolume *************/
 
+/*
 
 EtubeOCTVolume::EtubeOCTVolume() 
 {
@@ -259,9 +267,9 @@ EtubeOCTVolume::EtubeOCTVolume(GLVertex& p1in, GLVertex& p2in, GLVertex& ain, GL
     p2 = p2in;
     a = ain;
     b = bin;
-}
+}*/
 
-
+/*
 bool EtubeOCTVolume::isInside(GLVertex& p) const 
 {
     
@@ -300,15 +308,15 @@ bool EtubeOCTVolume::isInside(GLVertex& p) const
     
     // projection along 
     // this only works if the vectors are orthogonal
-    /*
-    double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
-    if ( (t1 < 0.0) || (t1>1.0) )
-        return false;
+    
+    //double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
+    //if ( (t1 < 0.0) || (t1>1.0) )
+    //    return false;
         
-    double t2 = pt.dot(v2xy)/v2xy.dot(v2xy);
-    if ( (t2 < 0.0) || (t2>1.0) )
-        return false;
-    */
+    7/double t2 = pt.dot(v2xy)/v2xy.dot(v2xy);
+    //if ( (t2 < 0.0) || (t2>1.0) )
+    //    return false;
+    
     
     // z-direction check
     double maxz = p1.z > p2.z ? p1.z : p2.z; 
@@ -324,7 +332,7 @@ bool EtubeOCTVolume::isInside(GLVertex& p) const
     //if (p.z 
     // figure out where we are and return true/false
     return true;
-}
+}*/
 
 
 //************* CylCutterMove **************/
@@ -559,6 +567,7 @@ double BullCutterVolume::dist(Point& p) const {
 
 //************* PlaneVolume **************/
 
+/*
 PlaneVolume::PlaneVolume(bool s, unsigned int a, double p) {
     sign = s;
     axis = a;
@@ -598,7 +607,7 @@ double PlaneVolume::dist(GLVertex& p) const {
         return -1;
     }
 }
-
+*/
 
 } // end namespace
 // end of file volume.cpp

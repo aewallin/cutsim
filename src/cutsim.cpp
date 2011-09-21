@@ -22,14 +22,30 @@
 namespace cutsim {
     
 
-Cutsim::Cutsim (GLWidget* w): widget(w) {
+Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w): widget(w) {
     GLVertex octree_center(0,0,0);
-    unsigned int max_depth = 9;
-    tree = new cutsim::Octree(10.0, max_depth, octree_center );
+    //unsigned int max_depth = 9;
+    
+
+    // this is the GLData that corresponds to the tree
+    g = widget->addObject();
+    g->setTriangles(); // mc: triangles, dual_contour: quads
+    g->setPosition(0,0,0); // position offset (?used)
+    g->setUsageDynamicDraw();
+    g->setPolygonModeFill(); 
+    g->genVBO();
+    
+    mc = new cutsim::MarchingCubes();
+    //mc->setColor(0,1,1);
+    
+    tree = new cutsim::Octree(octree_size, octree_max_depth, octree_center );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
     tree->init(3u);
     tree->debug=false;
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
+    tree->setIsoSurf(mc);
+    tree->setGLData(g);
+
     
     /*
     SphereVolume stock;
@@ -38,6 +54,7 @@ Cutsim::Cutsim (GLWidget* w): widget(w) {
     */
     
     
+    /*
     CubeVolume stock;
     stock.side = 4;
     stock.center = cutsim::GLVertex(1,1,-2.1);
@@ -45,10 +62,12 @@ Cutsim::Cutsim (GLWidget* w): widget(w) {
     
     stock.calcBB();
     stock.invert = true;
-    tree->diff_negative( &stock );
-
-    std::cout << " tree after stock-cut: " << tree->str() << "\n";
-
+    diff_volume( &stock );
+    */
+    
+    
+    //std::cout << "cutsim.cpp tree after stock-cut: " << tree->str() << "\n";
+    
     
     /*
     ocl::SphereOCTVolume s;
@@ -60,72 +79,74 @@ Cutsim::Cutsim (GLWidget* w): widget(w) {
     std::cout << " AFTER diff: " << tree->str() << "\n";
     */
     
-    mc = new cutsim::MarchingCubes();
-    mc->setColor(0,1,1);
-    
-    tree->setIsoSurf(mc);
+
     //tree->debug=true;
     tree->debug=false;
-    setGLData();
+
 } 
 
+Cutsim::~Cutsim() {
+    delete mc;
+    delete tree;
+    delete g;
+}
+
+
+
 /*
-void Cutsim::setVolume( OCTVolume* vol ) {
-    volume = vol;
+void Cutsim::updateGL() {
+    //std::clock_t start, stop;
+    // traverse the octree and update the GLData 
+    tree->updateGL();
+    
+    //start = std::clock();
+    //g->updateVBO();
+    //stop = std::clock();
+    //std::cout << "cutsim.cpp updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }*/
 
-void Cutsim::setGLData() {
-    GLData* gldata = widget->addObject();
-    // this is the GLData that corresponds to the tree
-    g = gldata;
-    g->setTriangles(); // mc: triangles, dual_contour: quads
-    g->setPosition(0,0,0); // position offset (?used)
-    g->setUsageDynamicDraw();
-    g->setPolygonModeFill(); 
-    tree->setGLData(g);
-}
-
-void Cutsim::updateGL() {
-    // traverse the octree and update the GLData correspondingly
-    tree->updateGL();
-}
-
 void Cutsim::diff_volume( OCTVolume* volume ) {
-    mc->setColor(0,1,0);
+    mc->setColor(red,green,blue);
     //volume->invert = inv;
     std::clock_t start, stop;
-    std::cout << " before diff: " << tree->str() << "\n";
-    std::cout << " diff_negative() ..\n";
+    //std::cout << " before diff: " << tree->str() << "\n";
+    //std::cout << " diff_negative() ..\n";
     start = std::clock();
     tree->diff_negative( volume );
     stop = std::clock();
     std::cout << " diff()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-    std::cout << " AFTER diff: " << tree->str() << "\n";
+    //std::cout << " AFTER diff: " << tree->str() << "\n";
     
     start = std::clock();
-    updateGL();
+    tree->updateGL();
     stop = std::clock();
-    std::cout << " updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
     
     start = std::clock();
     g->updateVBO();
     stop = std::clock();
-    std::cout << " updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    std::cout << "cutsim.cpp updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
 void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with a volume.
     std::cout << " cut! called \n";
     cutsim::SphereVolume s;
-    s.radius = 1.22;
-    s.center = cutsim::GLVertex(1,1,0);
+    s.radius = 1.32;
+    s.center = cutsim::GLVertex(2,2,0);
     s.calcBB();
     s.invert = false;
     //std::cout << " before diff: " << tree->str() << "\n";
-    std::clock_t start, stop;
-    boost::timer tim;
-    
+    //std::clock_t start, stop;
+    //boost::timer tim;
+    setColor(1,0,0);
     diff_volume( &s );
     
+    setColor(1,0,1);
+    s.center = cutsim::GLVertex(0,2,0);
+    s.calcBB();
+    diff_volume( &s );
+    
+    //updateGL();
     /*
     std::cout << " diff_negative() ..\n";
     tim.restart();

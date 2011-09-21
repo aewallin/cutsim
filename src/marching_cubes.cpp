@@ -103,7 +103,14 @@ std::vector<GLVertex> MarchingCubes::interpolated_vertices(const Octnode* node, 
 // to generate a new iso-surface point on the idx1-idx2 edge
 GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
     // p = p1 - f1 (p2-p1)/(f2-f1)
-    assert( fabs( node->f[idx2] - node->f[idx1]  ) > 1E-3 ); // sign of dist-field should change on the edge (avoid divide by zero)
+    
+    assert( ( (node->f[idx2] * node->f[idx1] )  < 0 ) );
+    //if ( !(fabs( node->f[idx2] - node->f[idx1]  ) > 1E-3 )) {
+    //    std::cout << " mc::interpolate() node->f[idx2]= " << node->f[idx2] << " and node->f[idx1]= " << node->f[idx1] << "\n";
+    //}
+    //assert( fabs( node->f[idx2] - node->f[idx1]  ) > 1E-3 ); 
+    
+    // sign of dist-field should change on the edge (avoid divide by zero)
     return *(node->vertex[idx1]) -( *(node->vertex[idx2])-(*(node->vertex[idx1])) ) * 
                                     (1.0/(node->f[idx2] - node->f[idx1])) *  node->f[idx1];
 }
@@ -124,6 +131,7 @@ unsigned int MarchingCubes::mc_edgeTableIndex(const Octnode* node) {
     return edgeTableIndex;
 }
 
+// I think the tables are from http://paulbourke.net/geometry/polygonise/
 
 // this table stores indices into the triTable below, i.e. it tells
 // us which of the 256 cases we are in.

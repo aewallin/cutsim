@@ -24,9 +24,6 @@
 #include <list>
 #include <cassert>
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
 #include "bbox.hpp"
 #include "gldata.hpp"
 #include "marching_cubes.hpp"
@@ -36,16 +33,6 @@ namespace cutsim {
 class Octnode;
 class OCTVolume;
 
-// the tree uses an iso-surface algorithm that produces vertices and polygons.
-// this defines types for the callback fuctions called on GLData
-
-// addVertex
-
-// addPolygon( vertexIdx0, vertexIdx1, vertexIdx2 )   
-// (polygons are removed automatically by GLData when vertices are removed)
-//typedef boost::function3< void, unsigned int, unsigned int, unsigned int> Void3UIntCallBack;
-// void removeVertex( vertexIdx )
-//typedef boost::function1< void, unsigned int> VoidUIntCallBack;
 
 /// Octree class for cutting simulation
 /// see http://en.wikipedia.org/wiki/Octree
@@ -60,28 +47,18 @@ class OCTVolume;
 ///
 class Octree {
     public:
-        //typedef P3<double> Point;
-        Octree() { 
-            assert(0); 
-        }
-        virtual ~Octree();
         /// create an octree with a root node with scale=root_scale, maximum
         /// tree-depth of max_depth and centered at centerp.
         Octree(double root_scale, unsigned int max_depth, GLVertex& centerPoint);
+        virtual ~Octree();
         /// subtract vol from tree
-        void diff_negative(const OCTVolume* vol);
-        /// find all leaf-nodes
-        void get_leaf_nodes( std::vector<Octnode*>& nodelist) const {
-            get_leaf_nodes( root,  nodelist);
-        }
-        /// find the leaf-nodes under Octnode* current
+        void diff_negative(const OCTVolume* vol) { diff_negative( this->root, vol); }
+
+// debug, can be removed?
+        void get_leaf_nodes( std::vector<Octnode*>& nodelist) const { get_leaf_nodes( root,  nodelist); }
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
-        
-        /// find the leaf-nodes under Octnode* current that are invalid.
         void get_invalid_leaf_nodes(std::vector<Octnode*>& nodelist) const;
         void get_invalid_leaf_nodes( Octnode* current, std::vector<Octnode*>& nodelist) const;
-        
-        /// return all nodes in tree
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         
         /// initialize by recursively calling subdivide() on all nodes n times
@@ -94,15 +71,12 @@ class Octree {
         double leaf_scale() const;
         /// string output
         std::string str() const;
-        Octnode* getRoot() {return root;}
-        void setGLData(GLData* gdata) {
-            g=gdata;
-        }
+        void setGLData(GLData* gdata) { g=gdata; }
         void updateGL() { updateGL(root); }
         void setIsoSurf(MarchingCubes* m) {mc = m;}
         bool debug;
     protected:
-        // run isosurface-algorithm on current Octnode, and push gl-data to GLData
+        /// run isosurface-algorithm on current Octnode, and push gl-data to GLData
         void updateGL(Octnode* current);
         /// recursively traverse the tree subtracting vol
         void diff_negative(Octnode* current, const OCTVolume* vol);
@@ -117,6 +91,8 @@ class Octree {
         Octnode* root;
         GLData* g;
         MarchingCubes* mc;
+    private:
+        Octree() {  }
         
 };
 

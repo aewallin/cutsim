@@ -35,7 +35,6 @@ namespace cutsim {
 /// Marching-cubes isosurface extraction from distance field stored in Octree
 /// see http://en.wikipedia.org/wiki/Marching_cubes
 ///
-/// (Note: there is no cpp file, all code is here in the .h file)
 class MarchingCubes {
     public:
         MarchingCubes() {}
