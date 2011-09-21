@@ -24,24 +24,24 @@ namespace cutsim {
 
 Cutsim::Cutsim (GLWidget* w): widget(w) {
     GLVertex octree_center(0,0,0);
-    unsigned int max_depth = 7;
+    unsigned int max_depth = 9;
     tree = new cutsim::Octree(10.0, max_depth, octree_center );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
     tree->init(3u);
     tree->debug=false;
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
     
-    
-    SphereOCTVolume stock;
+    /*
+    SphereVolume stock;
     stock.radius = 7;
     stock.center = cutsim::GLVertex(0,0,0);
+    */
     
     
-    /*
     CubeVolume stock;
     stock.side = 4;
     stock.center = cutsim::GLVertex(1,1,-2.1);
-    */
+    
     
     stock.calcBB();
     stock.invert = true;
@@ -115,9 +115,9 @@ void Cutsim::diff_volume( OCTVolume* volume ) {
 
 void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with a volume.
     std::cout << " cut! called \n";
-    cutsim::SphereOCTVolume s;
-    s.radius = 2;
-    s.center = cutsim::GLVertex(4,4,4);
+    cutsim::SphereVolume s;
+    s.radius = 1.22;
+    s.center = cutsim::GLVertex(1,1,0);
     s.calcBB();
     s.invert = false;
     //std::cout << " before diff: " << tree->str() << "\n";

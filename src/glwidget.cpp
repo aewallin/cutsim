@@ -62,6 +62,9 @@ GLData* GLWidget::addObject() {
 void GLWidget::initializeGL() {
     std::cout << "initializeGL()\n";
     glShadeModel(GL_SMOOTH);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
+    
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
@@ -90,16 +93,16 @@ void GLWidget::initializeGL() {
     
     //set the global ambient light (R, G, B, A)
     //GLfloat ambient[4]{.2,.2,.2,1};
-    GLfloat ambient[4] = {.5,.5,.5,1.0};
+    GLfloat ambient[4] = {.1,.1,.1,1.0};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
     // set up a light:
     //GLfloat diffuseLight[] = {1,0,0,1};
-    GLfloat ambientLight[] = {0.5,0.5,0.5,1};
-    //GLfloat specularLight[] = {1,1,1,1};
+    //GLfloat ambientLight[] = {0.5,0.5,0.5,1};
+    GLfloat specularLight[] = {0.5,0.5,0.5,1};
     //glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    //glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+    //glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
     glEnable(GL_LIGHT0); //enable the light
     
     // set last term to 0 for a spotlight (see chp 5 in ogl prog guide)
@@ -125,8 +128,7 @@ void GLWidget::initializeGL() {
     GLfloat ambientMat[] = {0.2,0.2,0.2,1.0}; // rgba reflectance1
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambientMat);
     //glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
+
     
     // glEnable(GL_DEPTH_TEST);
     genVBO();  

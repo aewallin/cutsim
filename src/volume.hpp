@@ -61,10 +61,10 @@ class OCTVolume {
 // sub-classes of OCTVolume below:
 
 /// sphere centered at center
-class SphereOCTVolume: public OCTVolume {
+class SphereVolume: public OCTVolume {
     public:
         /// default constructor
-        SphereOCTVolume();
+        SphereVolume();
         /// center Point of sphere
         GLVertex center;
         /// radius of sphere

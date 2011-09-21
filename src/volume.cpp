@@ -31,14 +31,14 @@ namespace cutsim {
 //************* Sphere **************/
 
 /// sphere at center
-SphereOCTVolume::SphereOCTVolume() {
+SphereVolume::SphereVolume() {
     center = GLVertex(0,0,0);
     radius = 1.0;
     calcBB();
     invert = false;
 }
 
-double SphereOCTVolume::dist(GLVertex& p ) const {
+double SphereVolume::dist(GLVertex& p ) const {
     double d = (center-p).norm();
     if (invert)
         return -(d-radius);
@@ -47,7 +47,7 @@ double SphereOCTVolume::dist(GLVertex& p ) const {
 }
 
 /// set the bounding box values
-void SphereOCTVolume::calcBB() {
+void SphereVolume::calcBB() {
     bb.clear();
     GLVertex maxpt = GLVertex(center.x + radius, center.y + radius, center.z + radius);
     GLVertex minpt = GLVertex(center.x - radius, center.y - radius, center.z - radius);
@@ -55,7 +55,7 @@ void SphereOCTVolume::calcBB() {
     bb.addPoint( minpt );
 }
 
-bool SphereOCTVolume::isInside(GLVertex& p) const
+bool SphereVolume::isInside(GLVertex& p) const
 {
     if (!isInsideBB(p))
         return false;
@@ -94,7 +94,7 @@ double CubeVolume::dist(GLVertex& p) const {
         m = p.z-center.z;
     // m is now the maximum coordinate
     bool sign = (invert ? -1.0 : 1.0 );
-    return (sign)*( fabs(m)- side/2.0);
+    return -(sign)*( fabs(m)- side/2.0);
     
     //return 0;
 }
