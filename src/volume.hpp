@@ -48,14 +48,14 @@ class OCTVolume {
         /// return true if Point p is inside volume
         //virtual bool isInside(GLVertex& p) const = 0;
         /// return signed distance from volume surface to Point p
-        virtual double dist(GLVertex& p) const = 0;
+        virtual double dist(const GLVertex& p) const = 0;
         /// return true if Point p is in the bounding box
        // bool isInsideBB(GLVertex& p) const {
         //    return bb.isInside( p );
        // }
         /// bounding-box
         Bbox bb;
-        bool invert;
+        //bool invert;
 };
 
 // sub-classes of OCTVolume below:
@@ -65,17 +65,17 @@ class SphereVolume: public OCTVolume {
     public:
         /// default constructor
         SphereVolume();
+        /// update the Bbox
+        void calcBB();
+        double dist(const GLVertex& p) const;
+        
         /// center Point of sphere
         GLVertex center;
         /// radius of sphere
         double radius;
-        //bool isInside(GLVertex& p) const;
-        /// update the Bbox
-        void calcBB();
-        double dist(GLVertex& p) const;
-
 };
 
+/*
 /// cube at center with side-length side
 class CubeVolume: public OCTVolume {
     public:
@@ -90,6 +90,8 @@ class CubeVolume: public OCTVolume {
         void calcBB();
         double dist(GLVertex& p) const;
 };
+*/
+
 
 /// cylinder volume
 /*

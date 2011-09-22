@@ -35,15 +35,11 @@ SphereVolume::SphereVolume() {
     center = GLVertex(0,0,0);
     radius = 1.0;
     calcBB();
-    invert = false;
 }
 
-double SphereVolume::dist(GLVertex& p ) const {
+double SphereVolume::dist(const GLVertex& p ) const {
     double d = (center-p).norm();
-    if (invert)
-        return -(d-radius); // negative outside, positive inside.
-    else 
-        return d-radius; // positive outside. negative inside.
+    return radius-d; // positive inside. negative outside.
 }
 
 /// set the bounding box values
@@ -70,6 +66,7 @@ bool SphereVolume::isInside(GLVertex& p) const {
 
 //************* Cube **************/
 
+/*
 /// cube at center with side length side
 CubeVolume::CubeVolume() {
     center = GLVertex(0,0,0);
@@ -98,7 +95,7 @@ double CubeVolume::dist(GLVertex& p) const {
     return -(sign)*( fabs(m)- side/2.0);
     
     //return 0;
-}
+}*/
 
 /*
 bool CubeVolume::isInside(GLVertex& p) const

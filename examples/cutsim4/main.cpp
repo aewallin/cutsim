@@ -56,15 +56,12 @@ int main( int argc, char **argv ) {
     //stock->center = cutsim::GLVertex(2,2,-2.1);
     //stock->side = 4;
 
-    
     cutsim::SphereVolume* stock = new cutsim::SphereVolume();
     stock->radius = 2;
     stock->center = cutsim::GLVertex(0,0,0);
-    
     stock->calcBB();
-    stock->invert = true; // invert true. means negative-f inside stock, positive outside.
     cs->setColor(0,1,1);
-    cs->diff_volume(stock);
+    cs->sum_volume(stock);
     delete stock;
   
     

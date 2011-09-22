@@ -51,6 +51,7 @@ public:
     //void setGLData();
     //void updateGL();
     void diff_volume( OCTVolume* vol );
+    void sum_volume( OCTVolume* vol );
     void setColor(GLfloat r, GLfloat g, GLfloat b) {
         red=r; green=g; blue=b;
     }

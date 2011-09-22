@@ -45,7 +45,40 @@ class Octnode {
         void subdivide(); 
         /// evaluate the vol.dist() function for this node
         void evaluate(const OCTVolume* vol);
-        
+        void sum(const OCTVolume* vol) {
+            outside = true;
+            inside = true;
+            for ( int n=0;n<8;++n) {
+                f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
+                
+                // set the flags
+                if ( f[n] <= 0.0 ) {// if one vertex is inside
+                    outside = false; // then it's not an outside-node
+                } else { // if one vertex is outside
+                    assert( f[n] > 0.0 );
+                    inside = false; // then it's not an inside node anymore
+                }
+            }
+        }
+        void diff(const OCTVolume* vol) {
+            outside = true;
+            inside = true;
+            for ( int n=0;n<8;++n) {
+                f[n] = std::min( f[n], -vol->dist( *(vertex[n]) ) );
+                // set the flags
+                if ( f[n] <= 0.0 ) {// if one vertex is inside
+                    outside = false; // then it's not an outside-node
+                } else { // if one vertex is outside
+                    assert( f[n] > 0.0 );
+                    inside = false; // then it's not an inside node anymore
+                }
+            }
+        }
+        void intersect(const OCTVolume* vol) {
+            for ( int n=0;n<8;++n) {
+                f[n] = std::min( f[n], vol->dist( *(vertex[n]) ) );
+            }
+        }
     // manipulate the valid-flag
         void setValid();
         void setChildValid( unsigned int id );
@@ -85,10 +118,7 @@ class Octnode {
         /// bounding-box corresponding to this node
         Bbox bb;
     
-        /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
-        /// string repr
-        std::string str() const;
+
     
     // for manipulating vertexSet
         void addIndex(unsigned int id);
@@ -96,8 +126,14 @@ class Octnode {
         void removeIndex(unsigned int id);
         bool vertexSetEmpty() {return vertexSet.empty(); }
         unsigned int vertexSetTop() { return *(vertexSet.begin()); }
+        
+    // string output
+        friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
+        std::string str() const;
         std::string printF();
     protected:  
+        void inherit_f();
+        
         // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;
         /// flag for checking if evaluate() has run

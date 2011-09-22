@@ -51,9 +51,13 @@ class Octree {
         /// tree-depth of max_depth and centered at centerp.
         Octree(double root_scale, unsigned int max_depth, GLVertex& centerPoint);
         virtual ~Octree();
-        /// subtract vol from tree
-        void diff_negative(const OCTVolume* vol) { diff_negative( this->root, vol); }
-
+        
+    // bolean operations on tree
+        void diff(const OCTVolume* vol) { diff( this->root, vol); }
+        void sum(const OCTVolume* vol) { sum( this->root, vol); }
+        void intersect(const OCTVolume* vol);
+        
+        
 // debug, can be removed?
         void get_leaf_nodes( std::vector<Octnode*>& nodelist) const { get_leaf_nodes( root,  nodelist); }
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
@@ -79,7 +83,10 @@ class Octree {
         /// run isosurface-algorithm on current Octnode, and push gl-data to GLData
         void updateGL(Octnode* current);
         /// recursively traverse the tree subtracting vol
-        void diff_negative(Octnode* current, const OCTVolume* vol);
+        void diff(Octnode* current, const OCTVolume* vol);
+        void sum(Octnode* current, const OCTVolume* vol);
+        
+        
         /// remove vertices associated with the current node
         void remove_node_vertices(Octnode* current );
     // DATA

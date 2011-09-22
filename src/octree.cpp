@@ -64,7 +64,7 @@ double Octree::leaf_scale() const {
 void Octree::init(const unsigned int n) {
     for (unsigned int m=0;m<n;++m) {
         std::vector<Octnode*> nodelist;
-        Octree::get_leaf_nodes(root, nodelist);
+        get_leaf_nodes(root, nodelist);
         BOOST_FOREACH( Octnode* node, nodelist) {
             node->subdivide();
         }
@@ -115,10 +115,62 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
+// starting at current, traverse tree and apply sum to leaf nodes
+//  if overlapping non-leafs found, subdivide.
+void Octree::sum(Octnode* current, const OCTVolume* vol) {
+    if ( ( current->depth == max_depth ) && vol->bb.overlaps( current->bb ) ) { // overlapping leaf-node
+        if (debug) std::cout << " depth=" << current->depth << " leaf sum()\n";
+        current->sum(vol);
+        current->setInValid();
+    } else if ( vol->bb.overlaps( current->bb ) )  { // boulding-box of volume overlaps with this node
+                                                     // so dive further into tree.
+        //current->sum(vol);
+        if ( current->childcount == 8 ) { // has-child nodes
+                for(int m=0;m<8;++m) {
+                    if (debug) std::cout << " depth=" << current->depth << " CHILD sum()\n";
+                    sum( current->child[m], vol); // call sum on children
+                }
+            
+        } else if ( (current->depth < (this->max_depth)) ) { //&& !current->outside && !current->inside) {
+                
+                current->subdivide(); // smash into 8 sub-pieces
+                for(int m=0;m<8;++m) {
+                    if (debug) std::cout << " depth=" << current->depth << " SUBDIVIDE sum()\n";
+                    sum( current->child[m], vol); // call sum on children
+                }
+
+        }
+    }
+}
+
+void Octree::diff(Octnode* current, const OCTVolume* vol) {
+    if ( current->depth == (max_depth) && vol->bb.overlaps( current->bb ) ) { // a leaf-node
+        if (debug) std::cout << " depth=" << current->depth << " leaf diff()\n";
+        current->diff(vol);
+        current->setInValid();
+    } else if ( vol->bb.overlaps( current->bb ) )  { // boulding-box of volume overlaps with this node
+                                                     // so dive further into tree.
+
+        if ( current->childcount == 8 ) {
+            for(int m=0;m<8;++m) {
+                if (debug) std::cout << " depth=" << current->depth << " CHILD diff()\n";
+                diff( current->child[m], vol); // call sum on children
+            }
+        } else if ( current->depth < (this->max_depth) ) { 
+            current->subdivide(); // smash into 8 sub-pieces
+            for(int m=0;m<8;++m) {
+                if (debug) std::cout << " depth=" << current->depth << " SUBDIVIDE diff()\n";
+                diff( current->child[m], vol); // call sum on children
+            }
+        }
+    }
+}
+
 // subtract vol from the Octnode current
-void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
+#ifdef OLD_DIFF
+void Octree::diff(Octnode* current, const OCTVolume* vol) {
     if (debug)
-        std::cout << " diff_negative " << current->depth << "\n";
+        std::cout << " diff() depth=" << current->depth << "\n";
         
     if ( current->isLeaf() ) { // process only leaf-nodes
         current->evaluate( vol ); // this evaluates the distance field and sets the inside/outside flags
@@ -159,7 +211,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
                     if ( vol->bb.overlaps( current->child[m]->bb ) ) {
                         if (debug)
                             std::cout << " " << current->depth << " calling diff on NEW child " << m << "\n";
-                        diff_negative( current->child[m], vol); // call diff on child
+                        diff( current->child[m], vol); // call diff on child
                     }
                 }
             } else { 
@@ -176,12 +228,14 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
                     if (debug)
                         std::cout << " " << current->depth << " not leaf. calling diff on child " << m << "\n";
                     
-                    diff_negative( current->child[m], vol); // call diff on child
+                    diff( current->child[m], vol); // call diff on child
             }
         }
     }
 
 }
+#endif
+
 
 // starting at current, update the isosurface
 void Octree::updateGL(Octnode* current) {
