@@ -118,29 +118,34 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
 // starting at current, traverse tree and apply sum to leaf nodes
 //  if overlapping non-leafs found, subdivide.
 void Octree::sum(Octnode* current, const OCTVolume* vol) {
-    if ( ( current->depth == max_depth ) && vol->bb.overlaps( current->bb ) ) { // overlapping leaf-node
+if ( vol->bb.overlaps( current->bb ) ) { // only process overlapping nodes!
+    
+     
+    if ( ( current->depth == max_depth ) ) { // overlapping leaf-node
         if (debug) std::cout << " depth=" << current->depth << " leaf sum()\n";
         current->sum(vol);
         current->setInValid();
-    } else if ( vol->bb.overlaps( current->bb ) )  { // boulding-box of volume overlaps with this node
+    } else  { // boulding-box of volume overlaps with this node
                                                      // so dive further into tree.
         //current->sum(vol);
-        if ( current->childcount == 8 ) { // has-child nodes
+        if ( current->childcount == 8 ) { // overlapping node has-child nodes
                 for(int m=0;m<8;++m) {
                     if (debug) std::cout << " depth=" << current->depth << " CHILD sum()\n";
                     sum( current->child[m], vol); // call sum on children
                 }
             
-        } else if ( (current->depth < (this->max_depth)) ) { //&& !current->outside && !current->inside) {
-                
-                current->subdivide(); // smash into 8 sub-pieces
-                for(int m=0;m<8;++m) {
-                    if (debug) std::cout << " depth=" << current->depth << " SUBDIVIDE sum()\n";
-                    sum( current->child[m], vol); // call sum on children
+        } else if ( (current->depth < (this->max_depth)) ) { // overlapping node without children
+                if (!current->inside && !current->outside ) {
+                    current->subdivide(); // smash into 8 sub-pieces
+                    for(int m=0;m<8;++m) {
+                        if (debug) std::cout << " depth=" << current->depth << " SUBDIVIDE sum()\n";
+                        sum( current->child[m], vol); // call sum on children
+                    }
                 }
 
         }
     }
+}
 }
 
 void Octree::diff(Octnode* current, const OCTVolume* vol) {

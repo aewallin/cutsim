@@ -36,7 +36,7 @@ Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w):
     GLVertex octree_center(0,0,0);
     tree = new cutsim::Octree(octree_size, octree_max_depth, octree_center );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
-    tree->init(3u);
+    tree->init(5u);
     tree->debug=false;
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
     tree->setIsoSurf(mc);

@@ -46,34 +46,29 @@ class Octnode {
         /// evaluate the vol.dist() function for this node
         void evaluate(const OCTVolume* vol);
         void sum(const OCTVolume* vol) {
-            outside = true;
-            inside = true;
-            for ( int n=0;n<8;++n) {
+            for ( int n=0;n<8;++n) 
                 f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
-                
-                // set the flags
-                if ( f[n] <= 0.0 ) {// if one vertex is inside
-                    outside = false; // then it's not an outside-node
-                } else { // if one vertex is outside
-                    assert( f[n] > 0.0 );
-                    inside = false; // then it's not an inside node anymore
-                }
-            }
+            set_flags();
         }
         void diff(const OCTVolume* vol) {
+            for ( int n=0;n<8;++n) 
+                f[n] = std::min( f[n], -vol->dist( *(vertex[n]) ) );
+            set_flags();
+        }
+        
+        void set_flags() {
             outside = true;
             inside = true;
             for ( int n=0;n<8;++n) {
-                f[n] = std::min( f[n], -vol->dist( *(vertex[n]) ) );
-                // set the flags
-                if ( f[n] <= 0.0 ) {// if one vertex is inside
+                if ( f[n] > 0.0 ) {// if one vertex is inside
                     outside = false; // then it's not an outside-node
                 } else { // if one vertex is outside
-                    assert( f[n] > 0.0 );
+                    assert( f[n] <= 0.0 );
                     inside = false; // then it's not an inside node anymore
                 }
             }
         }
+        
         void intersect(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) {
                 f[n] = std::min( f[n], vol->dist( *(vertex[n]) ) );
