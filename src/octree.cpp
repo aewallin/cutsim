@@ -41,6 +41,8 @@ Octree::Octree(double scale, unsigned int  depth, GLVertex& centerp) {
     for ( int n=0;n<8;++n) {
         root->child[n] = NULL;
     }
+    debug = false;
+    debug_mc = false;
 }
 
 Octree::~Octree() {
@@ -115,38 +117,64 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
-// starting at current, traverse tree and apply sum to leaf nodes
-//  if overlapping non-leafs found, subdivide.
+// naive sum, go to all nodes, dont adaptively subdivide.
 void Octree::sum(Octnode* current, const OCTVolume* vol) {
-if ( vol->bb.overlaps( current->bb ) ) { // only process overlapping nodes!
-    
-     
-    if ( ( current->depth == max_depth ) ) { // overlapping leaf-node
-        if (debug) std::cout << " depth=" << current->depth << " leaf sum()\n";
-        current->sum(vol);
-        current->setInValid();
-    } else  { // boulding-box of volume overlaps with this node
-                                                     // so dive further into tree.
-        //current->sum(vol);
-        if ( current->childcount == 8 ) { // overlapping node has-child nodes
-                for(int m=0;m<8;++m) {
-                    if (debug) std::cout << " depth=" << current->depth << " CHILD sum()\n";
-                    sum( current->child[m], vol); // call sum on children
-                }
-            
-        } else if ( (current->depth < (this->max_depth)) ) { // overlapping node without children
-                if (!current->inside && !current->outside ) {
-                    current->subdivide(); // smash into 8 sub-pieces
-                    for(int m=0;m<8;++m) {
-                        if (debug) std::cout << " depth=" << current->depth << " SUBDIVIDE sum()\n";
-                        sum( current->child[m], vol); // call sum on children
-                    }
-                }
-
+    current->sum(vol);
+    if ( current->childcount == 8 ) { 
+        for(int m=0;m<8;++m) {
+            sum( current->child[m], vol); // call sum on children
+        }
+    } else if ( current->is_undecided() ) {
+        // subdivide if undecided
+        if ( (current->depth < (this->max_depth-1)) ) {
+            current->subdivide(); // smash into 8 sub-pieces
+            for(int m=0;m<8;++m) {
+                if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
+                sum( current->child[m], vol); // call sum on children
+            }
         }
     }
 }
+
+// starting at current, traverse tree and apply sum to leaf nodes
+//  if overlapping non-leafs found, subdivide.
+#ifdef SUM_RECURSE
+void Octree::sum(Octnode* current, const OCTVolume* vol) {
+    if ( vol->bb.overlaps( current->bb ) ) { // only process overlapping nodes!
+        current->sum(vol);
+        if (current->inside) { // do nothing to nodes that are already inside!
+            if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " INSIDE, do nothing. \n";
+        } else if ( ( current->depth == (max_depth-1) ) ) { //leaf-node
+            //current->sum(vol);
+            current->setInValid();
+            if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " LEAF sum() -> " << current->type() << "\n";
+        } else  { 
+            // overlaps, but not leaf.
+            //current->sum(vol);
+            if ( current->childcount == 8 ) { // overlapping node has-child nodes
+                for(int m=0;m<8;++m) {
+                    if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " CHILD " << m << " sum()\n";
+                    sum( current->child[m], vol); // call sum on children
+                }
+                
+            } else if ( (current->depth < (this->max_depth-1)) ) { // overlapping node without children
+                    //if (!current->inside && !current->outside ) {
+                        current->subdivide(); // smash into 8 sub-pieces
+                        for(int m=0;m<8;++m) {
+                            if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
+                            sum( current->child[m], vol); // call sum on children
+                        }
+                    //}
+
+            }
+        }
+    } else { 
+        // no bb-overlap
+        if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " NO OVERLAP \n";
+    }
 }
+#endif
+
 
 void Octree::diff(Octnode* current, const OCTVolume* vol) {
     if ( current->depth == (max_depth) && vol->bb.overlaps( current->bb ) ) { // a leaf-node
@@ -243,12 +271,16 @@ void Octree::diff(Octnode* current, const OCTVolume* vol) {
 
 
 // starting at current, update the isosurface
+/*
 void Octree::updateGL(Octnode* current) {
     if (current->valid() ) {
+        if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " UpdateGL() valid.\n";
         return; // since valid(), do nothing. terminate recursion here as early as possible.
-    } else if ( current->isLeaf() && current->surface()  && !current->valid() ) {  // 
+    } else if ( current->isLeaf() && current->is_undecided()  && !current->valid() ) {  // 
         // this is a leaf and a surface-node
-        BOOST_FOREACH( std::vector< GLVertex > poly, mc->mc_node(current) ) {
+        if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " UpdateGL() LEAF call mc_node() .\n";
+        std::vector< std::vector< GLVertex > > polys = surface_algorithm->polygonize_node(current);
+        BOOST_FOREACH( std::vector< GLVertex > poly, polys ) {
             std::vector<unsigned int> polyIndexes;
             for (unsigned int m=0;m< poly.size() ;++m) { // Three for triangles, FOUR for quads
                 unsigned int vertexId =  g->addVertex( poly[m].x, poly[m].y, poly[m].z, poly[m].r, poly[m].g, poly[m].b, current ); // add vertex to GL
@@ -258,23 +290,28 @@ void Octree::updateGL(Octnode* current) {
             }
             g->addPolygon(polyIndexes); // add poly to GL
             current->setValid(); // isosurface is now valid for this node!
+            if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " UpdateGL() LEAF got "<< polys.size() <<  " polygons .\n";
         }
-    } else if ( current->isLeaf() && !current->surface() && !current->valid() ) { 
+    } else if ( current->isLeaf() && !current->is_undecided() && !current->valid() ) { 
+        if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " LEAF but not surf(?)\n";
         //leaf, but no surface
-        current->setValid(); // ??
+        //current->setValid(); // ??
     } else {
         for (int m=0;m<8;++m) { // go deeper into tree, if !valid
             if ( current->hasChild(m)  && !current->valid() ) { // 
+                //if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " calling mc() on child\n";
                 updateGL(current->child[m]);
             }
         }
     }
-}
+}*/
 
 
 // we store the gl-vertices associated with this node in the vertexSet
 // when a node is deleted, we here remove each vertex by calling g->removeVertex()
 // this also removes any associated polygons
+
+/*
 void Octree::remove_node_vertices(Octnode* current ) {
     if (debug)
         std::cout << " remove_node_vertices ....";
@@ -286,7 +323,9 @@ void Octree::remove_node_vertices(Octnode* current ) {
     if (debug)
         std::cout << " done.\n";
     assert( current->vertexSetEmpty() ); // when done, set should be empty
-}
+}*/
+
+
 
 // string repr
 std::string Octree::str() const {
@@ -301,7 +340,7 @@ std::string Octree::str() const {
         ++nodelevel[n->depth];
         if ( !n->valid() ) 
             ++invalidsAtLevel[n->depth];
-        if (n->surface() ) 
+        if (n->is_undecided() ) 
             ++surfaceAtLevel[n->depth];
     }
     o << "  " << nodelist.size() << " leaf-nodes:\n";

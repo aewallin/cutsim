@@ -27,6 +27,17 @@
 
 namespace cutsim {
 
+struct Color {
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+    void set(GLfloat ri, GLfloat gi, GLfloat bi) {
+        r=ri;
+        g=gi;
+        b=bi;
+    }
+};
+
 /// a vertex/point in 3D, with (x,y,z) coordinates of type GLfloat
 /// normal is (nx,ny,nz)
 /// color is (r,g,b)
@@ -47,6 +58,9 @@ struct GLVertex {
             ny /= norm;
             nz /= norm;
         }
+    }
+    void setColor( Color c ) {
+        setColor( c.r, c.g, c.b);
     }
     void setColor(GLfloat red, GLfloat green, GLfloat blue) {
         r=red;

@@ -31,7 +31,7 @@ int main( int argc, char **argv ) {
     // it displays GLData objects.
     cutsim::GLWidget *w = new cutsim::GLWidget(); // this is the only widget of the window, so automagically fills the space?
     
-    unsigned int max_depth=9;
+    unsigned int max_depth=8;
     double octree_cube_side=10.0;
     cutsim::Cutsim* cs = new cutsim::Cutsim(octree_cube_side , max_depth, w);
     QObject::connect( w, SIGNAL(sig()), cs, SLOT( cut() ) );
@@ -57,11 +57,16 @@ int main( int argc, char **argv ) {
     //stock->side = 4;
 
     cutsim::SphereVolume* stock = new cutsim::SphereVolume();
-    stock->radius = 2;
-    stock->center = cutsim::GLVertex(0,0,0);
+    stock->radius = 15;
+    stock->center = cutsim::GLVertex(10,10,10);
     stock->calcBB();
     cs->setColor(0,1,1);
     cs->sum_volume(stock);
+    
+    stock->center = cutsim::GLVertex(-10,-10,-10);
+    stock->calcBB();
+    
+    //cs->sum_volume(stock);
     delete stock;
   
     

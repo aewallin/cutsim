@@ -26,6 +26,7 @@
 
 #include <boost/foreach.hpp>
 
+#include "isosurface.hpp"
 #include "bbox.hpp"
 #include "octnode.hpp"
 #include "gldata.hpp"
@@ -35,18 +36,17 @@ namespace cutsim {
 /// Marching-cubes isosurface extraction from distance field stored in Octree
 /// see http://en.wikipedia.org/wiki/Marching_cubes
 ///
-class MarchingCubes {
+class MarchingCubes : public IsoSurfaceAlgorithm {
     public:
         MarchingCubes() {}
         virtual ~MarchingCubes() { }
         /// run mc on one Octnode, return triangles
-        std::vector< std::vector< GLVertex >  > mc_node(const Octnode* node);
-        void setColor(GLfloat r, GLfloat g, GLfloat b) {
-            red=r;
-            green=g;
-            blue=b;
-        }
+        void updateGL() { updateGL( tree->root );}
+        
+        std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node);
+
     protected:
+        void updateGL( Octnode* node) {}
         /// generate the interpolated vertices required for triangle construction
         std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
         /// use linear interpolation of the distance-field between vertices idx1 and idx2
@@ -58,7 +58,7 @@ class MarchingCubes {
         static const unsigned int edgeTable[256];
         /// Marching-Cubes triangle table
         static const int triTable[256][16]; 
-        GLfloat red,green,blue; // current color for vertices
+
 };
 
 

@@ -22,7 +22,7 @@
 namespace cutsim {
 
 // run mc on one Octnode
-std::vector< std::vector< GLVertex >  > MarchingCubes::mc_node(const Octnode* node) {
+std::vector< std::vector< GLVertex >  > MarchingCubes::polygonize_node(const Octnode* node) {
     assert( node->childcount == 0 ); // don't call this on non-leafs!
     std::vector< std::vector< GLVertex > > triangles;
     unsigned int edgeTableIndex = mc_edgeTableIndex(node);
@@ -103,14 +103,7 @@ std::vector<GLVertex> MarchingCubes::interpolated_vertices(const Octnode* node, 
 // to generate a new iso-surface point on the idx1-idx2 edge
 GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
     // p = p1 - f1 (p2-p1)/(f2-f1)
-    
-    assert( ( (node->f[idx2] * node->f[idx1] )  < 0 ) );
-    //if ( !(fabs( node->f[idx2] - node->f[idx1]  ) > 1E-3 )) {
-    //    std::cout << " mc::interpolate() node->f[idx2]= " << node->f[idx2] << " and node->f[idx1]= " << node->f[idx1] << "\n";
-    //}
-    //assert( fabs( node->f[idx2] - node->f[idx1]  ) > 1E-3 ); 
-    
-    // sign of dist-field should change on the edge (avoid divide by zero)
+    assert( ( (node->f[idx2] * node->f[idx1] )  < 0 ) ); // should have unequal sign!
     return *(node->vertex[idx1]) -( *(node->vertex[idx2])-(*(node->vertex[idx1])) ) * 
                                     (1.0/(node->f[idx2] - node->f[idx1])) *  node->f[idx1];
 }
@@ -120,6 +113,7 @@ GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
 // calculate the edgeTableIndex
 unsigned int MarchingCubes::mc_edgeTableIndex(const Octnode* node) {
     unsigned int edgeTableIndex = 0;
+    /*
     if (node->f[0] < 0.0 ) edgeTableIndex |= 1;
     if (node->f[1] < 0.0 ) edgeTableIndex |= 2;
     if (node->f[2] < 0.0 ) edgeTableIndex |= 4;
@@ -128,6 +122,17 @@ unsigned int MarchingCubes::mc_edgeTableIndex(const Octnode* node) {
     if (node->f[5] < 0.0 ) edgeTableIndex |= 32;
     if (node->f[6] < 0.0 ) edgeTableIndex |= 64;
     if (node->f[7] < 0.0 ) edgeTableIndex |= 128;
+    */
+    
+    if (node->f[0] > 0.0 ) edgeTableIndex |= 1;
+    if (node->f[1] > 0.0 ) edgeTableIndex |= 2;
+    if (node->f[2] > 0.0 ) edgeTableIndex |= 4;
+    if (node->f[3] > 0.0 ) edgeTableIndex |= 8;
+    if (node->f[4] > 0.0 ) edgeTableIndex |= 16;
+    if (node->f[5] > 0.0 ) edgeTableIndex |= 32;
+    if (node->f[6] > 0.0 ) edgeTableIndex |= 64;
+    if (node->f[7] > 0.0 ) edgeTableIndex |= 128;
+    
     return edgeTableIndex;
 }
 

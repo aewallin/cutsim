@@ -58,7 +58,7 @@ public:
 public slots:
     void cut() ;
 private:
-    MarchingCubes* mc; // the isosurface-extraction algorithm to use
+    IsoSurfaceAlgorithm* iso_algo; // the isosurface-extraction algorithm to use
     Octree* tree; // this is the stock model
     GLData* g; // this is the graphics object drawn on the screen, representing the stock
     GLWidget* widget; // the widget where stock should be displayed

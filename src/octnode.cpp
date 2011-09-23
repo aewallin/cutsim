@@ -94,6 +94,7 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     evaluated = false;
     childcount = 0;
     childStatus = 0;
+    set_flags();
 }
 
 // call delete on children, vertices, and center
@@ -108,6 +109,11 @@ Octnode::~Octnode() {
     center = 0;
 }
 
+// return centerpoint of child with index n
+GLVertex* Octnode::childcenter(int n) {
+    return  new GLVertex(*center + ( direction[n] * 0.5*scale ));
+}
+
 
 // create the 8 children of this node
 void Octnode::subdivide() {
@@ -115,7 +121,7 @@ void Octnode::subdivide() {
         for( int n=0;n<8;++n ) {
             Octnode* newnode = new Octnode( this, n , scale/2.0 , depth+1 ); // parent,  idx, scale,   depth
             this->child[n] = newnode;
-            newnode->inherit_f();
+            //newnode->inherit_f();
             ++childcount;
             
             // optimization: inherit one f[n] from the corner?
@@ -128,7 +134,7 @@ void Octnode::subdivide() {
 
                     
 // inherit as well as possible the f-values from parent. (?a good idea? needed?)
-
+/*
 void Octnode::inherit_f() {
     assert( this->parent );
     
@@ -141,7 +147,7 @@ void Octnode::inherit_f() {
     }
     
     //evaluated = true; //(?)
-}
+}*/
 
 // evaluate vol->dist() at all the vertices and store in f[]
 // set the insinde/outside flags based on the sings of dist()
@@ -223,10 +229,6 @@ void Octnode::removeIndex(unsigned int id) {
     vertexSet.erase(id);
 }
 
-// return centerpoint of child with index n
-GLVertex* Octnode::childcenter(int n) {
-    return  new GLVertex(*center + ( direction[n] * 0.5*scale ));
-}
 
 // string repr
 std::ostream& operator<<(std::ostream &stream, const Octnode &n) {

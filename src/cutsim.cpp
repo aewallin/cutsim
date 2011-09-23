@@ -30,30 +30,34 @@ Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w):
     g->setPolygonModeFill(); 
     g->genVBO();
     
-    mc = new cutsim::MarchingCubes();
-    //mc->setColor(0,1,1);
+    //iso_algo = new MarchingCubes();
+    iso_algo = new CubeSurf();
     
     GLVertex octree_center(0,0,0);
-    tree = new cutsim::Octree(octree_size, octree_max_depth, octree_center );
+    tree = new Octree(octree_size, octree_max_depth, octree_center );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
-    tree->init(5u);
+    tree->init(2u);
     tree->debug=false;
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
-    tree->setIsoSurf(mc);
-    tree->setGLData(g); // connect tree and gldata, so that tree can create/delete verts and polys
-
+    
+    //tree->set_surface_algorithm(iso_algo);
+    //tree->setGLData(g); // connect tree and gldata, so that tree can create/delete verts and polys
+    
+    iso_algo->setTree(tree);
+    iso_algo->setGLData(g);
+    
     //tree->debug=true;
     tree->debug=false;
 } 
 
 Cutsim::~Cutsim() {
-    delete mc;
+    delete iso_algo;
     delete tree;
     delete g;
 }
 
 void Cutsim::sum_volume( OCTVolume* volume ) {
-    mc->setColor(red,green,blue);
+    iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     //std::cout << " before diff: " << tree->str() << "\n";
     //std::cout << " diff_negative() ..\n";
@@ -64,18 +68,18 @@ void Cutsim::sum_volume( OCTVolume* volume ) {
     //std::cout << " AFTER diff: " << tree->str() << "\n";
     
     start = std::clock();
-    tree->updateGL();
+    iso_algo->updateGL();
     stop = std::clock();
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
     
-    start = std::clock();
-    g->updateVBO();
-    stop = std::clock();
-    std::cout << "cutsim.cpp updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    //start = std::clock();
+    
+    //stop = std::clock();
+    //std::cout << "cutsim.cpp updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
 void Cutsim::diff_volume( OCTVolume* volume ) {
-    mc->setColor(red,green,blue);
+    iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     //std::cout << " before diff: " << tree->str() << "\n";
     //std::cout << " diff_negative() ..\n";
@@ -86,14 +90,14 @@ void Cutsim::diff_volume( OCTVolume* volume ) {
     //std::cout << " AFTER diff: " << tree->str() << "\n";
     
     start = std::clock();
-    tree->updateGL();
+    iso_algo->updateGL();
     stop = std::clock();
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
     
-    start = std::clock();
-    g->updateVBO();
-    stop = std::clock();
-    std::cout << "cutsim.cpp updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    //start = std::clock();
+    //g->updateVBO();
+    //stop = std::clock();
+    //std::cout << "cutsim.cpp updateVBO():   " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
 void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with a volume.

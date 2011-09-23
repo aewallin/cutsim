@@ -136,6 +136,8 @@ public:
     
     void setLineStrip() {setType(GL_LINE_STRIP); polyVerts=1;}
     
+    void setLines() {setType(GL_LINES); polyVerts=2;}
+    
     void setUsageStaticDraw() {usagePattern = QGLBuffer::StaticDraw;}
     void setUsageDynamicDraw() {usagePattern = QGLBuffer::DynamicDraw;}
     /// bind the vertex and index buffers
@@ -209,7 +211,7 @@ protected:
         QGLBuffer* buffer = new QGLBuffer(t);
         buffer->create();
         if (!buffer->bind()) {
-            std::cout << " gldata.hpp ERROR could not bind buffer data.size()="<< d.size() << "\n";
+            std::cout << " gldata.hpp makeBuffer() ERROR could not bind buffer data.size()="<< d.size() << "\n";
             //assert(0);
         }
         buffer->setUsagePattern( usagePattern );
@@ -221,13 +223,9 @@ protected:
     }
     
     /// set type of drawing, e.g. GL_TRIANGLES, GL_QUADS
-    void setType(GLenum t) {
-        type = t;
-    }
+    void setType(GLenum t) { type = t; }
     /// set the OpenGL usage pattern
-    void setUsage(QGLBuffer::UsagePattern p ) {
-        usagePattern = p;
-    }
+    void setUsage(QGLBuffer::UsagePattern p ) { usagePattern = p; }
     
 // DATA
     /// vertex data buffer
