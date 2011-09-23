@@ -21,44 +21,62 @@
 
 namespace cutsim {
 
+void MarchingCubes::updateGL( Octnode* node) {
+    // traverse tree here and call polygonize_node
+    if (node->valid())
+        return;
+    
+    if ( node->is_undecided() && node->isLeaf() ) {
+        mc_node(node);
+    }
+    
+    // current node done, now recurse into tree.
+    if ( node->childcount == 8 ) {
+        for (unsigned int m=0;m<8;m++) {
+                updateGL( node->child[m] );
+        }
+    }
+}
+
 // run mc on one Octnode
-std::vector< std::vector< GLVertex >  > MarchingCubes::polygonize_node(const Octnode* node) {
+void MarchingCubes::mc_node( Octnode* node) {
     assert( node->childcount == 0 ); // don't call this on non-leafs!
+    assert( node->is_undecided() ); 
+    
     std::vector< std::vector< GLVertex > > triangles;
     unsigned int edgeTableIndex = mc_edgeTableIndex(node);
-    // the index into this table now tells us which edges have the vertices
-    // for the new triangles
-    // the lookup returns a 12-bit number, where each bit indicates wether 
-    // the edge is cut by the isosurface
     unsigned int edges = edgeTable[edgeTableIndex];
-    // calculate intersection points by linear interpolation
-    // there are now 12 different cases:
-    std::vector< GLVertex > vertices = interpolated_vertices(node, edges);
-    assert(vertices.size()==12);
-    // form triangles by lookup in triTable
+    std::vector< GLVertex > vertices = interpolated_vertices(node, edges);          assert(vertices.size()==12);
     for (unsigned int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
-        std::vector< GLVertex > triangle;
-        triangle.push_back( vertices[ triTable[edgeTableIndex][i    ] ] );
-        triangle.push_back( vertices[ triTable[edgeTableIndex][i+1  ] ] );
-        triangle.push_back( vertices[ triTable[edgeTableIndex][i+2  ] ] );
-        
+        std::vector< unsigned int > triangle;
+        GLVertex p1 = vertices[ triTable[edgeTableIndex][i    ] ];
+        GLVertex p2 = vertices[ triTable[edgeTableIndex][i+1  ] ];
+        GLVertex p3 = vertices[ triTable[edgeTableIndex][i+2  ] ];
         // calculate normal
-        GLVertex n = (triangle[0]-triangle[1]).cross( triangle[0]-triangle[2] );
+        GLVertex n = (p1-p2).cross( p1-p3 );
         n.normalize();
-        triangle[0].setNormal(n.x,n.y,n.z);
-        triangle[1].setNormal(n.x,n.y,n.z);
-        triangle[2].setNormal(n.x,n.y,n.z);
+        p1.setNormal(n.x,n.y,n.z);
+        p2.setNormal(n.x,n.y,n.z);
+        p3.setNormal(n.x,n.y,n.z);
         // setColor
-        triangle[0].setColor(red,green,blue);
-        triangle[1].setColor(red,green,blue);
-        triangle[2].setColor(red,green,blue);
+        p1.setColor(red,green,blue);
+        p2.setColor(red,green,blue);
+        p3.setColor(red,green,blue);
+        triangle.push_back( g->addVertex(  p1, node ) );
+        triangle.push_back( g->addVertex(  p2, node ) );
+        triangle.push_back( g->addVertex(  p3, node ) );
+
+        g->addPolygon(triangle);
+        node->addIndex( triangle[0] );
+        node->addIndex( triangle[1] );
+        node->addIndex( triangle[2] );
+        node->setValid();
         //tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
         //                          vertices[ triTable[edgeTableIndex][i+1] ], 
         //                          vertices[ triTable[edgeTableIndex][i+2] ]  )
         //                          );
-        triangles.push_back( triangle );
+        //triangles.push_back( triangle );
     }
-    return triangles;
 }
         
 // generate the interpolated vertices required for triangle construction
@@ -103,7 +121,11 @@ std::vector<GLVertex> MarchingCubes::interpolated_vertices(const Octnode* node, 
 // to generate a new iso-surface point on the idx1-idx2 edge
 GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
     // p = p1 - f1 (p2-p1)/(f2-f1)
-    assert( ( (node->f[idx2] * node->f[idx1] )  < 0 ) ); // should have unequal sign!
+    if (!( fabs(node->f[idx2] - node->f[idx1] ) > 1e-16 ))
+        std::cout << "mc::interpolate error " << node->f[idx2] << " and " << node->f[idx1] << " don't differ in sign!\n";
+        
+    //assert( ( (node->f[idx2] * node->f[idx1] )  < 0 ) ); // should have unequal sign!
+    assert( fabs(node->f[idx2] - node->f[idx1] ) > 1e-16 );
     return *(node->vertex[idx1]) -( *(node->vertex[idx2])-(*(node->vertex[idx1])) ) * 
                                     (1.0/(node->f[idx2] - node->f[idx1])) *  node->f[idx1];
 }

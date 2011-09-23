@@ -63,10 +63,11 @@ int main( int argc, char **argv ) {
     cs->setColor(0,1,1);
     cs->sum_volume(stock);
     
-    stock->center = cutsim::GLVertex(-10,-10,-10);
+    stock->center = cutsim::GLVertex(-10,10,10);
+    stock->radius = 13;
     stock->calcBB();
-    
-    //cs->sum_volume(stock);
+    cs->setColor(1,1,0);
+    cs->diff_volume(stock);
     delete stock;
   
     

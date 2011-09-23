@@ -49,7 +49,7 @@ class Octree {
     public:
         /// create an octree with a root node with scale=root_scale, maximum
         /// tree-depth of max_depth and centered at centerp.
-        Octree(double root_scale, unsigned int max_depth, GLVertex& centerPoint);
+        Octree(double root_scale, unsigned int max_depth, GLVertex& centerPoint, GLData* gl);
         virtual ~Octree();
         
     // bolean operations on tree
@@ -77,6 +77,7 @@ class Octree {
         //void setGLData(GLData* gdata) { g=gdata; }
         //void updateGL() { updateGL(root); }
         //void set_surface_algorithm(IsoSurfaceAlgorithm* m) {surface_algorithm = m;}
+        
         bool debug, debug_mc;
         
         /// the root scale
@@ -95,10 +96,10 @@ class Octree {
         
         
         /// remove vertices associated with the current node
-        void remove_node_vertices(Octnode* current );
+        //void remove_node_vertices(Octnode* current );
     // DATA
 
-        //GLData* g;
+        GLData* g;
         //IsoSurfaceAlgorithm* surface_algorithm;
     private:
         Octree() {  }

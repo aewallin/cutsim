@@ -38,15 +38,20 @@ namespace cutsim {
 ///
 class MarchingCubes : public IsoSurfaceAlgorithm {
     public:
-        MarchingCubes() {}
+        MarchingCubes(GLData* gl, Octree* tr) : IsoSurfaceAlgorithm(gl,tr) {
+            g->setTriangles(); 
+            g->setUsageDynamicDraw();
+
+        }
         virtual ~MarchingCubes() { }
         /// run mc on one Octnode, return triangles
-        void updateGL() { updateGL( tree->root );}
+        //void updateGL() { updateGL( tree->root );}
         
-        std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node);
+        //std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node);
 
     protected:
-        void updateGL( Octnode* node) {}
+        void updateGL( Octnode* node);
+        void mc_node(Octnode* node); 
         /// generate the interpolated vertices required for triangle construction
         std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
         /// use linear interpolation of the distance-field between vertices idx1 and idx2

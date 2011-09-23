@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -34,6 +33,7 @@
 #include "volume.hpp"
 #include "bbox.hpp"
 #include "glvertex.hpp"
+#include "gldata.hpp"
 
 namespace cutsim {
 
@@ -50,12 +50,11 @@ class Octnode {
         NodeState childState[8];
         
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
-        Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth);
+        Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth, GLData* g);
         virtual ~Octnode();
         /// create all eight children of this node
         void subdivide(); 
-        /// evaluate the vol.dist() function for this node
-        void evaluate(const OCTVolume* vol);
+
         void sum(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) 
                 f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
@@ -76,13 +75,14 @@ class Octnode {
         
         
         void set_flags() {
+            NodeState old_state = state;
             outside = true;
             inside = true;
             for ( int n=0;n<8;n++) {
-                if ( f[n] > 0.0 ) {// if one vertex is inside
+                if ( f[n] >= 0.0 ) {// if one vertex is inside
                     outside = false; // then it's not an outside-node
                 } else { // if one vertex is outside
-                    assert( f[n] <= 0.0 );
+                    assert( f[n] < 0.0 );
                     inside = false; // then it's not an inside node anymore
                 }
             }
@@ -96,6 +96,17 @@ class Octnode {
                 setUndecided();
             else
                 assert(0);
+                
+            assert( (is_inside() && !is_outside() && !is_undecided() ) ||
+                    (!is_inside() && is_outside() && !is_undecided() ) ||
+                    (!is_inside() && !is_outside() && is_undecided() ) );
+            
+            if ( ((old_state == INSIDE) && (state== INSIDE)) ||
+                ((old_state == OUTSIDE) && (state== OUTSIDE))
+             ) {
+                } else {
+                    setInvalid();
+                }
         }
         
         bool is_inside()    { return (state==INSIDE); }
@@ -110,23 +121,21 @@ class Octnode {
         }
         void setInside(unsigned int id) {
             childState[id] = INSIDE;
-            if ( all_child_state(INSIDE) ) {
-                if ( state != INSIDE) {
-                    setInside(); // can remove children?
-                }
+            if ( all_child_state(INSIDE) && (state!=INSIDE) ) {
+                setInside();
             }
         }
         void setUndecided() {
             //std::cout << spaces() << depth << ":" << idx << " setUndecided()\n";
             state = UNDECIDED;
-            //if (parent)
-            //    parent->setUndecided( this->idx );
+            if (parent)
+                parent->setUndecided( this->idx );
         }
-        /*
+        
         void setUndecided( unsigned int id ) {
             childState[id] = UNDECIDED;
             setUndecided(); // no checks, if one child UNDECIDED, then this UNDECIDED
-        }*/
+        }
         
         void setOutside() {
             //std::cout << spaces() << depth << ":" << idx << " setOutside()\n";
@@ -136,8 +145,9 @@ class Octnode {
         }
         void setOutside(unsigned int id) {
             childState[id] = OUTSIDE;
-            if ( all_child_state(OUTSIDE)  && (state != OUTSIDE) )  { // 
+            if ( all_child_state(OUTSIDE)  && (state!=OUTSIDE) )  { // 
                 setOutside(); // can remove children?
+
             }
         }
         
@@ -151,17 +161,14 @@ class Octnode {
             return (n==8);
         }
         
-        
+        void delete_children();
 
     // manipulate the valid-flag
         void setValid();
-        void setChildValid( unsigned int id );
-        inline void setChildInValid( unsigned int id );
-        void setInValid();
+        void setInvalid();
         bool valid() const;
         
         // surface nodes are neither inside nor outside
-        //inline bool surface() const { return ( !inside && !outside ); }
         inline bool hasChild(int n) { return (this->child[n] != NULL); }
         inline bool isLeaf() {return (childcount==0);}
     // DATA
@@ -200,6 +207,8 @@ class Octnode {
         void removeIndex(unsigned int id);
         bool vertexSetEmpty() {return vertexSet.empty(); }
         unsigned int vertexSetTop() { return *(vertexSet.begin()); }
+        void clearVertexSet();
+        
         
     // string output
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
@@ -224,7 +233,10 @@ class Octnode {
             return stream.str();
         }
     protected:  
-        //void inherit_f();
+        void setChildValid( unsigned int id );
+        inline void setChildInvalid( unsigned int id );
+        
+        void inherit_f();
         
         // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;
@@ -232,11 +244,12 @@ class Octnode {
         bool evaluated;
         /// return center of child with index n
         GLVertex* childcenter(int n); // return position of child centerpoint
-// DATA
+        GLData* g;
         /// flag for telling isosurface extraction is valid for this node
         /// if false, the node needs updating.
         bool isosurface_valid;
         char childStatus;
+        
 // STATIC
         /// the direction to the vertices, from the center 
         static const GLVertex direction[8];

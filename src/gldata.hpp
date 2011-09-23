@@ -104,7 +104,7 @@ public:
     /// add a vertex with given position and color, return its index
     unsigned int addVertex(float x, float y, float z, float r, float g, float b);
     /// add vertex
-    unsigned int addVertex(GLVertex v);
+    unsigned int addVertex(GLVertex v, Octnode* n);
     /// add vertex, give position, color, Octnode*
     unsigned int addVertex(float x, float y, float z, float r, float g, float b, Octnode* n);
     

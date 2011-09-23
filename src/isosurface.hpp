@@ -35,21 +35,31 @@ namespace cutsim {
 ///
 class IsoSurfaceAlgorithm {
     public:
-        IsoSurfaceAlgorithm() {}
+        IsoSurfaceAlgorithm(GLData* gl, Octree* tr) : g(gl), tree(tr) {}
         virtual ~IsoSurfaceAlgorithm() { }
         
         // return polygons corresponding to the octree node
-        virtual std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node) = 0;
-        virtual void updateGL()=0;
-        
+        //virtual std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node) = 0;
+        virtual void updateGL(){ 
+            update_calls=0;
+            valid_count=0;
+            debugValid();
+            updateGL( tree->root );
+            debugValid();
+            
+            g->updateVBO();
+            std::cout << update_calls << " calls made\n";
+            std::cout << valid_count << " valid_nodes\n";
+        }
         void setColor(GLfloat r, GLfloat g, GLfloat b) {
             red=r;
             green=g;
             blue=b;
         }
-        virtual void setGLData(GLData* in) {g=in;}
-        void setTree(Octree* t) {tree=t;}
+
     protected:
+        int update_calls, valid_count;
+        virtual void updateGL( Octnode* node) =0 ;
         GLfloat red,green,blue; // current color for vertices
         GLData* g;
         Octree* tree;
@@ -57,22 +67,31 @@ class IsoSurfaceAlgorithm {
         void remove_node_vertices(Octnode* current ) {
             while( !current->vertexSetEmpty() ) {
                 unsigned int delId = current->vertexSetTop();
+                //std::cout << "removing " << delId << "\n";
                 current->removeIndex( delId );
                 g->removeVertex( delId );
             }
             assert( current->vertexSetEmpty() ); // when done, set should be empty
+        }
+        
+        void debugValid() {
+            std::vector<Octnode*> nodelist; // = new std::vector<Octnode*>();
+            tree->get_all_nodes( tree->root,  nodelist);
+            int val=0,inv=0;
+            BOOST_FOREACH( Octnode* node , nodelist ) {
+                if ( node->valid() )
+                    val++;
+                else
+                    inv++;
+            }
+            std::cout << "debugValid() " << val << "valid nodes and " << inv << " invalid total=" << nodelist.size() <<" \n";
         }
 };
 
 
 class CubeSurf : public IsoSurfaceAlgorithm {
     public:
-        void updateGL() { 
-            updateGL( tree->root );
-            g->updateVBO();
-        }
-        void setGLData(GLData* in) {
-            g=in;
+        CubeSurf(GLData* gl, Octree* tr ) : IsoSurfaceAlgorithm(gl,tr) {
             g->setLines(); // two indexes per line-segment
             g->setUsageDynamicDraw();
 
@@ -80,61 +99,76 @@ class CubeSurf : public IsoSurfaceAlgorithm {
             undecided_color.set(0,1,0);
             outside_color.set(0,0,1);
             
-            draw_inside=false;
+            draw_inside=true;
             draw_outside=true;
-            draw_undecided=false;
+            draw_undecided=true;
             
         }
+    
+
+
     protected:
         Color inside_color;
         Color outside_color;
         Color undecided_color;
+        
         bool draw_inside, draw_outside,draw_undecided;
         // traverse tree and add/remove gl-elements to GLData
         void updateGL( Octnode* node) {
-            remove_node_vertices(node);
-            
-            // add lines corresponding to the cube.
-            const int segTable[12][2] = { // cube image: http://paulbourke.net/geometry/polygonise/
-                {0, 1},{1, 2},{2, 3},{3, 0},
-                {4, 5},{5, 6},{6, 7},{7, 4},
-                {0, 4},{1, 5},{2, 6},{3, 7}
-            };
-            if ( (node->is_inside() && draw_inside) ||
-                 (node->is_outside() && draw_outside) ||
-                 (node->is_undecided() && draw_undecided) 
-                ) {
-                for (unsigned int i=0; i <12 ; i++ ) {
-                    std::vector< unsigned int > lineSeg;
-                    GLVertex p1 = *(node->vertex)[ segTable[i][0 ] ];
-                    GLVertex p2 = *(node->vertex)[ segTable[i][1 ] ];
-                    Color line_color;
-                    if (node->is_outside()) {
-                        line_color = outside_color;
-                    } 
-                    if (node->is_inside()) {
-                        line_color = inside_color;
-                    } 
-                    if ( node->is_undecided() ) {
-                        line_color = undecided_color;
+            if (node->valid()) {
+                valid_count++;
+                return;
+            } else if ( !node->valid() ) {
+                update_calls++;
+                node->clearVertexSet();
+                
+                // add lines corresponding to the cube.
+                const int segTable[12][2] = { // cube image: http://paulbourke.net/geometry/polygonise/
+                    {0, 1},{1, 2},{2, 3},{3, 0},
+                    {4, 5},{5, 6},{6, 7},{7, 4},
+                    {0, 4},{1, 5},{2, 6},{3, 7}
+                };
+                if ( (node->is_inside() && draw_inside) ||
+                     (node->is_outside() && draw_outside) ||
+                     (node->is_undecided() && draw_undecided) 
+                    ) {
+                    for (unsigned int i=0; i <12 ; i++ ) {
+                        std::vector< unsigned int > lineSeg;
+                        GLVertex p1 = *(node->vertex)[ segTable[i][0 ] ];
+                        GLVertex p2 = *(node->vertex)[ segTable[i][1 ] ];
+                        Color line_color;
+                        if (node->is_outside()) {
+                            line_color = outside_color;
+                        } 
+                        if (node->is_inside()) {
+                            line_color = inside_color;
+                        } 
+                        if ( node->is_undecided() ) {
+                            line_color = undecided_color;
+                        }
+                        p1.setColor( line_color );
+                        p2.setColor( line_color );
+                            
+                        lineSeg.push_back( g->addVertex( p1, node ) );
+                        lineSeg.push_back( g->addVertex( p2, node ) );
+                        node->addIndex( lineSeg[0] ); 
+                        node->addIndex( lineSeg[1] ); 
+                        g->addPolygon( lineSeg );
                     }
-                    p1.setColor( line_color );
-                    p2.setColor( line_color );
-                        
-                    lineSeg.push_back( g->addVertex( p1 ) );
-                    lineSeg.push_back( g->addVertex( p2 ) );
-                    g->addPolygon( lineSeg );
                 }
-            }
-            
-            if ( node->childcount == 8 ) {
-                for (unsigned int m=0;m<8;m++) {
-                    updateGL( node->child[m] );
+                node->setValid();
+                
+                // current node done, now recurse into tree.
+                if ( node->childcount == 8 ) {
+                    for (unsigned int m=0;m<8;m++) {
+                        //if ( !node->child[m]->valid() )
+                            updateGL( node->child[m] );
+                    }
                 }
             }
         }
         
-        
+        /*
         std::vector< std::vector< GLVertex > > polygonize_node(const Octnode* node) {
             assert( node->childcount == 0 ); // don't call this on non-leafs!
             std::vector< std::vector< GLVertex > > triangles;
@@ -184,7 +218,7 @@ class CubeSurf : public IsoSurfaceAlgorithm {
                 }
             }
             return triangles;
-        }
+        }*/
 };
 
 } // end namespace

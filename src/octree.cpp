@@ -32,11 +32,12 @@ namespace cutsim {
 
 //**************** Octree ********************/
 
-Octree::Octree(double scale, unsigned int  depth, GLVertex& centerp) {
+Octree::Octree(double scale, unsigned int  depth, GLVertex& centerp, GLData* gl) {
     root_scale = scale;
     max_depth = depth;
+    g = gl;
                     // parent, idx, scale, depth
-    root = new Octnode( NULL , 0, root_scale, 0 );
+    root = new Octnode( NULL , 0, root_scale, 0 , g);
     root->center = new GLVertex(centerp);
     for ( int n=0;n<8;++n) {
         root->child[n] = NULL;
@@ -119,212 +120,58 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
 
 // naive sum, go to all nodes, dont adaptively subdivide.
 void Octree::sum(Octnode* current, const OCTVolume* vol) {
+    if ( !vol->bb.overlaps( current->bb ) )
+        return; // abort if no overlap.
+    
     current->sum(vol);
-    if ( current->childcount == 8 ) { 
+    if ( current->childcount == 8 ) { // recurse into existing tree
         for(int m=0;m<8;++m) {
-            sum( current->child[m], vol); // call sum on children
+            if ( !current->child[m]->is_inside()  ) // nodes that are already INSIDE cannot change in a sum-operation
+                sum( current->child[m], vol); // call sum on children
         }
-    } else if ( current->is_undecided() ) {
-        // subdivide if undecided
+    } else if ( current->is_undecided() ) { // no children, subdivide if undecided
         if ( (current->depth < (this->max_depth-1)) ) {
             current->subdivide(); // smash into 8 sub-pieces
             for(int m=0;m<8;++m) {
                 if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
                 sum( current->child[m], vol); // call sum on children
             }
+
         }
     }
-}
-
-// starting at current, traverse tree and apply sum to leaf nodes
-//  if overlapping non-leafs found, subdivide.
-#ifdef SUM_RECURSE
-void Octree::sum(Octnode* current, const OCTVolume* vol) {
-    if ( vol->bb.overlaps( current->bb ) ) { // only process overlapping nodes!
-        current->sum(vol);
-        if (current->inside) { // do nothing to nodes that are already inside!
-            if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " INSIDE, do nothing. \n";
-        } else if ( ( current->depth == (max_depth-1) ) ) { //leaf-node
-            //current->sum(vol);
-            current->setInValid();
-            if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " LEAF sum() -> " << current->type() << "\n";
-        } else  { 
-            // overlaps, but not leaf.
-            //current->sum(vol);
-            if ( current->childcount == 8 ) { // overlapping node has-child nodes
-                for(int m=0;m<8;++m) {
-                    if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " CHILD " << m << " sum()\n";
-                    sum( current->child[m], vol); // call sum on children
-                }
-                
-            } else if ( (current->depth < (this->max_depth-1)) ) { // overlapping node without children
-                    //if (!current->inside && !current->outside ) {
-                        current->subdivide(); // smash into 8 sub-pieces
-                        for(int m=0;m<8;++m) {
-                            if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
-                            sum( current->child[m], vol); // call sum on children
-                        }
-                    //}
-
-            }
-        }
-    } else { 
-        // no bb-overlap
-        if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " NO OVERLAP \n";
+    // now all children have their status set, prune.
+    if ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) {
+        //std::cout << current->spaces() << current->depth << ":" << current->idx << " prune\n";
+        current->delete_children();
     }
 }
-#endif
 
 
 void Octree::diff(Octnode* current, const OCTVolume* vol) {
-    if ( current->depth == (max_depth) && vol->bb.overlaps( current->bb ) ) { // a leaf-node
-        if (debug) std::cout << " depth=" << current->depth << " leaf diff()\n";
-        current->diff(vol);
-        current->setInValid();
-    } else if ( vol->bb.overlaps( current->bb ) )  { // boulding-box of volume overlaps with this node
-                                                     // so dive further into tree.
-
-        if ( current->childcount == 8 ) {
-            for(int m=0;m<8;++m) {
-                if (debug) std::cout << " depth=" << current->depth << " CHILD diff()\n";
+    if (  !vol->bb.overlaps( current->bb ) )
+        return;   
+    
+    current->diff(vol);
+    if ( current->childcount == 8 ) { // recurse into existing tree
+        for(int m=0;m<8;++m) {
+            if ( !current->child[m]->is_outside()  ) // nodes that are OUTSIDE don't change
                 diff( current->child[m], vol); // call sum on children
-            }
-        } else if ( current->depth < (this->max_depth) ) { 
+        }
+    } else if ( current->is_undecided()  ) { // no children, subdivide if undecided
+        if ( (current->depth < (this->max_depth-1)) ) {
             current->subdivide(); // smash into 8 sub-pieces
             for(int m=0;m<8;++m) {
-                if (debug) std::cout << " depth=" << current->depth << " SUBDIVIDE diff()\n";
+                //if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
                 diff( current->child[m], vol); // call sum on children
             }
         }
     }
+    // now all children have their status set, prune.
+    if ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) {
+        //std::cout << current->spaces() << current->depth << ":" << current->idx << " prune\n";
+        current->delete_children();
+    }
 }
-
-// subtract vol from the Octnode current
-#ifdef OLD_DIFF
-void Octree::diff(Octnode* current, const OCTVolume* vol) {
-    if (debug)
-        std::cout << " diff() depth=" << current->depth << "\n";
-        
-    if ( current->isLeaf() ) { // process only leaf-nodes
-        current->evaluate( vol ); // this evaluates the distance field and sets the inside/outside flags
-        if ( current->inside  ) { 
-            // inside nodes should be deleted
-            if (debug) {
-                std::cout << " inside node, remove!: " << current->str() << " \n";
-            }
-            remove_node_vertices(current);
-            Octnode* parent = current->parent;                          assert( parent );
-            unsigned int delete_index = current->idx;                   assert( delete_index >=0 && delete_index <=7 ); 
-            delete parent->child[ delete_index ]; // call destructor!
-            parent->child[ delete_index ]=0;
-            --parent->childcount;
-            assert( parent->childcount >=0 && parent->childcount <=8);
-            if (parent->childcount == 0)  { // if the parent has become a leaf node
-                //diff_negative(parent, vol); // this causes segfault... WHY?
-                parent->evaluate( vol ); // back up the tree
-                if (! parent->inside ) {
-                    std::cout << " !parent->inside \n" << parent->printF() << "\n";
-                }
-                assert( parent->inside  ); // then it is itself inside
-            }
-            
-        } else if (current->outside) {
-            if (debug)
-                std::cout << " " << current->depth << " outside, do nothing.\n";
-            // do nothing to outside  leaf nodes.
-            // this terminates recursion.
-        } else {// these are intermediate (netiher inside nor outside) leaf nodes
-            if ( current->depth < (this->max_depth) ) { 
-                if (debug)
-                    std::cout << " " << current->depth << " not in/out. subdivide.\n";
-                // subdivide, if possible
-                current->subdivide();                                   assert( current->childcount == 8 );
-                for(int m=0;m<8;++m) {
-                    assert(current->child[m]); // when we subdivide() there must be a child.
-                    if ( vol->bb.overlaps( current->child[m]->bb ) ) {
-                        if (debug)
-                            std::cout << " " << current->depth << " calling diff on NEW child " << m << "\n";
-                        diff( current->child[m], vol); // call diff on child
-                    }
-                }
-            } else { 
-                // max depth reached, intermediate node, but can't subdivide anymore
-                assert( current->depth == (this->max_depth) );
-                if (debug)
-                    std::cout << " " << current->depth << " at max depth, can't subdivide.\n";
-            }
-        }
-    } else { // not a leaf, so go deeper into tree
-        for(int m=0;m<8;++m) { 
-            if ( current->child[m] ) {
-                if ( vol->bb.overlaps( current->child[m]->bb ) )
-                    if (debug)
-                        std::cout << " " << current->depth << " not leaf. calling diff on child " << m << "\n";
-                    
-                    diff( current->child[m], vol); // call diff on child
-            }
-        }
-    }
-
-}
-#endif
-
-
-// starting at current, update the isosurface
-/*
-void Octree::updateGL(Octnode* current) {
-    if (current->valid() ) {
-        if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " UpdateGL() valid.\n";
-        return; // since valid(), do nothing. terminate recursion here as early as possible.
-    } else if ( current->isLeaf() && current->is_undecided()  && !current->valid() ) {  // 
-        // this is a leaf and a surface-node
-        if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " UpdateGL() LEAF call mc_node() .\n";
-        std::vector< std::vector< GLVertex > > polys = surface_algorithm->polygonize_node(current);
-        BOOST_FOREACH( std::vector< GLVertex > poly, polys ) {
-            std::vector<unsigned int> polyIndexes;
-            for (unsigned int m=0;m< poly.size() ;++m) { // Three for triangles, FOUR for quads
-                unsigned int vertexId =  g->addVertex( poly[m].x, poly[m].y, poly[m].z, poly[m].r, poly[m].g, poly[m].b, current ); // add vertex to GL
-                current->addIndex( vertexId ); // associate node with vertex
-                g->setNormal( vertexId, poly[m].nx, poly[m].ny, poly[m].nz );
-                polyIndexes.push_back( vertexId );
-            }
-            g->addPolygon(polyIndexes); // add poly to GL
-            current->setValid(); // isosurface is now valid for this node!
-            if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " UpdateGL() LEAF got "<< polys.size() <<  " polygons .\n";
-        }
-    } else if ( current->isLeaf() && !current->is_undecided() && !current->valid() ) { 
-        if (debug_mc) std::cout << current->spaces() << current->depth << ":" << current->idx << " LEAF but not surf(?)\n";
-        //leaf, but no surface
-        //current->setValid(); // ??
-    } else {
-        for (int m=0;m<8;++m) { // go deeper into tree, if !valid
-            if ( current->hasChild(m)  && !current->valid() ) { // 
-                //if (debug) std::cout << current->spaces() << current->depth << ":" << current->idx << " calling mc() on child\n";
-                updateGL(current->child[m]);
-            }
-        }
-    }
-}*/
-
-
-// we store the gl-vertices associated with this node in the vertexSet
-// when a node is deleted, we here remove each vertex by calling g->removeVertex()
-// this also removes any associated polygons
-
-/*
-void Octree::remove_node_vertices(Octnode* current ) {
-    if (debug)
-        std::cout << " remove_node_vertices ....";
-    while( !current->vertexSetEmpty() ) {
-        unsigned int delId = current->vertexSetTop();
-        current->removeIndex( delId );
-        g->removeVertex( delId );
-    }
-    if (debug)
-        std::cout << " done.\n";
-    assert( current->vertexSetEmpty() ); // when done, set should be empty
-}*/
-
 
 
 // string repr

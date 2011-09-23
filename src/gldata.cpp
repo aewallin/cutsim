@@ -29,14 +29,15 @@
 namespace cutsim {
 
 unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
-    return addVertex( GLVertex(x,y,z,r,g,b) );
+    return addVertex( GLVertex(x,y,z,r,g,b), NULL );
 }
     
-unsigned int GLData::addVertex(GLVertex v) {
+unsigned int GLData::addVertex(GLVertex v, Octnode* n) {
     // add vertex with empty polygon-list.
     unsigned int idx = vertexArray.size();
     vertexArray.append(v);
     vertexDataArray.append( VertexData() );
+    vertexDataArray[idx].node = n;
     assert( vertexArray.size() == vertexDataArray.size() );
     return idx; // return index of newly appended vertex
 }
