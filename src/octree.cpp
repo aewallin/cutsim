@@ -118,13 +118,13 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
-// naive sum, go to all nodes, dont adaptively subdivide.
+// sum (union) of tree and OCTVolume
 void Octree::sum(Octnode* current, const OCTVolume* vol) {
-    if ( !vol->bb.overlaps( current->bb ) )
+    if ( !vol->bb.overlaps( current->bb ) || current->is_inside() ) // if no overlap, or already INSIDE, then quit.
         return; // abort if no overlap.
     
     current->sum(vol);
-    if ( current->childcount == 8 ) { // recurse into existing tree
+    if ( (current->childcount == 8) && current->is_undecided()  ) { // recurse into existing tree
         for(int m=0;m<8;++m) {
             if ( !current->child[m]->is_inside()  ) // nodes that are already INSIDE cannot change in a sum-operation
                 sum( current->child[m], vol); // call sum on children
@@ -132,42 +132,41 @@ void Octree::sum(Octnode* current, const OCTVolume* vol) {
     } else if ( current->is_undecided() ) { // no children, subdivide if undecided
         if ( (current->depth < (this->max_depth-1)) ) {
             current->subdivide(); // smash into 8 sub-pieces
-            for(int m=0;m<8;++m) {
-                if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
+            for(int m=0;m<8;++m) 
                 sum( current->child[m], vol); // call sum on children
-            }
-
         }
     }
-    // now all children have their status set, prune.
-    if ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) {
-        //std::cout << current->spaces() << current->depth << ":" << current->idx << " prune\n";
+    // now all children of current have their status set, and we can prune.
+    if ( (current->childcount == 8) && ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) ) {
+        //std::cout << "Octree::sum() pruning: " << current->spaces() << current->depth << ":" << current->idx << " prune\n";
+        //std::cout << "all_child_state(Octnode::INSIDE)= " << current->all_child_state(Octnode::INSIDE) << "\n";
+        //std::cout << "current->all_child_state(Octnode::OUTSIDE)= " << current->all_child_state(Octnode::OUTSIDE) << "\n";
+
         current->delete_children();
     }
 }
 
 
 void Octree::diff(Octnode* current, const OCTVolume* vol) {
-    if (  !vol->bb.overlaps( current->bb ) )
+    if (  !vol->bb.overlaps( current->bb ) || current->is_outside() ) // if no verlap, or already OUTSIDE, then quit.
         return;   
     
     current->diff(vol);
-    if ( current->childcount == 8 ) { // recurse into existing tree
+    if ( ((current->childcount) == 8) && current->is_undecided() ) { // recurse into existing tree
         for(int m=0;m<8;++m) {
-            if ( !current->child[m]->is_outside()  ) // nodes that are OUTSIDE don't change
-                diff( current->child[m], vol); // call sum on children
+            //if ( !current->child[m]->is_outside()  ) // nodes that are OUTSIDE don't change
+                diff( current->child[m], vol); // call diff on children
         }
-    } else if ( current->is_undecided()  ) { // no children, subdivide if undecided
+    } else if ( current->is_undecided() ) { // no children, subdivide if undecided 
         if ( (current->depth < (this->max_depth-1)) ) {
             current->subdivide(); // smash into 8 sub-pieces
             for(int m=0;m<8;++m) {
-                //if (debug) std::cout << current->spaces() << current->depth << " SUBDIVIDE sum()\n";
-                diff( current->child[m], vol); // call sum on children
+                diff( current->child[m], vol); // call diff on children
             }
         }
     }
     // now all children have their status set, prune.
-    if ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) {
+    if ( (current->childcount == 8) && ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) ) {
         //std::cout << current->spaces() << current->depth << ":" << current->idx << " prune\n";
         current->delete_children();
     }

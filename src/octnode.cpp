@@ -67,31 +67,38 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     g=gl;
     parent = nodeparent;
     idx = index;
+    scale = nodescale;
+    depth = nodedepth;
+    
     child.resize(8);
     vertex.resize(8);
     f.resize(8);
     if (parent) {
         center = parent->childcenter(idx);
-        inside = parent->inside;
-        outside = parent->outside;
-        state = parent->state;
+        //inside = parent->inside;
+        //outside = parent->outside;
+        state = UNDECIDED;
         /*
         for ( int n=0;n<8;++n) {
             childState[n]= parent->state;
         }*/
     } else { // root node has no parent
-        outside = true;
-        inside = false;
+        //outside = true;
+        //inside = false;
         center = new GLVertex(0,0,0); // default center for root is (0,0,0)
         state = UNDECIDED;
     }
-    scale = nodescale;
-    depth = nodedepth;
+
     
     for ( int n=0;n<8;++n) {
         vertex[n] = new GLVertex(*center + direction[n] * scale ) ;
-        f[n] = -1; // everything is "outside" by default.
-        
+        if (parent) {
+            f[n] = parent->f[n];
+            //childState[n] = OUTSIDE; //parent->state;
+        } else {
+            f[n] = -1e9; // everything is "outside" by default.
+            //childState[n] = UNDECIDED;
+        }
     }
     bb.clear();
     bb.addPoint( *vertex[2] ); // vertex[2] has the minimum x,y,z coordinates
@@ -99,6 +106,7 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     
     isosurface_valid = false;
     evaluated = false;
+    
     childcount = 0;
     childStatus = 0;
     set_flags();
@@ -107,20 +115,13 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
 // call delete on children, vertices, and center
 Octnode::~Octnode() {
     if (childcount == 8 ) {
-    for(int n=0;n<8;++n) {
-                delete child[n];
-                child[n] = 0;
-                delete vertex[n];
-                vertex[n] = 0;
-      //  }    
-        //if (parent) {
-        //    parent->child[n] = 0;
-        //    parent->childcount--;
-        //}
-        
+        for(int n=0;n<8;++n) {
+            delete child[n];
+            child[n] = 0;
+            delete vertex[n];
+            vertex[n] = 0;
+        }
     }
-    }
-    //childcount = 0;
     delete center;
     center = 0;
 }
@@ -152,8 +153,23 @@ void Octnode::subdivide() {
 void Octnode::delete_children() {
     if (childcount==8) {
         NodeState s0 = child[0]->state;
+        //std::cout << spaces() << depth << ":" << idx << " delete_children\n";
+        //std::cout << "before: s0= " << s0 << " \n";
+        //std::cout << " delete_children() states: ";
+        //for ( int m=0;m<8;m++ ) {
+        //    std::cout << child[m]->state << " ";
+        //}
+                
         for (int n=0;n<8;n++) {
             //std::cout << depth << " deleting " << n << "\n";
+            if ( s0 != child[n]->state ) {
+                std::cout << " delete_children() error: ";
+                //for ( int m=0;m<8;m++ ) {
+                //    std::cout << child[m]->state << " ";
+                //}
+                std::cout << "\n";
+                std::cout << " s0= " << s0 << " \n";
+            }
             assert( s0 == child[n]->state );
             child[n]->clearVertexSet(  );
             delete child[n];
@@ -166,19 +182,18 @@ void Octnode::delete_children() {
 }
                     
 // inherit as well as possible the f-values from parent. (?a good idea? needed?)
+
 /*
 void Octnode::inherit_f() {
     assert( this->parent );
-    
+    //std::cout << " inherit_f() \n";
     for (unsigned int i =0 ; i<8 ;i++) {
-        if (i == idx) 
+        //if (i == idx) 
             f[i] = parent->f[i];
-        else {
-            f[i] = 0.5*(parent->f[idx] + parent->f[i]);  // some kind of linear interpolation
-        }
+        //else {
+        //    f[i] = 0.5*(parent->f[idx] + parent->f[i]);  // some kind of linear interpolation
+       // }
     }
-    
-    //evaluated = true; //(?)
 }*/
 
 // evaluate vol->dist() at all the vertices and store in f[]

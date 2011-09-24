@@ -47,7 +47,7 @@ class Octnode {
     public:
         enum NodeState  {INSIDE, OUTSIDE, UNDECIDED };
         NodeState state;
-        NodeState childState[8];
+        //NodeState childState[8];
         
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth, GLData* g);
@@ -62,7 +62,7 @@ class Octnode {
         }
         void diff(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) 
-                f[n] = std::min( f[n], -vol->dist( *(vertex[n]) ) );
+                f[n] = std::min( f[n], -1.0*vol->dist( *(vertex[n]) ) );
             set_flags();
         }
         void intersect(const OCTVolume* vol) {
@@ -76,8 +76,8 @@ class Octnode {
         
         void set_flags() {
             NodeState old_state = state;
-            outside = true;
-            inside = true;
+            bool outside = true;
+            bool inside = true;
             for ( int n=0;n<8;n++) {
                 if ( f[n] >= 0.0 ) {// if one vertex is inside
                     outside = false; // then it's not an outside-node
@@ -96,7 +96,8 @@ class Octnode {
                 setUndecided();
             else
                 assert(0);
-                
+            
+            // sanity check..
             assert( (is_inside() && !is_outside() && !is_undecided() ) ||
                     (!is_inside() && is_outside() && !is_undecided() ) ||
                     (!is_inside() && !is_outside() && is_undecided() ) );
@@ -114,52 +115,86 @@ class Octnode {
         bool is_undecided() { return (state==UNDECIDED); }
         
         void setInside() {
-            //std::cout << spaces() << depth << ":" << idx << "setInside()";
-            state = INSIDE;
-            if (parent)
-                parent->setInside( this->idx );
-        }
-        void setInside(unsigned int id) {
-            childState[id] = INSIDE;
-            if ( all_child_state(INSIDE) && (state!=INSIDE) ) {
-                setInside();
+            if ( (state!=INSIDE) && ( all_child_state(INSIDE) || childcount==0  ) ) {
+                state = INSIDE;
+                if (parent && ( parent->state != INSIDE) )
+                    parent->setInside();
             }
-        }
-        void setUndecided() {
-            //std::cout << spaces() << depth << ":" << idx << " setUndecided()\n";
-            state = UNDECIDED;
-            if (parent)
-                parent->setUndecided( this->idx );
-        }
-        
-        void setUndecided( unsigned int id ) {
-            childState[id] = UNDECIDED;
-            setUndecided(); // no checks, if one child UNDECIDED, then this UNDECIDED
         }
         
         void setOutside() {
-            //std::cout << spaces() << depth << ":" << idx << " setOutside()\n";
-            state = OUTSIDE;
-            if (parent)
-                parent->setOutside( this->idx );
-        }
-        void setOutside(unsigned int id) {
-            childState[id] = OUTSIDE;
-            if ( all_child_state(OUTSIDE)  && (state!=OUTSIDE) )  { // 
-                setOutside(); // can remove children?
-
+            if ( (state!=OUTSIDE) && ( all_child_state(OUTSIDE) || childcount==0  ) )  {
+                state = OUTSIDE;
+                if (parent && ( parent->state != OUTSIDE ) )
+                    parent->setOutside();
             }
         }
         
-        bool all_child_state(NodeState s) {
-            int n=0;
-            for (unsigned int m=0;m<8;m++) {
-                if ( childState[m] == s ) {
-                    n++;
-                }
+        void setUndecided() {
+            if (state != UNDECIDED) {
+                state = UNDECIDED;
+                //if (parent && (parent->state != UNDECIDED) )
+                //    parent->setUndecided();
             }
-            return (n==8);
         }
+        
+        
+        
+        /*
+        void setInside(unsigned int id) {
+            childState[id] = INSIDE;
+            if ( all_child_state(INSIDE) && (state!=INSIDE) ) 
+                setInside();
+        }*/
+        
+
+        
+        /*
+        void setUndecided( unsigned int id ) {
+            childState[id] = UNDECIDED;
+            setUndecided(); // no checks, if one child UNDECIDED, then this UNDECIDED
+        }*/
+        
+
+        /*
+        void setOutside(unsigned int id) {
+            childState[id] = OUTSIDE;
+            if ( (state!=OUTSIDE) && all_child_state(OUTSIDE)  )   
+                setOutside(); 
+        }*/
+        
+        bool all_child_state(NodeState s) const {
+            if ( childcount == 8 ) {
+                return ( child[0]->state == s ) && 
+                        ( child[1]->state == s ) && 
+                        ( child[2]->state == s ) && 
+                        ( child[3]->state == s ) && 
+                        ( child[4]->state == s ) && 
+                        ( child[5]->state == s ) && 
+                        ( child[6]->state == s ) && 
+                        ( child[7]->state == s ) ;
+               /* for (unsigned int m=0;m<8;m++) {
+                    if ( child[m]->state != s ) 
+                        return false;
+                }*/
+            } else {
+                return false;
+            }
+            return true;
+        }
+        
+        /*
+        bool all_child_state(NodeState s) const {
+            if ( childcount == 8 ) {
+                for (unsigned int m=0;m<8;m++) {
+                    if ( child[m]->state != s ) 
+                        return false;
+                }
+            } else {
+                return false;
+            }
+            return true;
+        }*/
         
         void delete_children();
 
@@ -183,9 +218,9 @@ class Octnode {
         /// value of implicit function at vertex
         std::vector<double> f; 
         /// flag set true if this node is outside
-        bool outside;
+        //bool outside;
         /// flag for inside node
-        bool inside;
+        //bool inside;
 
         /// the center point of this node
         GLVertex* center; // the centerpoint of this node
@@ -222,11 +257,11 @@ class Octnode {
         }
         std::string type() const {
             std::ostringstream stream;
-            if (inside)
+            if (state == INSIDE)
                 stream << "inside";  
-            else if (outside)
+            else if (state == OUTSIDE)
                 stream << "outside";  
-            else if (!outside && !inside)
+            else if (state == UNDECIDED)
                 stream << "undecided";  
             else
                 assert(0);
@@ -236,7 +271,7 @@ class Octnode {
         void setChildValid( unsigned int id );
         inline void setChildInvalid( unsigned int id );
         
-        void inherit_f();
+        //void inherit_f();
         
         // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;

@@ -68,6 +68,7 @@ int main( int argc, char **argv ) {
     stock->calcBB();
     cs->setColor(1,1,0);
     cs->diff_volume(stock);
+    //cs->sum_volume(stock);
     delete stock;
   
     
