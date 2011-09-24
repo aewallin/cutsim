@@ -157,7 +157,7 @@ void Octree::diff(Octnode* current, const OCTVolume* vol) {
             //if ( !current->child[m]->is_outside()  ) // nodes that are OUTSIDE don't change
                 diff( current->child[m], vol); // call diff on children
         }
-    } else if ( current->is_undecided() ) { // no children, subdivide if undecided 
+    } else if (  current->is_undecided() ) { // no children, subdivide if undecided 
         if ( (current->depth < (this->max_depth-1)) ) {
             current->subdivide(); // smash into 8 sub-pieces
             for(int m=0;m<8;++m) {

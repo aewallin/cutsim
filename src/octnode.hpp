@@ -58,85 +58,29 @@ class Octnode {
         void sum(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) 
                 f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
-            set_flags();
+            set_state();
         }
         void diff(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) 
                 f[n] = std::min( f[n], -1.0*vol->dist( *(vertex[n]) ) );
-            set_flags();
+            set_state();
         }
         void intersect(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) {
                 f[n] = std::min( f[n], vol->dist( *(vertex[n]) ) );
             }
-            set_flags();
+            set_state();
         }
         
         
         
-        void set_flags() {
-            NodeState old_state = state;
-            bool outside = true;
-            bool inside = true;
-            for ( int n=0;n<8;n++) {
-                if ( f[n] >= 0.0 ) {// if one vertex is inside
-                    outside = false; // then it's not an outside-node
-                } else { // if one vertex is outside
-                    assert( f[n] < 0.0 );
-                    inside = false; // then it's not an inside node anymore
-                }
-            }
-            assert( !( outside && inside) ); // sanity check
-            
-            if ( (inside) && (!outside) )
-                setInside();
-            else if ( (outside) && (!inside) )
-                setOutside();
-            else if ( (!inside) && (!outside) )
-                setUndecided();
-            else
-                assert(0);
-            
-            // sanity check..
-            assert( (is_inside() && !is_outside() && !is_undecided() ) ||
-                    (!is_inside() && is_outside() && !is_undecided() ) ||
-                    (!is_inside() && !is_outside() && is_undecided() ) );
-            
-            if ( ((old_state == INSIDE) && (state== INSIDE)) ||
-                ((old_state == OUTSIDE) && (state== OUTSIDE))
-             ) {
-                } else {
-                    setInvalid();
-                }
-        }
+
         
         bool is_inside()    { return (state==INSIDE); }
         bool is_outside()   { return (state==OUTSIDE); }
         bool is_undecided() { return (state==UNDECIDED); }
         
-        void setInside() {
-            if ( (state!=INSIDE) && ( all_child_state(INSIDE) || childcount==0  ) ) {
-                state = INSIDE;
-                if (parent && ( parent->state != INSIDE) )
-                    parent->setInside();
-            }
-        }
-        
-        void setOutside() {
-            if ( (state!=OUTSIDE) && ( all_child_state(OUTSIDE) || childcount==0  ) )  {
-                state = OUTSIDE;
-                if (parent && ( parent->state != OUTSIDE ) )
-                    parent->setOutside();
-            }
-        }
-        
-        void setUndecided() {
-            if (state != UNDECIDED) {
-                state = UNDECIDED;
-                //if (parent && (parent->state != UNDECIDED) )
-                //    parent->setUndecided();
-            }
-        }
+
         
         
         
@@ -178,7 +122,7 @@ class Octnode {
                         return false;
                 }*/
             } else {
-                return false;
+                return true;
             }
             return true;
         }
@@ -267,7 +211,67 @@ class Octnode {
                 assert(0);
             return stream.str();
         }
-    protected:  
+    protected: 
+        void set_state() {
+            NodeState old_state = state;
+            bool outside = true;
+            bool inside = true;
+            for ( int n=0;n<8;n++) {
+                if ( f[n] >= 0.0 ) {// if one vertex is inside
+                    outside = false; // then it's not an outside-node
+                } else { // if one vertex is outside
+                    assert( f[n] < 0.0 );
+                    inside = false; // then it's not an inside node anymore
+                }
+            }
+            assert( !( outside && inside) ); // sanity check
+            
+            if ( (inside) && (!outside) )
+                setInside();
+            else if ( (outside) && (!inside) )
+                setOutside();
+            else if ( (!inside) && (!outside) )
+                setUndecided();
+            else
+                assert(0);
+            
+            // sanity check..
+            assert( (is_inside() && !is_outside() && !is_undecided() ) ||
+                    (!is_inside() && is_outside() && !is_undecided() ) ||
+                    (!is_inside() && !is_outside() && is_undecided() ) );
+            
+            if ( ((old_state == INSIDE) && (state== INSIDE)) ||
+                ((old_state == OUTSIDE) && (state== OUTSIDE))
+             ) {
+                } else {
+                    setInvalid();
+                }
+        }
+        
+        void setInside() {
+            if ( (state!=INSIDE) && ( all_child_state(INSIDE)   ) ) {
+                state = INSIDE;
+                if (parent && ( parent->state != INSIDE) )
+                    parent->setInside();
+            }
+        }
+        
+        void setOutside() {
+            if ( (state!=OUTSIDE) && ( all_child_state(OUTSIDE)   ) )  {
+                state = OUTSIDE;
+                if (parent && ( parent->state != OUTSIDE ) )
+                    parent->setOutside();
+            }
+        }
+        
+        void setUndecided() {
+            if (state != UNDECIDED) {
+                state = UNDECIDED;
+                //if (parent && (parent->state != UNDECIDED) )
+                //    parent->setUndecided();
+            }
+        }
+         
         void setChildValid( unsigned int id );
         inline void setChildInvalid( unsigned int id );
         

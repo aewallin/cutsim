@@ -69,35 +69,34 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     idx = index;
     scale = nodescale;
     depth = nodedepth;
-    
+    state = UNDECIDED;
     child.resize(8);
     vertex.resize(8);
     f.resize(8);
     if (parent) {
         center = parent->childcenter(idx);
-        //inside = parent->inside;
-        //outside = parent->outside;
-        state = UNDECIDED;
-        /*
-        for ( int n=0;n<8;++n) {
-            childState[n]= parent->state;
-        }*/
+        
     } else { // root node has no parent
-        //outside = true;
-        //inside = false;
         center = new GLVertex(0,0,0); // default center for root is (0,0,0)
-        state = UNDECIDED;
     }
 
     
     for ( int n=0;n<8;++n) {
         vertex[n] = new GLVertex(*center + direction[n] * scale ) ;
+        //f[n] = +1;
         if (parent) {
-            f[n] = parent->f[n];
-            //childState[n] = OUTSIDE; //parent->state;
+            if (parent->state == INSIDE)
+                f[n]=1;
+            if (parent->state == OUTSIDE)
+                f[n]=-1;
+            else
+                f[n]=-1;
+                
+             //f[n]= parent->f[n];  // why does this make a big diggerence in the speed of sum() and dif() ??
+             // sum() sum(): 0.15s + 0.27s   compared to 1.18 + 0.47
+             // sum() diff(): 0.15 + 0.2     compared to 1.2 + 0.46
         } else {
-            f[n] = -1e9; // everything is "outside" by default.
-            //childState[n] = UNDECIDED;
+            f[n] = -1; 
         }
     }
     bb.clear();
@@ -109,7 +108,7 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     
     childcount = 0;
     childStatus = 0;
-    set_flags();
+    //set_flags();
 }
 
 // call delete on children, vertices, and center
@@ -138,10 +137,7 @@ void Octnode::subdivide() {
         for( int n=0;n<8;++n ) {
             Octnode* newnode = new Octnode( this, n , scale/2.0 , depth+1 , g); // parent,  idx, scale,   depth, GLdata
             this->child[n] = newnode;
-            //newnode->inherit_f();
             ++childcount;
-            
-            // optimization: inherit one f[n] from the corner?
         }
     } else {
         std::cout << " DON'T subdivide a non-leaf node \n";

@@ -100,8 +100,8 @@ class CubeSurf : public IsoSurfaceAlgorithm {
             outside_color.set(0,0,1);
             
             draw_inside=true;
-            draw_outside=true;
-            draw_undecided=true;
+            draw_outside=false;
+            draw_undecided=false;
             
         }
     
