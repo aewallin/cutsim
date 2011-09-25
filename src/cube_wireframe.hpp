@@ -17,78 +17,17 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ISOSURFACE_H
-#define ISOSURFACE_H
+#ifndef CUBE_WIREFRAME_H
+#define CUBE_WIREFRAME_H
 
 #include <cassert>
 #include <vector>
 
 
-#include "gldata.hpp"
-#include "octree.hpp"
-#include "octnode.hpp"
+#include "isosurface.hpp"
 
 namespace cutsim {
 
-/// abstract base class for isosurface extraction algorithms
-/// 
-///
-class IsoSurfaceAlgorithm {
-    public:
-        IsoSurfaceAlgorithm(GLData* gl, Octree* tr) : g(gl), tree(tr) {}
-        virtual ~IsoSurfaceAlgorithm() { }
-        
-        // return polygons corresponding to the octree node
-        //virtual std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node) = 0;
-        virtual void updateGL(){ 
-            update_calls=0;
-            valid_count=0;
-            debugValid();
-            updateGL( tree->root );
-            debugValid();
-            
-            g->updateVBO();
-            std::cout << update_calls << " calls made\n";
-            std::cout << valid_count << " valid_nodes\n";
-        }
-        void setColor(GLfloat r, GLfloat g, GLfloat b) {
-            red=r;
-            green=g;
-            blue=b;
-        }
-
-    protected:
-        int update_calls, valid_count;
-        virtual void updateGL( Octnode* node) =0 ;
-        GLfloat red,green,blue; // current color for vertices
-        GLData* g;
-        Octree* tree;
-        
-        void remove_node_vertices(Octnode* current ) {
-            while( !current->vertexSetEmpty() ) {
-                unsigned int delId = current->vertexSetTop();
-                //std::cout << "removing " << delId << "\n";
-                current->removeIndex( delId );
-                g->removeVertex( delId );
-            }
-            assert( current->vertexSetEmpty() ); // when done, set should be empty
-        }
-        
-        void debugValid() {
-            std::vector<Octnode*> nodelist; // = new std::vector<Octnode*>();
-            tree->get_all_nodes( tree->root,  nodelist);
-            int val=0,inv=0;
-            BOOST_FOREACH( Octnode* node , nodelist ) {
-                if ( node->valid() )
-                    val++;
-                else
-                    inv++;
-            }
-            std::cout << "debugValid() " << val << "valid nodes and " << inv << " invalid total=" << nodelist.size() <<" \n";
-        }
-};
-
-/*
 class CubeWireFrame : public IsoSurfaceAlgorithm {
     public:
         CubeWireFrame(GLData* gl, Octree* tr ) : IsoSurfaceAlgorithm(gl,tr) {
@@ -168,8 +107,58 @@ class CubeWireFrame : public IsoSurfaceAlgorithm {
             }
         }
         
-
-};*/
+        /*
+        std::vector< std::vector< GLVertex > > polygonize_node(const Octnode* node) {
+            assert( node->childcount == 0 ); // don't call this on non-leafs!
+            std::vector< std::vector< GLVertex > > triangles;
+            // unsigned int edgeTableIndex = mc_edgeTableIndex(node);
+            // the index into this table now tells us which edges have the vertices
+            // for the new triangles
+            // the lookup returns a 12-bit number, where each bit indicates wether 
+            // the edge is cut by the isosurface
+            //unsigned int edges = edgeTable[edgeTableIndex];
+            // calculate intersection points by linear interpolation
+            // there are now 12 different cases:
+            //std::vector< GLVertex > vertices = interpolated_vertices(node, edges);
+            // assert( vertices.size()==12 );
+            // form triangles by lookup in triTable
+            
+            const int triTable[12][3] = {
+                {0, 1, 2},
+                {0, 2, 3},
+                {0, 4, 7},
+                {0, 3, 7},
+                {0, 1, 5},
+                {0, 4, 5},
+                {4, 5, 6},
+                {4, 6, 7},
+                {1, 5, 6},
+                {1, 2, 6},
+                {2, 6, 7},
+                {2, 3, 7}
+                }; 
+            if (node->inside) {
+                for (unsigned int i=0; i <12 ; i++ ) {
+                    std::vector< GLVertex > triangle;
+                    triangle.push_back( *(node->vertex)[ triTable[i][0 ] ] );
+                    triangle.push_back( *(node->vertex)[ triTable[i][1 ] ] );
+                    triangle.push_back( *(node->vertex)[ triTable[i][2 ] ] );
+                    // calculate normal
+                    GLVertex n = (triangle[0]-triangle[1]).cross( triangle[0]-triangle[2] );
+                    n.normalize();
+                    triangle[0].setNormal(n.x,n.y,n.z);
+                    triangle[1].setNormal(n.x,n.y,n.z);
+                    triangle[2].setNormal(n.x,n.y,n.z);
+                    // setColor
+                    triangle[0].setColor(red,green,blue);
+                    triangle[1].setColor(red,green,blue);
+                    triangle[2].setColor(red,green,blue);
+                    triangles.push_back( triangle );
+                }
+            }
+            return triangles;
+        }*/
+};
 
 } // end namespace
 #endif

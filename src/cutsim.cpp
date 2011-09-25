@@ -40,7 +40,7 @@ Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w):
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
     
     //iso_algo = new MarchingCubes(g, tree);
-    iso_algo = new CubeSurf(g, tree);
+    iso_algo = new CubeWireFrame(g, tree);
     //tree->set_surface_algorithm(iso_algo);
     //tree->setGLData(g); // connect tree and gldata, so that tree can create/delete verts and polys
     //iso_algo->setGLData(g);

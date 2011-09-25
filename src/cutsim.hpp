@@ -35,6 +35,7 @@
 #include "octnode.hpp"
 #include "volume.hpp"
 #include "marching_cubes.hpp"
+#include "cube_wireframe.hpp"
 #include "gldata.hpp"
 #include "glwidget.hpp"
 
