@@ -26,6 +26,7 @@
 
 #include "bbox.hpp"
 #include "glvertex.hpp"
+#include "gldata.hpp"
 
 namespace cutsim {
     
@@ -56,6 +57,10 @@ class OCTVolume {
         /// bounding-box
         Bbox bb;
         //bool invert;
+        Color color;
+        void setColor(GLfloat r, GLfloat g, GLfloat b) {
+        color.r=r; color.g=g; color.b=b;
+        }
 };
 
 // sub-classes of OCTVolume below:
@@ -74,6 +79,8 @@ class SphereVolume: public OCTVolume {
         /// radius of sphere
         double radius;
 };
+
+
 
 /*
 /// cube at center with side-length side

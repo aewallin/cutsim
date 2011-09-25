@@ -30,8 +30,6 @@ Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w):
     g->setPolygonModeFill(); 
     g->genVBO();
     
-
-    
     GLVertex octree_center(0,0,0);
     tree = new Octree(octree_size, octree_max_depth, octree_center, g );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
@@ -39,16 +37,9 @@ Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w):
     tree->debug=false;
     std::cout << "Cutsim() ctor: tree after init: " << tree->str() << "\n";
     
-    //iso_algo = new MarchingCubes(g, tree);
-    iso_algo = new CubeWireFrame(g, tree);
-    //tree->set_surface_algorithm(iso_algo);
-    //tree->setGLData(g); // connect tree and gldata, so that tree can create/delete verts and polys
-    //iso_algo->setGLData(g);
-    //iso_algo->setTree(tree);
+    iso_algo = new MarchingCubes(g, tree);
+    //iso_algo = new CubeWireFrame(g, tree);
     
-    
-    //tree->debug=true;
-    tree->debug=false;
 } 
 
 Cutsim::~Cutsim() {
@@ -109,10 +100,10 @@ void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with 
     //std::cout << " before diff: " << tree->str() << "\n";
     //std::clock_t start, stop;
     //boost::timer tim;
-    setColor(1,0,0);
+    s.setColor(1,0,0);
     diff_volume( &s );
     
-    setColor(1,0,1);
+    s.setColor(1,0,1);
     s.center = cutsim::GLVertex(0,2,0);
     s.calcBB();
     diff_volume( &s );

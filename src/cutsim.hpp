@@ -53,9 +53,7 @@ public:
     void diff_volume( OCTVolume* vol );
     void sum_volume( OCTVolume* vol );
     void intersect_volume( OCTVolume* vol );
-    void setColor(GLfloat r, GLfloat g, GLfloat b) {
-        red=r; green=g; blue=b;
-    }
+
 public slots:
     void cut() ;
 private:

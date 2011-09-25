@@ -48,6 +48,7 @@ class Octnode {
         enum NodeState  {INSIDE, OUTSIDE, UNDECIDED };
         NodeState state;
         NodeState prev_state;
+        Color color;
         
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth, GLData* g);
@@ -56,17 +57,26 @@ class Octnode {
         void subdivide(); 
 
         void sum(const OCTVolume* vol) {
-            for ( int n=0;n<8;++n) 
+
+            for ( int n=0;n<8;++n) {
+                if (vol->dist( *(vertex[n]) ) > f[n])
+                    color = vol->color;
                 f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
+            }
             set_state();
         }
         void diff(const OCTVolume* vol) {
-            for ( int n=0;n<8;++n) 
+            for ( int n=0;n<8;++n)  {
+                if (-1*vol->dist( *(vertex[n]) ) < f[n])
+                    color = vol->color;
                 f[n] = std::min( f[n], -1.0*vol->dist( *(vertex[n]) ) );
+            }
             set_state();
         }
         void intersect(const OCTVolume* vol) {
             for ( int n=0;n<8;++n) {
+                if (vol->dist( *(vertex[n]) ) < f[n])
+                    color = vol->color;
                 f[n] = std::min( f[n], vol->dist( *(vertex[n]) ) );
             }
             set_state();

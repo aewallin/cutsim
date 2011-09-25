@@ -27,9 +27,9 @@
 #include <QTimer>
 #include <QCursor>
 #include <QDataStream>
-
+#include <QDebug>
+ 
 #include <boost/foreach.hpp> 
- #include <QDebug>
  
 #include <iostream>
 #include <cassert>
@@ -55,13 +55,20 @@ class GLWidget : public QGLWidget {
         /// add new GLData object and return pointer to it.
 
         GLData* addObject();
-        QTimer* timer;
+        //QTimer* timer;
     signals:
         // a test/dummy signal, emitted when the user presses "c"
         void sig();
-
+        void s_sig();
+    public slots:
+        void slotWriteScreenshot() {
+            QImage img = grabFrameBuffer(); 
+            QString file_name = "frame_" + QString::number(file_number) + ".png";
+            img.save( file_name );
+            file_number++;
+        }
     protected:
-        
+        int file_number;
         void resizeGL( int width, int height );
         void paintGL();
         void updateDir();
@@ -74,6 +81,9 @@ class GLWidget : public QGLWidget {
             if ( e->key() == Qt::Key_C ) {
                 std::cout << " emitting sig().\n";
                 emit sig();
+            } else if ( e->key() == Qt::Key_S ) {
+                std::cout << " emitting s_sig().\n";
+                emit s_sig();
             }
             return;
         }
@@ -114,9 +124,9 @@ class GLWidget : public QGLWidget {
             _leftButtonPressed = false;
             _middleButtonPressed = false;
         }
-        void timeOut() {
-            updateGL();
-        }
+        //void timeOut() {
+        //    updateGL();
+        //}
         
         // generate a VBO for each GLData object
         void genVBO() {
@@ -126,9 +136,9 @@ class GLWidget : public QGLWidget {
         }
 
 
-    protected slots:
-        void timeOutSlot() { timeOut(); }
-  
+    //protected slots:
+    //    void timeOutSlot() { timeOut(); }
+        
     private:
         /// camera position
         GLVertex _eye;

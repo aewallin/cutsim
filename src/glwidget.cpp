@@ -32,10 +32,10 @@ namespace cutsim {
 
 GLWidget::GLWidget( QWidget *parent, char *name ) 
   : QGLWidget(parent) {
-    timer = new QTimer(this);
-    timer->setInterval(1000);
-    connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
-    timer->start();
+    //timer = new QTimer(this);
+    //timer->setInterval(1000);
+    //connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
+    //timer->start();
     _fovy = 60.0;
     z_near = 0.1;
     z_far = 100.0;
@@ -43,14 +43,15 @@ GLWidget::GLWidget( QWidget *parent, char *name )
     _up.y=0;
     _up.z=1;
     _up *= 1/_up.norm();
-    _eye.x=20;
-    _eye.y=20;
-    _eye.z=20;
+    _eye.x=0;
+    _eye.y=-3;
+    _eye.z=35;
     _center.x=0;
     _center.y=0;
     _center.z=0;
     //setCursor(cursor);
     updateDir();
+    file_number=0;
 }
 
 GLData* GLWidget::addObject() {
@@ -61,10 +62,11 @@ GLData* GLWidget::addObject() {
 
 void GLWidget::initializeGL() {
     std::cout << "initializeGL()\n";
-    glShadeModel(GL_SMOOTH);
-    
+    glShadeModel(GL_SMOOTH);  // or GL_FLAT
+    glEnable(GL_LIGHTING);
+    //glEnable(GL_NORMALIZE); //or not (computationally expensive!)
     glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT);
+    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
     
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClearDepth(1.0f);
@@ -73,13 +75,10 @@ void GLWidget::initializeGL() {
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glLoadIdentity();
     
-    // set up lights/shading
-    //set the global lighting / shading params
-    //glShadeModel(GL_SMOOTH); // or GL_FLAT
-    //glEnable(GL_NORMALIZE); //or not (computationally expensive!)
-    glEnable(GL_LIGHTING);
-    //set the global ambient light
+
     
+    
+    //set the global ambient light
     
     // glLightModelf(
     // light mode is one of GL_LIGHT_MODEL_LOCAL_VIEWER,
@@ -87,15 +86,15 @@ void GLWidget::initializeGL() {
     //                GL_LIGHT_MODEL_TWO_SIDE
     
     // glLightModelfv
-    // GL_LIGHT_MODEL_AMBIENT,
+    //                GL_LIGHT_MODEL_AMBIENT,
     //                GL_LIGHT_MODEL_COLOR_CONTROL,
     //                GL_LIGHT_MODEL_LOCAL_VIEWER, and
     //                GL_LIGHT_MODEL_TWO_SIDE
     
     //set the global ambient light (R, G, B, A)
-    //GLfloat ambient[4]{.2,.2,.2,1};
-    GLfloat ambient[4] = {1,1,1,1.0};
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+    //GLfloat ambient[4] = {.2,.2,.2,1};
+    GLfloat ambient[4] = {0.6,0.6,0.6,1.0};
+    glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, ambient);
 
     // set up a light:
     //GLfloat diffuseLight[] = {1,0,0,1};
@@ -104,13 +103,13 @@ void GLWidget::initializeGL() {
     //glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
     //glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     
-    /*
+    
     GLfloat specularLight[] = {0.5,0.5,0.5,1};
     glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
     glEnable(GL_LIGHT0); //enable the light
-    GLfloat lightpos[] = {10,10,10,1}; // set last term to 0 for a spotlight (see chp 5 in ogl prog guide)
+    GLfloat lightpos[] = {-10,-10,-10,1}; // set last term to 0 for a spotlight (see chp 5 in ogl prog guide)
     glLightfv(GL_LIGHT0,GL_POSITION, lightpos);
-    */
+    
     
     // material property:
     
@@ -120,7 +119,7 @@ void GLWidget::initializeGL() {
     // GL_SHININESS
     
     // glMaterial — specify material parameters for the lighting model
-    // face =         GL_AMBIENT,                rgba reflectance
+    // face,          GL_AMBIENT,                rgba reflectance
     //                GL_DIFFUSE,                
     //                GL_SPECULAR,
     //                GL_EMISSION,
@@ -129,8 +128,8 @@ void GLWidget::initializeGL() {
     //                GL_COLOR_INDEXES.
     
     
-    GLfloat ambientMat[] = {1,1,1,1.0}; // rgba reflectance1
-    glMaterialfv(GL_FRONT, GL_AMBIENT, ambientMat);
+    GLfloat ambientMat[] = {0.5,0.5,0.5,1.0}; // rgba reflectance1
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ambientMat);
     
     
     //glMaterialfv(GL_FRONT, GL_SPECULAR, specular);

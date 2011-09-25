@@ -59,9 +59,9 @@ void MarchingCubes::mc_node( Octnode* node) {
         p2.setNormal(n.x,n.y,n.z);
         p3.setNormal(n.x,n.y,n.z);
         // setColor
-        p1.setColor(red,green,blue);
-        p2.setColor(red,green,blue);
-        p3.setColor(red,green,blue);
+        p1.setColor( node->color );
+        p2.setColor( node->color );
+        p3.setColor( node->color );
         triangle.push_back( g->addVertex(  p1, node ) );
         triangle.push_back( g->addVertex(  p2, node ) );
         triangle.push_back( g->addVertex(  p3, node ) );
@@ -135,7 +135,6 @@ GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
 // calculate the edgeTableIndex
 unsigned int MarchingCubes::mc_edgeTableIndex(const Octnode* node) {
     unsigned int edgeTableIndex = 0;
-    /*
     if (node->f[0] < 0.0 ) edgeTableIndex |= 1;
     if (node->f[1] < 0.0 ) edgeTableIndex |= 2;
     if (node->f[2] < 0.0 ) edgeTableIndex |= 4;
@@ -144,17 +143,6 @@ unsigned int MarchingCubes::mc_edgeTableIndex(const Octnode* node) {
     if (node->f[5] < 0.0 ) edgeTableIndex |= 32;
     if (node->f[6] < 0.0 ) edgeTableIndex |= 64;
     if (node->f[7] < 0.0 ) edgeTableIndex |= 128;
-    */
-    
-    if (node->f[0] > 0.0 ) edgeTableIndex |= 1;
-    if (node->f[1] > 0.0 ) edgeTableIndex |= 2;
-    if (node->f[2] > 0.0 ) edgeTableIndex |= 4;
-    if (node->f[3] > 0.0 ) edgeTableIndex |= 8;
-    if (node->f[4] > 0.0 ) edgeTableIndex |= 16;
-    if (node->f[5] > 0.0 ) edgeTableIndex |= 32;
-    if (node->f[6] > 0.0 ) edgeTableIndex |= 64;
-    if (node->f[7] > 0.0 ) edgeTableIndex |= 128;
-    
     return edgeTableIndex;
 }
 

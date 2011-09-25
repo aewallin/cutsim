@@ -77,6 +77,7 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
         center = parent->childcenter(idx);
         state = parent->prev_state;
         prev_state = state;
+        color = parent->color;
     } else { // root node has no parent
         center = new GLVertex(0,0,0); // default center for root is (0,0,0)
         state = UNDECIDED;
