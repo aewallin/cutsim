@@ -69,6 +69,7 @@ void Octree::init(const unsigned int n) {
         std::vector<Octnode*> nodelist;
         get_leaf_nodes(root, nodelist);
         BOOST_FOREACH( Octnode* node, nodelist) {
+            node->setUndecided();
             node->subdivide();
         }
     }
@@ -138,17 +139,13 @@ void Octree::sum(Octnode* current, const OCTVolume* vol) {
     }
     // now all children of current have their status set, and we can prune.
     if ( (current->childcount == 8) && ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) ) {
-        //std::cout << "Octree::sum() pruning: " << current->spaces() << current->depth << ":" << current->idx << " prune\n";
-        //std::cout << "all_child_state(Octnode::INSIDE)= " << current->all_child_state(Octnode::INSIDE) << "\n";
-        //std::cout << "current->all_child_state(Octnode::OUTSIDE)= " << current->all_child_state(Octnode::OUTSIDE) << "\n";
-
         current->delete_children();
     }
 }
 
 
 void Octree::diff(Octnode* current, const OCTVolume* vol) {
-    if (  !vol->bb.overlaps( current->bb ) || current->is_outside() ) // if no verlap, or already OUTSIDE, then quit.
+    if (  !vol->bb.overlaps( current->bb ) || current->is_outside() ) // if no overlap, or already OUTSIDE, then quit.
         return;   
     
     current->diff(vol);
@@ -167,7 +164,30 @@ void Octree::diff(Octnode* current, const OCTVolume* vol) {
     }
     // now all children have their status set, prune.
     if ( (current->childcount == 8) && ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) ) {
-        //std::cout << current->spaces() << current->depth << ":" << current->idx << " prune\n";
+        current->delete_children();
+    }
+}
+
+void Octree::intersect(Octnode* current, const OCTVolume* vol) {
+    if (   current->is_outside() ) // if already OUTSIDE, then quit.
+        return;   
+    
+    current->intersect(vol);
+    if ( ((current->childcount) == 8) && current->is_undecided() ) { // recurse into existing tree
+        for(int m=0;m<8;++m) {
+            //if ( !current->child[m]->is_outside()  ) // nodes that are OUTSIDE don't change
+                intersect( current->child[m], vol); // call diff on children
+        }
+    } else if (  current->is_undecided() ) { // no children, subdivide if undecided 
+        if ( (current->depth < (this->max_depth-1)) ) {
+            current->subdivide(); // smash into 8 sub-pieces
+            for(int m=0;m<8;++m) {
+                intersect( current->child[m], vol); // call diff on children
+            }
+        }
+    }
+    // now all children have their status set, prune.
+    if ( (current->childcount == 8) && ( current->all_child_state(Octnode::INSIDE) || current->all_child_state(Octnode::OUTSIDE) ) ) {
         current->delete_children();
     }
 }

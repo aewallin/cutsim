@@ -69,28 +69,37 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     idx = index;
     scale = nodescale;
     depth = nodedepth;
-    state = UNDECIDED;
+    
     child.resize(8);
     vertex.resize(8);
     f.resize(8);
     if (parent) {
         center = parent->childcenter(idx);
-        
+        state = parent->prev_state;
+        prev_state = state;
     } else { // root node has no parent
         center = new GLVertex(0,0,0); // default center for root is (0,0,0)
+        state = UNDECIDED;
+        prev_state = OUTSIDE;
     }
 
     
     for ( int n=0;n<8;++n) {
         vertex[n] = new GLVertex(*center + direction[n] * scale ) ;
-        //f[n] = +1;
         if (parent) {
-            if (parent->state == INSIDE)
+            assert( parent->state == UNDECIDED );
+            assert( parent->prev_state != UNDECIDED );
+            //std::cout << parent->prev_state << "\n";
+            if (parent->prev_state == INSIDE) {
                 f[n]=1;
-            if (parent->state == OUTSIDE)
+                state = INSIDE;
+            }
+            else if (parent->prev_state == OUTSIDE) {
                 f[n]=-1;
+                state = OUTSIDE;
+            }
             else
-                f[n]=-1;
+                assert(0);
                 
              //f[n]= parent->f[n];  // why does this make a big diggerence in the speed of sum() and dif() ??
              // sum() sum(): 0.15s + 0.27s   compared to 1.18 + 0.47
@@ -134,6 +143,10 @@ GLVertex* Octnode::childcenter(int n) {
 // create the 8 children of this node
 void Octnode::subdivide() {
     if (this->childcount==0) {
+        if( state != UNDECIDED )
+            std::cout << " subdivide() error: state==" << state << "\n";
+            
+        assert( state == UNDECIDED );
         for( int n=0;n<8;++n ) {
             Octnode* newnode = new Octnode( this, n , scale/2.0 , depth+1 , g); // parent,  idx, scale,   depth, GLdata
             this->child[n] = newnode;
@@ -177,56 +190,9 @@ void Octnode::delete_children() {
     
 }
                     
-// inherit as well as possible the f-values from parent. (?a good idea? needed?)
 
-/*
-void Octnode::inherit_f() {
-    assert( this->parent );
-    //std::cout << " inherit_f() \n";
-    for (unsigned int i =0 ; i<8 ;i++) {
-        //if (i == idx) 
-            f[i] = parent->f[i];
-        //else {
-        //    f[i] = 0.5*(parent->f[idx] + parent->f[i]);  // some kind of linear interpolation
-       // }
-    }
-}*/
 
-// evaluate vol->dist() at all the vertices and store in f[]
-// set the insinde/outside flags based on the sings of dist()
 
-/*
-void Octnode::evaluate(const OCTVolume* vol) {
-    //assert( childcount==0 );
-    outside = true;
-    inside = true;
-    for ( int n=0;n<8;++n) { // go through the 8 corners of the cube
-        double newf = vol->dist( *(vertex[n]) );
-        if ( !evaluated ) {
-            f[n] = newf;
-            setInValid();
-        } else {
-        // there is an existing stock. stock=+, void=-
-            if ( f[n] < 0 ) {
-                // do nothing, since we are "cutting air"
-            } else if ( f[n] > 0 ) {
-                if( (newf < f[n] )   ) { 
-                    f[n] = newf;
-                    setInValid();
-                } 
-            }
-        }
-        
-        // set the flags
-        if ( f[n] <= 0.0 ) {// if one vertex is inside
-            outside = false; // then it's not an outside-node
-        } else { // if one vertex is outside
-            assert( f[n] > 0.0 );
-            inside = false; // then it's not an inside node anymore
-        }
-    }
-    evaluated = true;
-}*/
 
 
 

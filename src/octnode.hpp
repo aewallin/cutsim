@@ -47,7 +47,7 @@ class Octnode {
     public:
         enum NodeState  {INSIDE, OUTSIDE, UNDECIDED };
         NodeState state;
-        //NodeState childState[8];
+        NodeState prev_state;
         
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth, GLData* g);
@@ -211,6 +211,17 @@ class Octnode {
                 assert(0);
             return stream.str();
         }
+        
+        void setUndecided() {
+            //assert( state != UNDECIDED );
+            if (state != UNDECIDED) {
+                prev_state = state;
+                state = UNDECIDED;
+                //if (parent && (parent->state != UNDECIDED) )
+                //    parent->setUndecided();
+            }
+        }
+        
     protected: 
         void set_state() {
             NodeState old_state = state;
@@ -264,13 +275,7 @@ class Octnode {
             }
         }
         
-        void setUndecided() {
-            if (state != UNDECIDED) {
-                state = UNDECIDED;
-                //if (parent && (parent->state != UNDECIDED) )
-                //    parent->setUndecided();
-            }
-        }
+
          
         void setChildValid( unsigned int id );
         inline void setChildInvalid( unsigned int id );

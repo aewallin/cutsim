@@ -55,7 +55,7 @@ class Octree {
     // bolean operations on tree
         void diff(const OCTVolume* vol) { diff( this->root, vol); }
         void sum(const OCTVolume* vol) { sum( this->root, vol); }
-        void intersect(const OCTVolume* vol);
+        void intersect(const OCTVolume* vol) { intersect( this->root, vol); }
         
 // debug, can be removed?
         void get_leaf_nodes( std::vector<Octnode*>& nodelist) const { get_leaf_nodes( root,  nodelist); }
@@ -93,7 +93,7 @@ class Octree {
         /// recursively traverse the tree subtracting vol
         void diff(Octnode* current, const OCTVolume* vol);
         void sum(Octnode* current, const OCTVolume* vol);
-        
+        void intersect(Octnode* current, const OCTVolume* vol);
         
         /// remove vertices associated with the current node
         //void remove_node_vertices(Octnode* current );

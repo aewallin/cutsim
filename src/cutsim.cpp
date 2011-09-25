@@ -85,6 +85,20 @@ void Cutsim::diff_volume( OCTVolume* volume ) {
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
+void Cutsim::intersect_volume( OCTVolume* volume ) {
+    iso_algo->setColor(red,green,blue);
+    std::clock_t start, stop;
+    start = std::clock();
+    tree->intersect( volume );
+    stop = std::clock();
+    std::cout << " intersect()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+
+    start = std::clock();
+    iso_algo->updateGL();
+    stop = std::clock();
+    std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+}
+
 void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with a volume.
     std::cout << " cut! called \n";
     cutsim::SphereVolume s;

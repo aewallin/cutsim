@@ -46,12 +46,12 @@ namespace cutsim {
 class Cutsim : public QObject {
     Q_OBJECT
 public:
-    Cutsim(double octree_size, unsigned int octree_mac_depth, GLWidget* w);
+    Cutsim(double octree_size, unsigned int octree_max_depth, GLWidget* w);
     virtual ~Cutsim();
-    //void setGLData();
-    //void updateGL();
+
     void diff_volume( OCTVolume* vol );
     void sum_volume( OCTVolume* vol );
+    void intersect_volume( OCTVolume* vol );
     void setColor(GLfloat r, GLfloat g, GLfloat b) {
         red=r; green=g; blue=b;
     }
