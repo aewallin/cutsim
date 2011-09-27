@@ -8,6 +8,8 @@
 
 #include <g2m/g2m.hpp>
 
+#include "text_area.hpp"
+
 class QAction;
 class QLabel;
 class QMenu;
@@ -25,7 +27,14 @@ public:
         // g-code interpreter
         myG2m = new g2m::g2m();
         
-        QDockWidget *dockWidget1 = new QDockWidget(this);
+        QDockWidget* dockWidget1 = new QDockWidget(this);
+        dockWidget1->setWindowTitle("Debug");
+        //QPlainTextEdit* lab = new QPlainTextEdit(); //QLabel();
+        
+        TextArea* lab = new TextArea(); //QLabel();
+        dockWidget1->setWidget(lab);
+        //lab->setText("Test label text");
+        //lab->setReadOnly(true);
         QDockWidget *dockWidget2 = new QDockWidget(this);
         addDockWidget(Qt::RightDockWidgetArea, dockWidget1);
         addDockWidget(Qt::BottomDockWidgetArea, dockWidget2);

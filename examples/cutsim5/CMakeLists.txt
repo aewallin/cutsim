@@ -47,12 +47,14 @@ MESSAGE(STATUS "G2M_LIBRARY is now: " ${G2M_LIBRARY})
 set (MOC_HEADERS 
     cutsim_app.hpp
     cutsim_window.hpp 
+    text_area.hpp
     )
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 
 
 set( OCL_TST_SRC 
      ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp 
+     ${${PROJECT_NAME}_SOURCE_DIR}/text_area.cpp 
      ${MOC_OUTFILES}
      ) 
      #  
