@@ -46,20 +46,15 @@ class OCTVolume {
     public:
         /// default constructor
         OCTVolume(){};
-        /// return true if Point p is inside volume
-        //virtual bool isInside(GLVertex& p) const = 0;
         /// return signed distance from volume surface to Point p
         virtual double dist(const GLVertex& p) const = 0;
-        /// return true if Point p is in the bounding box
-       // bool isInsideBB(GLVertex& p) const {
-        //    return bb.isInside( p );
-       // }
+
         /// bounding-box
         Bbox bb;
         //bool invert;
         Color color;
         void setColor(GLfloat r, GLfloat g, GLfloat b) {
-        color.r=r; color.g=g; color.b=b;
+            color.r=r; color.g=g; color.b=b;
         }
 };
 
@@ -70,6 +65,15 @@ class SphereVolume: public OCTVolume {
     public:
         /// default constructor
         SphereVolume();
+        
+        void setRadius(double r) {
+            radius=r;
+            calcBB();
+        }
+        void setCenter(GLVertex v) {
+            center = v;
+            calcBB();
+        }
         /// update the Bbox
         void calcBB();
         double dist(const GLVertex& p) const;

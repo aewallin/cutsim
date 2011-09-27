@@ -50,12 +50,14 @@ public:
     Cutsim(double octree_size, unsigned int octree_max_depth, GLWidget* w);
     virtual ~Cutsim();
 
-    void diff_volume( OCTVolume* vol );
-    void sum_volume( OCTVolume* vol );
-    void intersect_volume( OCTVolume* vol );
+    void diff_volume( const OCTVolume* vol );
+    void sum_volume( const OCTVolume* vol );
+    void intersect_volume( const OCTVolume* vol );
 
 public slots:
-    void cut() ;
+    void slot_diff_volume( const OCTVolume* vol) { diff_volume(vol);}
+    void slot_sum_volume( const OCTVolume* vol)  { sum_volume(vol);} 
+    void slot_int_volume( const OCTVolume* vol)  { intersect_volume(vol);}
 private:
     IsoSurfaceAlgorithm* iso_algo; // the isosurface-extraction algorithm to use
     Octree* tree; // this is the stock model

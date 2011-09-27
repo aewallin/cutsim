@@ -44,14 +44,18 @@ MESSAGE(STATUS "G2M_LIBRARY is now: " ${G2M_LIBRARY})
 
 
 
-#set (MOC_HEADERS cutsim.hpp )
-#qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
+set (MOC_HEADERS 
+    cutsim_app.hpp
+    cutsim_window.hpp 
+    )
+qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 
 
 set( OCL_TST_SRC 
      ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp 
+     ${MOC_OUTFILES}
      ) 
-     # ${MOC_OUTFILES} 
+     #  
 
 add_executable( ${PROJECT_NAME} ${OCL_TST_SRC} )
 target_link_libraries( ${PROJECT_NAME} 

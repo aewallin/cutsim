@@ -48,7 +48,7 @@ Cutsim::~Cutsim() {
     delete g;
 }
 
-void Cutsim::sum_volume( OCTVolume* volume ) {
+void Cutsim::sum_volume( const OCTVolume* volume ) {
     iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     start = std::clock();
@@ -62,7 +62,7 @@ void Cutsim::sum_volume( OCTVolume* volume ) {
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
-void Cutsim::diff_volume( OCTVolume* volume ) {
+void Cutsim::diff_volume( const OCTVolume* volume ) {
     iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     start = std::clock();
@@ -76,7 +76,7 @@ void Cutsim::diff_volume( OCTVolume* volume ) {
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
-void Cutsim::intersect_volume( OCTVolume* volume ) {
+void Cutsim::intersect_volume( const OCTVolume* volume ) {
     iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     start = std::clock();
@@ -89,55 +89,5 @@ void Cutsim::intersect_volume( OCTVolume* volume ) {
     stop = std::clock();
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
-
-void Cutsim::cut() { // demo slot of doing a cutting operation on the tree with a volume.
-    std::cout << " cut! called \n";
-    cutsim::SphereVolume s;
-    s.radius = 1.32;
-    s.center = cutsim::GLVertex(2,2,0);
-    s.calcBB();
-    //s.invert = false;
-    //std::cout << " before diff: " << tree->str() << "\n";
-    //std::clock_t start, stop;
-    //boost::timer tim;
-    s.setColor(1,0,0);
-    diff_volume( &s );
-    
-    s.setColor(1,0,1);
-    s.center = cutsim::GLVertex(0,2,0);
-    s.calcBB();
-    diff_volume( &s );
-    
-    //updateGL();
-    /*
-    std::cout << " diff_negative() ..\n";
-    tim.restart();
-    start = std::clock();
-    tree->diff_negative( &s );
-    stop = std::clock();
-    
-    std::cout << " diff(): std::clock:" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-    std::cout << " diff(): boost::timer:" << tim.elapsed() <<'\n';
-    
-    tim.restart();
-    start = std::clock();
-    //g->updateVBO();
-    updateGL();
-    stop = std::clock();
-    
-    std::cout << " updateGL() std::clock: " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-    std::cout << " updateGL() boost::timer: " << tim.elapsed() <<'\n';
-    //std::cout << " AFTER diff: " << tree->str() << "\n";
-
-    tim.restart();
-    start = std::clock();
-    g->updateVBO();
-    stop = std::clock();
-    std::cout << " updateVBO(): std::clock: " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
-    std::cout << " updateVBO(): boost::timer: " << tim.elapsed() <<'\n';
-    */
-}
-    
-
 
 } // end namespace
