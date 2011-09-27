@@ -1,4 +1,4 @@
-project(cutsim4_example)
+project(cutsim5)
 
 cmake_minimum_required(VERSION 2.4)
 
