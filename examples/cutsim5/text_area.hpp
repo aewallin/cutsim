@@ -5,7 +5,8 @@
 #include <QPlainTextEdit>
 #include <QObject>
 #include <QWidget>
-
+#include <QVarLengthArray>
+ 
 class QPaintEvent;
 class QResizeEvent;
 class QSize;
@@ -28,8 +29,19 @@ public:
         int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
         return space;
     }
-    
+public slots:
+    void appendLine(QString l) {
+        lines.append(l);
+        set_text();
+    }
 protected:
+    void set_text() {
+        QString text;
+        for( unsigned int n=0;n<lines.size();n++) {
+            text += lines[n]+"\n";
+        }
+        setPlainText(text);
+    }
     void resizeEvent(QResizeEvent *e)  {
      QPlainTextEdit::resizeEvent(e);
 
@@ -46,6 +58,7 @@ private slots:
     void updateLineNumberArea(const QRect &, int dy);
 private:
     QWidget *lineNumberArea;
+    QVarLengthArray<QString> lines;
 };
 
 

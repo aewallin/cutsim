@@ -29,15 +29,21 @@ public:
         
         QDockWidget* dockWidget1 = new QDockWidget(this);
         dockWidget1->setWindowTitle("Debug");
-        //QPlainTextEdit* lab = new QPlainTextEdit(); //QLabel();
-        
-        TextArea* lab = new TextArea(); //QLabel();
-        dockWidget1->setWidget(lab);
+        TextArea* debug = new TextArea(); 
+        dockWidget1->setWidget(debug);
         //lab->setText("Test label text");
         //lab->setReadOnly(true);
         QDockWidget *dockWidget2 = new QDockWidget(this);
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget1);
-        addDockWidget(Qt::BottomDockWidgetArea, dockWidget2);
+        dockWidget2->setWindowTitle("G-Code");
+        TextArea* gcode = new TextArea(); 
+        dockWidget2->setWidget(gcode);
+        gcode->setReadOnly(true);
+        gcode->appendLine("test g-code text");
+        gcode->appendLine("line2");
+        
+        
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget2);
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget1);
         
         createActions();
         createMenus();
