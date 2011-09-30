@@ -23,34 +23,29 @@ public:
         double octree_cube_side=10.0;
         myCutsim  =  new cutsim::Cutsim(octree_cube_side , max_depth, myGLWidget);
         this->setCentralWidget(myGLWidget);
-        
-        // g-code interpreter
-        myG2m = new g2m::g2m();
-        
-        QDockWidget* dockWidget1 = new QDockWidget(this);
-        dockWidget1->setWindowTitle("Debug");
-        TextArea* debug = new TextArea(); 
-        dockWidget1->setWidget(debug);
-        //lab->setText("Test label text");
-        //lab->setReadOnly(true);
-        QDockWidget *dockWidget2 = new QDockWidget(this);
-        dockWidget2->setWindowTitle("G-Code");
-        TextArea* gcode = new TextArea(); 
-        dockWidget2->setWidget(gcode);
-        gcode->setReadOnly(true);
-        gcode->appendLine("test g-code text");
-        gcode->appendLine("line2");
-        
-        
-        addDockWidget(Qt::RightDockWidgetArea, dockWidget2);
-        addDockWidget(Qt::BottomDockWidgetArea, dockWidget1);
-        
+
+        createDock();
         createActions();
         createMenus();
         setStatusBar( new QStatusBar(this) );
-        myToolBar = new QToolBar(this);
-        addToolBar( myToolBar );
+        myProgress = new QProgressBar();
+        myProgress->setMaximum(100);
+        myProgress->setMinimum(0);
+        statusBar()->insertPermanentWidget( 1, myProgress , 0);        
         createToolBar();        
+        
+        myG2m = new g2m::g2m(); // g-code interpreter
+        connect( this, SIGNAL(setGcodeFile(QString)), myG2m, SLOT(setFile(QString)) );
+        
+        connect( this, SIGNAL(setRS274(QString)), myG2m, SLOT(setInterp(QString)) );
+        connect( this, SIGNAL(setToolTable(QString)), myG2m, SLOT(setToolTable(QString)) );
+        connect( this, SIGNAL( interpret() ), myG2m, SLOT( interpret_file() ) );
+        connect( myG2m, SIGNAL( debugMessage(QString) ), this, SLOT( debugMessage(QString) ) );
+    
+        // hard-code these paths for now
+        emit setRS274(     tr("/home/anders/emc2-dev/bin/rs274") );
+        emit setToolTable( tr("/home/anders/Desktop/cutsim/ngc/tooltable.tbl") );
+
 
         setWindowTitle(tr(" cutsim - alpha"));
         //setMinimumSize(300, 300);
@@ -58,24 +53,32 @@ public:
         move(100,100); // position the main window
         resize(789,527);  // size window
         //showMaximized();
-        //lnk mylink(this);
     }
     
     QAction* getHelpMenu() { return helpAction; };
     QString getArg(int n) {if(n<=args.count())return args[n];else return "n--";};
     QStringList* getArgs() {return &args;};
-private slots:
-    void newFile() {
-        statusBar()->showMessage(tr("Invoked File|New"));
+public slots:
+    void setProgress(int n) { myProgress->setValue(n); }
+    void debugMessage(QString s) {  
+        debugText->appendLine(s);
     }
+signals:
+    void setGcodeFile(QString f);
+    void setRS274(QString s);
+    void setToolTable(QString s);
+    void interpret();
+    
+private slots:
+    void newFile() { statusBar()->showMessage(tr("Invoked File|New")); }
     void open() {
         QString     fileName;
         QString     fileType;
         QFileInfo   fileInfo;
 
-        statusBar()->showMessage(tr("Invoked File|Open"));
+        statusBar()->showMessage(tr("Open G-code file"));
         fileName = QFileDialog::getOpenFileName (this,
-                            tr("Open File"),
+                            tr("Open G-code File"),
                             myLastFolder,
                             tr( "G-code (*.ngc);;"
                                 ) );
@@ -83,9 +86,11 @@ private slots:
             fileInfo.setFile(fileName);
             fileType = fileInfo.suffix();
             if (fileType.toLower() == tr("G-code") || fileType.toLower() == tr("ngc"))  {
-                statusBar()->showMessage(tr(" Opening g-code file"));
+                statusBar()->showMessage( tr(" Opening g-code file %1").arg(fileName) );
             }
             myLastFolder = fileInfo.absolutePath();
+            emit setGcodeFile( fileName );
+            emit interpret();
             //reader.importModel ( fileInfo.absoluteFilePath(), format, myOCC->getContext() );
         }
     }
@@ -113,7 +118,29 @@ private slots:
 
 private:
     QStringList args;
+    void createDock() {
+        QDockWidget* dockWidget1 = new QDockWidget(this);
+        dockWidget1->setWindowTitle("Debug");
+        debugText = new TextArea(); 
+        dockWidget1->setWidget(debugText);
+        //lab->setText("Test label text");
+        //lab->setReadOnly(true);
+        
+        
+        QDockWidget *dockWidget2 = new QDockWidget(this);
+        dockWidget2->setWindowTitle("G-Code");
+        TextArea* gcode = new TextArea(); 
+        dockWidget2->setWidget(gcode);
+        gcode->setReadOnly(true);
+        gcode->appendLine("test g-code text");
+        gcode->appendLine("line2");
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget2);
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget1);
+        
+    }
     void createToolBar() {
+        myToolBar = new QToolBar(this);
+        addToolBar( myToolBar );
         myToolBar->addAction( newAction );
         myToolBar->addAction( openAction );
         myToolBar->addSeparator();
@@ -189,10 +216,13 @@ private:
     QAction *pauseAction;
     QAction *stopAction;
     
-    QToolBar * myToolBar;
+    QProgressBar* myProgress;
+    QToolBar* myToolBar;
     cutsim::Cutsim* myCutsim;
     cutsim::GLWidget* myGLWidget;
     g2m::g2m* myG2m;
+    TextArea* debugText;
+    
     QString myLastFolder;
 };
 

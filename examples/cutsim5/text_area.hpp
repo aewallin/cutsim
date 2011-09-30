@@ -37,9 +37,9 @@ public slots:
 protected:
     void set_text() {
         QString text;
-        for( unsigned int n=0;n<lines.size();n++) {
+        for(int n=0;n<lines.size();n++) 
             text += lines[n]+"\n";
-        }
+        
         setPlainText(text);
     }
     void resizeEvent(QResizeEvent *e)  {
