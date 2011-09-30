@@ -45,6 +45,8 @@ class g2m : public QObject {
     Q_OBJECT;
     public:
         g2m()  { debug=false; }
+        std::vector<canonLine*> getCanonLines() { return lineVector; }
+        
     public slots:
         void interpret_file();
         void setFile(QString infile) {
@@ -61,9 +63,11 @@ class g2m : public QObject {
         }
         
         void setDebug(bool d) {debug=d;}
-        std::vector<canonLine*> getCanonLines() { return lineVector; }
+        
     signals:
         void debugMessage(QString s);
+        void gcodeLineMessage(QString s);
+        void canonLineMessage(QString s);
     protected:    
         bool chooseToolTable();
         void interpret();
@@ -75,6 +79,7 @@ class g2m : public QObject {
         QString tooltable;
         QString interp;
         bool debug;
+        int gcode_lines;
 };
 
 

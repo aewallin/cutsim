@@ -41,7 +41,11 @@ public:
         connect( this, SIGNAL(setToolTable(QString)), myG2m, SLOT(setToolTable(QString)) );
         connect( this, SIGNAL( interpret() ), myG2m, SLOT( interpret_file() ) );
         connect( myG2m, SIGNAL( debugMessage(QString) ), this, SLOT( debugMessage(QString) ) );
-    
+        
+        connect( myG2m, SIGNAL( gcodeLineMessage(QString) ), this, SLOT( appendGcodeLine(QString) ) );
+        connect( myG2m, SIGNAL( canonLineMessage(QString) ), this, SLOT( appendCanonLine(QString) ) );
+
+
         // hard-code these paths for now
         emit setRS274(     tr("/home/anders/emc2-dev/bin/rs274") );
         emit setToolTable( tr("/home/anders/Desktop/cutsim/ngc/tooltable.tbl") );
@@ -63,6 +67,14 @@ public slots:
     void debugMessage(QString s) {  
         debugText->appendLine(s);
     }
+    void appendGcodeLine(QString s) {  
+        gcodeText->appendLine(s);
+    }
+    void appendCanonLine(QString s) {  
+        canonText->appendLine(s);
+    }
+
+
 signals:
     void setGcodeFile(QString f);
     void setRS274(QString s);
@@ -129,12 +141,20 @@ private:
         
         QDockWidget *dockWidget2 = new QDockWidget(this);
         dockWidget2->setWindowTitle("G-Code");
-        TextArea* gcode = new TextArea(); 
-        dockWidget2->setWidget(gcode);
-        gcode->setReadOnly(true);
-        gcode->appendLine("test g-code text");
-        gcode->appendLine("line2");
+        gcodeText = new TextArea(); 
+        dockWidget2->setWidget(gcodeText);
+        gcodeText->setReadOnly(true);
+        //gcode->appendLine("test g-code text");
+        //gcode->appendLine("line2");
+        QDockWidget *dockWidget3 = new QDockWidget(this);
+        dockWidget3->setWindowTitle("CANON-lines");
+        canonText = new TextArea(); 
+        dockWidget3->setWidget(canonText);
+        canonText->setReadOnly(true);
+        
+        
         addDockWidget(Qt::RightDockWidgetArea, dockWidget2);
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget3);
         addDockWidget(Qt::BottomDockWidgetArea, dockWidget1);
         
     }
@@ -222,7 +242,9 @@ private:
     cutsim::GLWidget* myGLWidget;
     g2m::g2m* myG2m;
     TextArea* debugText;
-    
+    TextArea* gcodeText;
+    TextArea* canonText;
+
     QString myLastFolder;
 };
 

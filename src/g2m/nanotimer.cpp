@@ -65,12 +65,15 @@ QString nanotimer::humanreadable(double s) {
     s = s-(double)(m*60);
     out = QString::number(m)  + QString("m, ");
   }
-  if (s > .01) {
+  if (s > .5) {
     out += QString::number(s); 
-    out += "s";
+    out += QString(" s");
+  } else if (s> 0.0005) {
+    out = QString::number(s*1000); 
+    out += QString(" ms");
   } else {
     out = QString::number(s*1000000); 
-    out += "us";
+    out += QString(" us");
   }
   return out;
 }
