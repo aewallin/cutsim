@@ -41,8 +41,9 @@ class linearMotion: protected canonMotion {
   public:
     linearMotion(std::string canonL, machineStatus prevStatus);
     MOTION_TYPE getMotionType();
-    std::vector<Point> points();
-    Point start, end;
+    //std::vector<Point> points(); // points sampled along the motion
+    Point point(double s);
+    double length();
 };
 
 } // end namespace

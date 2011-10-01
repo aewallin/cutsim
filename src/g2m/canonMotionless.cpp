@@ -30,9 +30,6 @@ canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):c
     ncEnd = false;
     status.setMotionType(MOTIONLESS);
     status.setEndPose(status.getStartPose());
-    //solidErrors = false;
-    //unsolidErrors = false;
-    //myUnSolid = BRepBuilderAPI_MakeVertex(status.getStartPose().Location());
 
   //match canonical commands. the string MUST be the complete command name
   //NOTE: cmdMatch ONLY looks at the command part of the line, canonTokens[2].

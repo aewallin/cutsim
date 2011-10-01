@@ -26,6 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <limits.h>
+#include <cassert>
 
 #include "machineStatus.hpp"
 #include "point.hpp"
@@ -52,9 +53,13 @@ class canonLine {
     virtual MOTION_TYPE getMotionType() { return NOT_DEFINED;} //= 0;
     virtual bool isMotion() {return false;} // = 0;
     virtual bool isNCend() {return false;}
-    virtual std::vector<Point> points() { return std::vector<Point>(); }
+    //virtual std::vector<Point> points() { return std::vector<Point>(); }
+    virtual double length() {assert(0); return -1;}
+    virtual Point point(double t) {assert(0); return Point();}
+    
     // produce a canonLine based on string l, and previous machineStatus s
     static canonLine* canonLineFactory (std::string l, machineStatus s);
+    
     std::string cantok(unsigned int n);
     const std::string getLnum();    
   protected:

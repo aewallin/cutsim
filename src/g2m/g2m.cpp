@@ -88,7 +88,7 @@ void g2m::interpret_file() {
     
     
     double e = timer.getElapsedS();
-    emit debugMessage( tr("Total time to process that file: ") +  timer.humanreadable(e)  ) ;
+    emit debugMessage( tr("g2m: Total time to process that file: ") +  timer.humanreadable(e)  ) ;
     //std::cout << "Total time to process that file: " << timer.humanreadable(e).toStdString() << std::endl;
 
 }
@@ -193,6 +193,7 @@ bool g2m::processCanonLine (std::string l) {
         // use the last element status
         cl = canonLine::canonLineFactory(l,  *(lineVector.back())->getStatus()  ); 
     }
+    emit signalCanonLine(cl);
     lineVector.push_back(cl); 
 
     if ( debug ) 

@@ -7,6 +7,7 @@
 #include <cutsim/glwidget.hpp>
 
 #include <g2m/g2m.hpp>
+#include <g2m/gplayer.hpp>
 
 #include "text_area.hpp"
 
@@ -23,7 +24,40 @@ public:
         double octree_cube_side=10.0;
         myCutsim  =  new cutsim::Cutsim(octree_cube_side , max_depth, myGLWidget);
         this->setCentralWidget(myGLWidget);
-
+        
+        // hard-coded stock
+        cutsim::SphereVolume* stock = new cutsim::SphereVolume();
+        stock->setRadius(7);
+        stock->setCenter( cutsim::GLVertex(0,0,0) );
+        stock->setColor(0,1,1);
+        myCutsim->sum_volume(stock);
+        
+        currentTool = 0;
+        // hard-coded tool
+        cutsim::SphereVolume* s1 = new cutsim::SphereVolume();
+        s1->setRadius(2);
+        s1->setCenter( cutsim::GLVertex(0,0,0) );
+        s1->setColor(1,1,0);
+        myTools.push_back(s1);
+        
+        cutsim::SphereVolume* s2 = new cutsim::SphereVolume();
+        s2->setRadius(3);
+        s2->setCenter( cutsim::GLVertex(0,0,0) );
+        s2->setColor(1,0,0);
+        myTools.push_back(s2);
+        
+        cutsim::SphereVolume* s3 = new cutsim::SphereVolume();
+        s3->setRadius(4);
+        s3->setCenter( cutsim::GLVertex(0,0,0) );
+        s3->setColor(0,1,0);
+        myTools.push_back(s3);
+        
+        cutsim::SphereVolume* s4 = new cutsim::SphereVolume();
+        s4->setRadius(2);
+        s4->setCenter( cutsim::GLVertex(0,0,0) );
+        s4->setColor(0,0,1);
+        myTools.push_back(s4);
+        
         createDock();
         createActions();
         createMenus();
@@ -44,12 +78,23 @@ public:
         
         connect( myG2m, SIGNAL( gcodeLineMessage(QString) ), this, SLOT( appendGcodeLine(QString) ) );
         connect( myG2m, SIGNAL( canonLineMessage(QString) ), this, SLOT( appendCanonLine(QString) ) );
+        
+        myPlayer = new g2m::GPlayer();
+        connect( myPlayer, SIGNAL( debugMessage(QString) ), this, SLOT( debugMessage(QString) ) );
+        connect( this, SIGNAL( play() ), myPlayer, SLOT( play() ) );
+        connect( this, SIGNAL( pause() ), myPlayer, SLOT( pause() ) );
+        connect( this, SIGNAL( stop() ), myPlayer, SLOT( stop() ) );
+        connect( myPlayer, SIGNAL( signalProgress(int) ), this, SLOT( slotSetProgress(int) ) );
 
+        connect( myG2m, SIGNAL( signalCanonLine(canonLine*) ), myPlayer, SLOT( appendCanonLine(canonLine*) ) );
+
+        connect( myPlayer, SIGNAL( signalToolPosition(double,double,double) ), this, SLOT( slotSetToolPosition(double,double,double) ) );
+        connect( myPlayer, SIGNAL( signalToolChange( int ) ), this, SLOT( slotToolChange(int) ) );
+     
 
         // hard-code these paths for now
         emit setRS274(     tr("/home/anders/emc2-dev/bin/rs274") );
         emit setToolTable( tr("/home/anders/Desktop/cutsim/ngc/tooltable.tbl") );
-
 
         setWindowTitle(tr(" cutsim - alpha"));
         //setMinimumSize(300, 300);
@@ -63,7 +108,7 @@ public:
     QString getArg(int n) {if(n<=args.count())return args[n];else return "n--";};
     QStringList* getArgs() {return &args;};
 public slots:
-    void setProgress(int n) { myProgress->setValue(n); }
+    void slotSetProgress(int n) { myProgress->setValue(n); }
     void debugMessage(QString s) {  
         debugText->appendLine(s);
     }
@@ -73,14 +118,23 @@ public slots:
     void appendCanonLine(QString s) {  
         canonText->appendLine(s);
     }
-
-
+    void slotSetToolPosition(double x, double y, double z) {
+        //debugMessage( tr("ui: setToolPosition( %1, )").arg(x) );
+        myTools[currentTool]->setCenter( cutsim::GLVertex(x,y,z) );
+        myCutsim->slot_diff_volume( myTools[currentTool] ); 
+    }
+    void slotToolChange(int t) {
+        debugMessage( tr("ui: Tool-change to  %1 ").arg(t) );
+        currentTool = t-1;
+    }
 signals:
     void setGcodeFile(QString f);
     void setRS274(QString s);
     void setToolTable(QString s);
     void interpret();
-    
+    void play();
+    void pause();
+    void stop();
 private slots:
     void newFile() { statusBar()->showMessage(tr("Invoked File|New")); }
     void open() {
@@ -111,12 +165,15 @@ private slots:
     }
     void runProgram() {
         statusBar()->showMessage(tr("Running program..."));
+        emit play();
     }
     void pauseProgram() {
         statusBar()->showMessage(tr("pause program."));
+        emit pause();
     }
     void stopProgram() {
         statusBar()->showMessage(tr("stop program."));
+        emit stop();
     }
 
     void about() {
@@ -240,7 +297,11 @@ private:
     QToolBar* myToolBar;
     cutsim::Cutsim* myCutsim;
     cutsim::GLWidget* myGLWidget;
+    std::vector<cutsim::SphereVolume*> myTools;
+    unsigned int currentTool;
+    
     g2m::g2m* myG2m;
+    g2m::GPlayer* myPlayer;
     TextArea* debugText;
     TextArea* gcodeText;
     TextArea* canonText;

@@ -43,9 +43,9 @@ GLWidget::GLWidget( QWidget *parent, char *name )
     _up.y=0;
     _up.z=1;
     _up *= 1/_up.norm();
-    _eye.x=0;
-    _eye.y=-3;
-    _eye.z=35;
+    _eye.x=20;
+    _eye.y=20;
+    _eye.z=20;
     _center.x=0;
     _center.y=0;
     _center.z=0;

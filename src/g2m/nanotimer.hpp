@@ -30,15 +30,12 @@ class nanotimer {
   private:
     timespec begin;
   public:
-    nanotimer() {};
+    nanotimer() {}
     void start();
     long getElapsed();
     double getElapsedS();
     static QString humanreadable(double s);
 };
 
-
 }
-
-
 #endif //NANOTIMER_HH

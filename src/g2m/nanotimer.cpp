@@ -78,16 +78,5 @@ QString nanotimer::humanreadable(double s) {
   return out;
 }
 
-/*
-void timer::stopTimer( ) {
-  gettimeofday(&(timer.stop),NULL);
-  }
-  */
-
-/*double timer::getElapsedTime() {
-  timeval res;
-  timersub(&(timer.stop),&(timer.start),&res);
-  return res.tv_sec + res.tv_usec/1000000.0; // 10^6 uSec per second
-}*/
 
 } // end namespace

@@ -68,6 +68,8 @@ class g2m : public QObject {
         void debugMessage(QString s);
         void gcodeLineMessage(QString s);
         void canonLineMessage(QString s);
+        void signalCanonLine(canonLine* line);
+        
     protected:    
         bool chooseToolTable();
         void interpret();

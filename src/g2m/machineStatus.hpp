@@ -36,9 +36,6 @@ struct coolantStruct {
     bool spindle;
 };
 
-
-typedef int toolNumber;
-
 /**
 \class machineStatus
 \brief This class contains the machine's state for one canonical command.
@@ -49,28 +46,17 @@ Important: 'pose' refers to how the machine's axes are positioned,
 * while 'direction' refers to the direction of motion
 */
 class machineStatus {
-  protected:
-    Pose startPose, endPose;
-    double F,S;  //feedrate, spindle speed
-    coolantStruct coolant;
-    Point startDir, endDir, prevEndDir;
-    bool first,lastMotionWasTraverse;
-    toolNumber myTool;
-    MOTION_TYPE motionType;
-    SPINDLE_STATUS spindleStat;
-    CANON_PLANE plane;
   public:
     machineStatus(machineStatus const& oldStatus);
     machineStatus(Pose initial);
     void setMotionType(MOTION_TYPE m);
     void setEndPose(Pose newPose);
     void setEndPose(Point p);
-    void addToBounds();
+    //void addToBounds();
     void setFeed(const double f) {F=f;};
     void setSpindleSpeed(const double s) {S=s;};
     void setSpindleStatus(const SPINDLE_STATUS s) {spindleStat=s;};
     void setCoolant(coolantStruct c) {coolant = c;};
-    void setTool(toolNumber n); //n is the ID of the tool to be used.
     void setPlane(CANON_PLANE p) {plane = p;};
     double getFeed() const {return F;};
     double getSpindleSpeed() const {return S;};
@@ -84,12 +70,21 @@ class machineStatus {
     void setEndDir( Point d) {endDir = d;};
     const Point getEndDir() const {return endDir;};
     const Point getPrevEndDir() const {return prevEndDir;};
-    
     void clearAll(void);
     bool isFirst() {return first;};
-    toolNumber getToolNum() {return myTool;};
-
-
+    
+    void setTool(int n); //n is the ID of the tool to be used.
+    int  getTool() const {return myTool;};
+  protected:
+    Pose startPose, endPose;
+    double F,S;  //feedrate, spindle speed
+    coolantStruct coolant;
+    Point startDir, endDir, prevEndDir;
+    bool first,lastMotionWasTraverse;
+    int myTool;
+    MOTION_TYPE motionType;
+    SPINDLE_STATUS spindleStat;
+    CANON_PLANE plane;
   private:
     machineStatus();  //prevent use of this ctor by making it private 
 };

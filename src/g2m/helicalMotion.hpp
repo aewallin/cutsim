@@ -44,32 +44,24 @@ class helicalMotion: protected canonMotion {
   public:
     helicalMotion(std::string canonL, machineStatus prevStatus);
     MOTION_TYPE getMotionType() {return HELICAL;};
-    std::vector<Point> points();
-  private:
-
+    Point point(double s);
+    double length();     
+  private:    
+    void rotate(double &x, double &y, double c, double s);
     
-    // rotate by cos/sin. from emc2 gcodemodule.cc
-    static void rotate(double &x, double &y, double c, double s) {
-        double tx = x * c - y * s;
-        y = x * s + y * c;
-        x = tx;
-    }
-
-    //void arc();
-    //void arc(gp_Pnt start, gp_Vec startVec, gp_Pnt end);
-    //bool planar;
-    //Point center;
-    //Point axis;
-    Point start, end;
-    //double radius;
-    //double hdist;
-    //int rotation;
-    
+// DATA, this corresponds to the "tokens" on the ARC_FEED canon-line
     double x1,y1,z1; // endpoint for this move
-    double a,b,c; // abc axis endpoints
-    double rot; // rotation for this move
-    double cx,cy; // center-point for this move
+    double a,b,c;    // abc axis endpoints
+    double rot;      // rotation for this move
+    double cx,cy;    // center-point for this move
 
+// these are the parameters calculated from the canon-params x1,y1,z1,a,b,c,rot,cx,cy
+    unsigned int X, Y, Z; // for shuffling around coordinate-indexes
+    double d[6]; // 6-axis delta for this move, applies to linear interpolation
+    double o[6]; // o=origin/start-point
+    double dtheta; // change in angle for this move
+    double tx,ty; // vector from start to center
+    double radius;
 };
 
 } // end namespace 

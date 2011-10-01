@@ -34,21 +34,19 @@
      }
  }
 
-    void TextArea::highlightCurrentLine() {
-     QList<QTextEdit::ExtraSelection> extraSelections;
-
-     if (!isReadOnly()) {
-         QTextEdit::ExtraSelection selection;
-         QColor lineColor = QColor(Qt::yellow).lighter(160);
-         selection.format.setBackground(lineColor);
-         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-         selection.cursor = textCursor();
-         selection.cursor.clearSelection();
-         extraSelections.append(selection);
-     }
-
-     setExtraSelections(extraSelections);
+void TextArea::highlightCurrentLine() {
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    if (!isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+        QColor lineColor = QColor(Qt::yellow).lighter(160);
+        selection.format.setBackground(lineColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
     }
+    setExtraSelections(extraSelections);
+}
     
 void TextArea::updateLineNumberArea(const QRect& rect, int dy) {
      if (dy)    

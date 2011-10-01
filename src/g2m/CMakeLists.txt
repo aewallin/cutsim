@@ -9,36 +9,38 @@ include ( ${QT_USE_FILE} )
 include_directories (
     ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
     ${QT_QTCORE_INCLUDE_DIR} ${QT_QTGUI_INCLUDE_DIR}
-    )
+)
+
 set ( g2m_HDRS
     g2m.hpp
-    #canon.hh
     canonLine.hpp
     canonMotionless.hpp
     canonMotion.hpp
     linearMotion.hpp
     helicalMotion.hpp
-    #tool.hh
     machineStatus.hpp
     nanotimer.hpp
     point.hpp
-    )
+    gplayer.hpp
+)
 
 set ( g2m_SRCS
     g2m.cpp
-    #canon.cc
     canonLine.cpp
     canonMotionless.cpp
     canonMotion.cpp
     linearMotion.cpp
     helicalMotion.cpp
-    #tool.cc
     machineStatus.cpp
     nanotimer.cpp
- )
+)
 
 #fix vtable error
-set ( g2m_MOCS g2m.hpp )
+set( g2m_MOCS 
+     g2m.hpp 
+     gplayer.hpp
+)
+
 QT4_WRAP_CPP(MOCS ${g2m_MOCS})
 
 add_library ( g2m SHARED ${g2m_SRCS}  ${MOCS}  ) # ${g2m_HDRS} 

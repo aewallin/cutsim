@@ -26,7 +26,6 @@
 namespace g2m {
 
 machineStatus::machineStatus(const machineStatus& oldStatus) {
-    //FIXME: segfault on next line when modelling a second file?!
     spindleStat = oldStatus.spindleStat;
     F = oldStatus.F;
     S = oldStatus.S;
@@ -43,7 +42,7 @@ machineStatus::machineStatus(const machineStatus& oldStatus) {
     /// (this way, motionless cmds don't mess things up)
     lastMotionWasTraverse = oldStatus.lastMotionWasTraverse;
     if ( oldStatus.motionType == STRAIGHT_FEED || oldStatus.motionType == HELICAL) {
-      lastMotionWasTraverse = false;
+        lastMotionWasTraverse = false;
     }
 }
 
@@ -53,25 +52,24 @@ This constructor is only to be used when initializing the simulation; it would n
 \sa machineStatus(machineStatus const& oldStatus)
 */
 machineStatus::machineStatus(Pose initial) {
-  clearAll();
-  //theTool = new ballnoseTool(0.0625,0.3125); //1/16" tool. TODO: use EMC's tool table for tool sizes
-  startPose = endPose = initial;
-  first = true;
-  setTool(1);
+    clearAll();
+    startPose = endPose = initial;
+    first = true;
+    setTool(1);
 }
 
 void machineStatus::clearAll() {
-  F=S=0.0;
-  plane = CANON_PLANE_XY;
-  coolant.flood = false;
-  coolant.mist = false;
-  coolant.spindle = false;
-  endPose = startPose = Pose( Point(0,0,0), Point(0,0,1));
-  endDir = prevEndDir = Point(0,0,-1);
-  spindleStat = OFF;
-  myTool = -1;
-  motionType = NOT_DEFINED;
-  lastMotionWasTraverse = false;
+    F=S=0.0;
+    plane = CANON_PLANE_XY;
+    coolant.flood = false;
+    coolant.mist = false;
+    coolant.spindle = false;
+    endPose = startPose = Pose( Point(0,0,0), Point(0,0,1));
+    endDir = prevEndDir = Point(0,0,-1);
+    spindleStat = OFF;
+    myTool = -1;
+    motionType = NOT_DEFINED;
+    lastMotionWasTraverse = false;
 }
 
 ///sets motion type, and checks whether this is the second (or later) motion command.
@@ -98,16 +96,14 @@ Set end points, and call addToBounds to add points to bndbox. For an arc or heli
 \sa addArcToBbox(TopoDS_Edge e)
 */
 void machineStatus::setEndPose( Point p) {
-  endPose = Pose( p, Point(0,0,1) );
-
+    endPose = Pose( p, Point(0,0,1) );
 }
 void machineStatus::setEndPose( Pose newPose) {
-  endPose = newPose;
-
+    endPose = newPose;
 }
 
 
-void machineStatus::setTool(toolNumber n) {
+void machineStatus::setTool(int n) {
     //std::cout << "adding tool " << n << ".\n";
     myTool = n;
     //canon::addTool(n);

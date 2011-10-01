@@ -68,7 +68,7 @@ void Cutsim::diff_volume( const OCTVolume* volume ) {
     start = std::clock();
     tree->diff( volume );
     stop = std::clock();
-    std::cout << " diff()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    std::cout << "cutsim.cpp diff()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 
     start = std::clock();
     iso_algo->updateGL();

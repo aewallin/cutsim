@@ -20,6 +20,7 @@
 #include "linearMotion.hpp"
 
 #include <string>
+#include <cassert>
 
 #include "machineStatus.hpp"
 #include "canonMotion.hpp"
@@ -55,12 +56,31 @@ linearMotion::linearMotion(std::string canonL, machineStatus prevStatus): canonM
     status.setStartDir(endd); //for linearMotion, same as end.
   }*/
 }
+
+/*
 std::vector<Point> linearMotion::points() {
     std::vector<Point> output;
     output.push_back( start );
     output.push_back( end );
     return output;
+}*/
+
+Point linearMotion::point(double s) {
+    if ( length() == 0.0 ) {
+        return start;
+    } else {
+        double t = s/this->length();
+        if ( !(t >= 0.0) )
+            std::cout << "linearMotion::point() ERROR at s= " << s << " length= " << length() << " t evaluates to t= " << t << "\n";
+        assert( t >= 0.0);  assert( t <= 1.0 );
+        return start + (end-start)*t;
+    }
 }
+
+double linearMotion::length() { 
+    return start.Distance(end); 
+}
+
 //need to return RAPID for rapids...
 MOTION_TYPE linearMotion::getMotionType() {
   bool traverse = cmdMatch("STRAIGHT_TRAVERSE");

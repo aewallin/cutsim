@@ -19,22 +19,20 @@
 ***************************************************************************/
 #include <string>
 #include <climits>
+#include <cassert>
 
 #include "helicalMotion.hpp"
 #include "machineStatus.hpp"
 
 namespace g2m {
 
+
+#define CIRCLE_FUZZ (0.000001) // from libnml/posemath/posemath.h
+
 // example from cds.ngc:
 //     231 N2250  ARC_FEED(3.5884, 1.9116, 3.5000, 2.0000, -1, 1.8437, 0.0000, 0.0000, 0.0000)
 //tok: 0   1      2        3       4       5       6        7  8       9       10      11 
 helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): canonMotion(canonL,prevStatus) {
-    
-    //double a1,a2,e1,e2,e3,ea,eb,ec;
-    
-    //  x=y=z=a1=a2=e1=e2=e3=ea=eb=ec=0;
-    // e = end pose position
-
     // ( comments relate to XY-plane )
     // see the rs274 spec, www.isd.mel.nist.gov/documents/kramer/RS274NGC_22.pdf or similar
     // If rotation is positive, the arc is traversed counterclockwise as viewed from the positive end of
@@ -52,104 +50,86 @@ helicalMotion::helicalMotion(std::string canonL, machineStatus prevStatus): cano
     c = tok2d(11); // c
     start = status.getStartPose().loc;
     
-    /// Shuffle variables around based on the active plane.
+    /*
     switch (status.getPlane()) {
-        /*
-        ** the order for these vars is copied from saicannon.cc, line 509+
-        ** a,b,c remain in order
-        */
         case CANON_PLANE_XZ:
             status.setEndPose(Point(y1,z1,x1));
-            //axis =   Point(0,1,0); // rotate around Y-axis
-            //center = Point(a2,start.y,a1);
-            //hdist = e3 - start.y;
             break;
         case CANON_PLANE_YZ:
             status.setEndPose(Point(z1,x1,y1));
-            //axis = Point(1,0,0); // rotate around X-axis
-            //center = Point(start.x,a1,a2);
-            //hdist = e3 - start.x;
             break;
         case CANON_PLANE_XY:
             default:
-            status.setEndPose(Point(x1,y1,z1));
-            //axis = Point(0,0,1); // rotate around Z-axis
-            //center = Point(a1,a2,start.z);
-            //hdist = e3 - start.z; // change in z-coordinate, if nonzero then this is a helix instead of an arc.
-    }
-    status.setMotionType(HELICAL);
-    end = status.getEndPose().loc; 
-    //radius = start.Distance(center);
-    points();
-}
-
-
-/// Create points along the helix
-#define CIRCLE_FUZZ (0.000001) // from libnml/posemath/posemath.h
-// #define M_PI (3.141592653589793)
-
-// code adapted from emc2: src/emc/rs274ngc/gcodemodule.cc 
-// function rs274_arc_to_segments()
-std::vector<Point> helicalMotion::points() {
-    unsigned int X, Y, Z; // to shuffle around coords.
-    unsigned int max_segments = 10; // specifies how many points per PI of rotation
-    double n[6], o[6];
+            
+    }*/
     
+    status.setMotionType(HELICAL);
+    
+    
+    
+    // code adapted from emc2: src/emc/rs274ngc/gcodemodule.cc 
+    // function rs274_arc_to_segments()
+    double n[6]; // n=endpoint,
+    //double o[6]; // o=origin/start-point
     // numbering of axes, depending on plane
-    if( status.getPlane() == CANON_PLANE_XY)  { // XY-plane
+    if ( status.getPlane() == CANON_PLANE_XY)  { // XY-plane
         X=0; Y=1; Z=2;
     } else if (status.getPlane() == CANON_PLANE_YZ) { // YZ-plane
         X=2; Y=0; Z=1;
     } else if (status.getPlane() == CANON_PLANE_XZ) {
         X=1; Y=2; Z=0; // XZ-plane
     } 
-    
     n[X] = x1; // end-point, first-coord
     n[Y] = y1; // end-point, second-coord
     n[Z] = z1; // end-point, third-coord, i.e helix translation
-    
     n[3] = a;
     n[4] = b;
     n[5] = c;
     
+    status.setEndPose( Point( n[X], n[Y], n[Z]) );
+    end = status.getEndPose().loc; 
+
     o[0] = start.x;
     o[1] = start.y;
     o[2] = start.z;
     o[3] = 0; //FIXME
     o[4] = 0; //FIXME
     o[5] = 0; //FIXME
-    
-    double theta1 = atan2( o[Y]-cy, o[X]-cx); // vector from center to start
-    double theta2 = atan2( n[Y]-cy, n[X]-cx); // vector from center to end
-    
-    if(rot < 0) { // rot = -1
+    double theta1 = atan2( o[Y]-cy, o[X]-cx); // angle of vector from center to start
+    double theta2 = atan2( n[Y]-cy, n[X]-cx); // angle of vector from center to end
+    if(rot < 0) { 
         while(theta2 - theta1 > -CIRCLE_FUZZ) 
             theta2 -= 2*M_PI;
-    } else { // rot = 1
+    } else { 
         while(theta2 - theta1 < CIRCLE_FUZZ) 
             theta2 += 2*M_PI;
     }
-    
     // if multi-turn, add the right number of full circles
     if(rot < -1) 
         theta2 += 2*M_PI*(rot+1);
     if(rot > 1) 
         theta2 += 2*M_PI*(rot-1);
-    
     // number of steps
-    int steps = std::max( 3, int(max_segments * fabs(theta1 - theta2) / M_PI) ); //  max_segments per M_PI of rotation
-    double rsteps = 1. / steps;
-    double dtheta = theta2 - theta1; // the rotation angle for this helix
+    //int steps = std::max( 3, int(max_segments * fabs(theta1 - theta2) / M_PI) ); //  max_segments per M_PI of rotation
+    //double rsteps = 1. / steps;
+    
+    dtheta = theta2 - theta1; // the rotation angle for this helix
+    
     // n is endpoint
     // o is startpoint
-    // d is diff.   x,y,z,a,b,c,u,v,w 
-                // 0  1  2  3          4          5          6          7
-    double d[9] = {0, 0, 0, n[3]-o[3], n[4]-o[4], n[5]-o[5] };
+    // d is diff.   x,y,z,a,b,c
+    d[0]=0; d[1]=0; d[2]=0;
+    d[3]=n[3]-o[3];
+    d[4]=n[4]-o[4];
+    d[5]=n[5]-o[5];
     d[Z] = n[Z] - o[Z]; // helix-translation diff
-    double tx = o[X] - cx; // center to start 
-    double ty = o[Y] - cy; // center to start
-    double dc = cos(dtheta*rsteps);  
-    double ds = sin(dtheta*rsteps);
+    tx = o[X] - cx; // center to start 
+    ty = o[Y] - cy; // center to start
+    radius = sqrt( tx*tx + ty*ty );
+    //double dc = cos(dtheta*rsteps); // delta-cos  
+    //double ds = sin(dtheta*rsteps); // delta-sin
+    
+    /*
     std::vector<Point> output;
     for(int i=0; i<steps; i++) {
         double f = (i+1) * rsteps; // varies from 1/rsteps..1 (?)
@@ -158,18 +138,56 @@ std::vector<Point> helicalMotion::points() {
         p[X] = tx + cx; // center + rotated point
         p[Y] = ty + cy;
         p[Z] = o[Z] + d[Z] * f; // start + helix-translation
-        
         // simple proportional translation
         p[3] = o[3] + d[3] * f;
         p[4] = o[4] + d[4] * f;
         p[5] = o[5] + d[5] * f;
-
         Point pt( p[0], p[1], p[2] );
-        //std::cout << " arc point: f=" << f << " pt= " << pt.str() << "\n";
         output.push_back(pt);
-    }
-    return output;
+    }*/
 }
+
+double helicalMotion::length() { 
+    // helix:  x= a*cos(t)     y=a*sin(t)   z=c*t
+    
+    // d[Z] is rise during dtheta radians
+    // so d[Z]/dtheta is rise/radian
+    // and (d[Z]/dtheta)
+    double c = d[Z]/dtheta;
+    // c= rise in one turn divided by 2pi
+    // t in [0,T]
+    // helix length L =T*sqrt(a^2 + c^2)
+    return dtheta*sqrt(radius*radius + c*c); 
+}
+
+Point helicalMotion::point(double s) {
+    // 0) relate s to t=[0...1]  and theta=[0...dtheta]
+    double t= s/this->length();
+    assert( t >= 0.0);  assert( t <= 1.0 );
+    double theta = t*dtheta;
+    // 1) rotate center-start vector
+    double cos_t = cos(theta);
+    double sin_t = sin(theta);
+    double txr(tx), tyr(ty);
+    rotate(txr,tyr,cos_t,sin_t); 
+    // 2) center + center-start
+    double p[6]; // the output-point
+    p[X] = cx + txr;
+    p[Y] = cy + tyr;
+    p[Z] = o[Z] + t*d[Z]; 
+    p[3] = o[3] + d[3] * t;
+    p[4] = o[4] + d[4] * t;
+    p[5] = o[5] + d[5] * t;
+    return Point( p[0], p[1], p[2] ); // no a,b,c for now..
+}
+
+// rotate by cos/sin. from emc2 gcodemodule.cc
+void helicalMotion::rotate(double &x, double &y, double c, double s) {
+    double tx = x * c - y * s;
+    y = x * s + y * c;
+    x = tx;
+}
+
 
 
 } // end namespace
@@ -194,7 +212,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     if(!get_attr(canon, "rotation_cos", &rotation_cos)) return NULL; // rotation-offsets
     if(!get_attr(canon, "rotation_sin", &rotation_sin)) return NULL; // rotation-offset
     
-    /*
+    
     if(!get_attr(canon, "g5x_offset_x", &g5xoffset[0])) return NULL;
     if(!get_attr(canon, "g5x_offset_y", &g5xoffset[1])) return NULL;
     if(!get_attr(canon, "g5x_offset_z", &g5xoffset[2])) return NULL;
