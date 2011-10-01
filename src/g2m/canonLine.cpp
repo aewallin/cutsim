@@ -74,6 +74,23 @@ inline int canonLine::tok2i(uint n,uint offset) {
   return i;
 }
 
+std::string canonLine::cantok(unsigned int n) {
+  if (n < canonTokens.size()) {
+    return canonTokens[n]; 
+  } else {
+    std::cout << "malformed input line " << myLine << std::endl;
+    std::string s = ""; 
+    return s;
+  }
+}
+
+///return true if the canonical command for this line matches 'm'
+bool canonLine::cmdMatch(std::string m) {
+    if (canonTokens.size() < 3)
+        return false;
+    return (m.compare(canonTokens[2]) == 0); //compare returns zero for a match
+}
+
 const std::string canonLine::getCanonicalCommand() {
   if (canonTokens.size() < 3 ) 
     return "BAD_LINE_NO_CMD";

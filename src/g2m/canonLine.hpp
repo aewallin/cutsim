@@ -55,18 +55,8 @@ class canonLine {
     virtual std::vector<Point> points() { return std::vector<Point>(); }
     // produce a canonLine based on string l, and previous machineStatus s
     static canonLine* canonLineFactory (std::string l, machineStatus s);
-    
-    inline std::string cantok(unsigned int n) {
-      if (n < canonTokens.size()) {
-        return canonTokens[n]; 
-      } else {
-        std::cout << "malformed input line " << myLine << std::endl;
-        std::string s = ""; 
-        return s;
-      }
-    }
-    const std::string getLnum();
-    
+    std::string cantok(unsigned int n);
+    const std::string getLnum();    
   protected:
     // protected ctor, create through factory
     canonLine(std::string canonL, machineStatus prevStatus); 
@@ -74,14 +64,8 @@ class canonLine {
     int tok2i(unsigned int n, unsigned int offset=0);
     void tokenize(std::string str, std::vector<std::string>& tokenV, const std::string& delimiters = "(), ");    
     const std::string getCanonicalCommand();
-    
-    ///return true if the canonical command for this line matches 'm'
-    inline bool cmdMatch(std::string m) {
-        if (canonTokens.size() < 3)
-            return false;
-        return (m.compare(canonTokens[2]) == 0); //compare returns zero for a match
-    };
-
+    bool cmdMatch(std::string m);
+// DATA
     std::string myLine; // the canon-line
     machineStatus status; //the machine's status *after* execution of this canon line
     std::vector<std::string> canonTokens; // the tokens are here, after tokenizing myLine
