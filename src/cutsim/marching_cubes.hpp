@@ -43,7 +43,7 @@ class MarchingCubes : public IsoSurfaceAlgorithm {
             g->setUsageDynamicDraw();
             g->setPolygonModeFill(); 
             g->setPosition(0,0,0);
-            g->genVBO();
+            //g->genVBO();
         }
         virtual ~MarchingCubes() { }
     protected:
