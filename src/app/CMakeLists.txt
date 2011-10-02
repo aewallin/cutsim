@@ -26,24 +26,6 @@ if(Boost_FOUND)
     MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
 endif()
 
-
-find_library(CUTSIM_LIBRARY 
-            NAMES cutsim
-            PATHS /usr/local/lib/cutsim /usr/lib/cutsim
-            DOC "The cutsim library"
-)
-MESSAGE(STATUS "CUTSIM_LIBRARY is now: " ${CUTSIM_LIBRARY})
-
-
-find_library(G2M_LIBRARY 
-            NAMES g2m
-            PATHS /usr/local/lib/g2m /usr/lib/g2m
-            DOC "The g2m library"
-)
-MESSAGE(STATUS "G2M_LIBRARY is now: " ${G2M_LIBRARY})
-
-
-
 set (MOC_HEADERS 
     cutsim_app.hpp
     cutsim_window.hpp 
@@ -61,8 +43,7 @@ set( OCL_TST_SRC
 
 add_executable( ${PROJECT_NAME} ${OCL_TST_SRC} )
 target_link_libraries( ${PROJECT_NAME} 
-    ${CUTSIM_LIBRARY} 
-    ${G2M_LIBRARY}
+    cutsim g2m
     ${QT_LIBRARIES} 
     ${Boost_LIBRARIES} 
     ${OPENGL_LIBRARIES}
