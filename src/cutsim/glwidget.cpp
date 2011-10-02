@@ -30,12 +30,7 @@ namespace cutsim {
 
 #define PI 3.1415926535897932
 
-GLWidget::GLWidget( QWidget *parent, char *name ) 
-  : QGLWidget(parent) {
-    //timer = new QTimer(this);
-    //timer->setInterval(1000);
-    //connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
-    //timer->start();
+GLWidget::GLWidget( QWidget *parent, char *name ) : QGLWidget(parent) {
     _fovy = 60.0;
     z_near = 0.1;
     z_far = 100.0;
@@ -54,6 +49,7 @@ GLWidget::GLWidget( QWidget *parent, char *name )
     file_number=0;
 }
 
+/// add new GLData object and return pointer to it.
 GLData* GLWidget::addObject() {
     GLData* g = new GLData();
     glObjects.push_back(g);
@@ -164,7 +160,7 @@ void GLWidget::resizeGL( int width, int height ) {
 }
 
 
-
+/// loop through glObjects and for each GLData draw it using VBO
 void GLWidget::paintGL()  {
     //glMatrixMode(GL_PROJECTION); 
     //glLoadIdentity();
@@ -276,7 +272,56 @@ void GLWidget::rotateView(const QPoint& newPos) {
     
     updateGL();
 }
-        
+
+
+void GLWidget::keyPressEvent( QKeyEvent *e ) {
+    std::cout << e->key() << " pressed.\n";
+    if ( e->key() == Qt::Key_C ) {
+        std::cout << " emitting sig().\n";
+        emit sig();
+    } else if ( e->key() == Qt::Key_S ) {
+        std::cout << " emitting s_sig().\n";
+        emit s_sig();
+    }
+    return;
+}
+
+void GLWidget::mouseMoveEvent( QMouseEvent *e ) {
+    if (_leftButtonPressed ) {
+       panView( e->pos() ); 
+    } else if (_rightButtonPressed) {
+        rotateView( e->pos() ); 
+    }
+    else if (_middleButtonPressed) {
+        zoomView( e->pos() ); 
+    }
+}
+
+void GLWidget::mousePressEvent( QMouseEvent *e ) {
+    //qDebug() << " mousePress : " << e->pos() << " button=" << e->button() << "\n";
+    _oldMousePos = e->pos();
+    if (e->button() == Qt::LeftButton) {
+        setCursor(Qt::OpenHandCursor);
+        _leftButtonPressed = true;
+        //std::cout << " left button press\n";
+    } else if (e->button() == Qt::RightButton) {
+        setCursor(Qt::SizeAllCursor);
+        _rightButtonPressed = true;
+    }
+    else if (e->button() == Qt::MiddleButton) {
+        setCursor(Qt::SplitVCursor);
+        _middleButtonPressed = true;
+    }
+}
+
+void GLWidget::mouseReleaseEvent( QMouseEvent *e ) {
+    //qDebug() << " mouseRelease : " << e->pos() << "\n";
+    setCursor( Qt::ArrowCursor );
+    _rightButtonPressed = false;
+    _leftButtonPressed = false;
+    _middleButtonPressed = false;
+}
+
 } // end ocl namespace
 
 

@@ -40,26 +40,18 @@
 
 namespace cutsim {
 
-
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + (i))
-
-
 
 class GLWidget : public QGLWidget {
     Q_OBJECT
     public:
         GLWidget( QWidget *parent=0, char *name=0 ) ;
         ~GLWidget() {}
-
         void initializeGL();
-        /// add new GLData object and return pointer to it.
-
         GLData* addObject();
-        //QTimer* timer;
     signals:
-        // a test/dummy signal, emitted when the user presses "c"
-        void sig();
-        void s_sig();
+        void sig(); // a test/dummy signal, emitted when the user presses "c"
+        void s_sig(); // press "s" test/dummy
     public slots:
         void slotWriteScreenshot() {
             QImage img = grabFrameBuffer(); 
@@ -76,57 +68,11 @@ class GLWidget : public QGLWidget {
         void zoomView( const QPoint& newPos );
         void panView(const QPoint& newPos);
         void rotateView(const QPoint& newPos);
-        void keyPressEvent( QKeyEvent *e ) {
-            std::cout << e->key() << " pressed.\n";
-            if ( e->key() == Qt::Key_C ) {
-                std::cout << " emitting sig().\n";
-                emit sig();
-            } else if ( e->key() == Qt::Key_S ) {
-                std::cout << " emitting s_sig().\n";
-                emit s_sig();
-            }
-            return;
-        }
-        void mouseMoveEvent( QMouseEvent *e ) {
-            if (_leftButtonPressed ) {
-               panView( e->pos() ); 
-            } else if (_rightButtonPressed) {
-                rotateView( e->pos() ); 
-            }
-            else if (_middleButtonPressed) {
-                zoomView( e->pos() ); 
-            }
-        }
-        void wheelEvent( QWheelEvent *e ) {
-            //qDebug() << " mouseWheel delta= " << e->delta() << "\n";
-            zoomView( e->delta() );
-        }
-        void mousePressEvent( QMouseEvent *e ) {
-            //qDebug() << " mousePress : " << e->pos() << " button=" << e->button() << "\n";
-            _oldMousePos = e->pos();
-            if (e->button() == Qt::LeftButton) {
-                setCursor(Qt::OpenHandCursor);
-                _leftButtonPressed = true;
-                //std::cout << " left button press\n";
-            } else if (e->button() == Qt::RightButton) {
-                setCursor(Qt::SizeAllCursor);
-                _rightButtonPressed = true;
-            }
-            else if (e->button() == Qt::MiddleButton) {
-                setCursor(Qt::SplitVCursor);
-                _middleButtonPressed = true;
-            }
-        }
-        void mouseReleaseEvent( QMouseEvent *e ) {
-            //qDebug() << " mouseRelease : " << e->pos() << "\n";
-            setCursor( Qt::ArrowCursor);
-            _rightButtonPressed = false;
-            _leftButtonPressed = false;
-            _middleButtonPressed = false;
-        }
-        //void timeOut() {
-        //    updateGL();
-        //}
+        void keyPressEvent( QKeyEvent *e );
+        void mouseMoveEvent( QMouseEvent *e );
+        void wheelEvent( QWheelEvent *e ) { zoomView( e->delta() ); }
+        void mousePressEvent( QMouseEvent *e );
+        void mouseReleaseEvent( QMouseEvent *e );
         
         // generate a VBO for each GLData object
         void genVBO() {
@@ -134,10 +80,6 @@ class GLWidget : public QGLWidget {
                 g->genVBO();
             }
         }
-
-
-    //protected slots:
-    //    void timeOutSlot() { timeOut(); }
         
     private:
         /// camera position
