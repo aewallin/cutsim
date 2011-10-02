@@ -52,6 +52,7 @@ const GLVertex Octnode::direction[8] = {
 // 4:       0,2,3     0,1,2
 // 5:       4,6,7     4,5,6
 
+// bit-mask for setting valid() property of child-nodes
 const char Octnode::octant[8] = {
                     1,
                     2,
@@ -114,11 +115,9 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     bb.addPoint( *vertex[4] ); // vertex[4] has the max x,y,z
     
     isosurface_valid = false;
-    evaluated = false;
     
     childcount = 0;
     childStatus = 0;
-    //set_flags();
 }
 
 // call delete on children, vertices, and center
@@ -159,6 +158,105 @@ void Octnode::subdivide() {
     }
 }
 
+void Octnode::sum(const OCTVolume* vol) {
+    for ( int n=0;n<8;++n) {
+        if (vol->dist( *(vertex[n]) ) > f[n])
+            color = vol->color;
+        f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
+    }
+    set_state();
+}
+void Octnode::diff(const OCTVolume* vol) {
+    for ( int n=0;n<8;++n)  {
+        if (-1*vol->dist( *(vertex[n]) ) < f[n])
+            color = vol->color;
+        f[n] = std::min( f[n], -1.0*vol->dist( *(vertex[n]) ) );
+    }
+    set_state();
+}
+void Octnode::intersect(const OCTVolume* vol) {
+    for ( int n=0;n<8;++n) {
+        if (vol->dist( *(vertex[n]) ) < f[n])
+            color = vol->color;
+        f[n] = std::min( f[n], vol->dist( *(vertex[n]) ) );
+    }
+    set_state();
+}
+
+// look at the f-values in the corner of the cube and set state
+// to inside, outside, or undecided
+void Octnode::set_state() {
+    NodeState old_state = state;
+    bool outside = true;
+    bool inside = true;
+    for ( int n=0;n<8;n++) {
+        if ( f[n] >= 0.0 ) {// if one vertex is inside
+            outside = false; // then it's not an outside-node
+        } else { // if one vertex is outside
+            assert( f[n] < 0.0 );
+            inside = false; // then it's not an inside node anymore
+        }
+    }
+    assert( !( outside && inside) ); // sanity check
+    
+    if ( (inside) && (!outside) )
+        setInside();
+    else if ( (outside) && (!inside) )
+        setOutside();
+    else if ( (!inside) && (!outside) )
+        setUndecided();
+    else
+        assert(0);
+    
+    // sanity check..
+    assert( (is_inside() && !is_outside() && !is_undecided() ) ||
+            (!is_inside() && is_outside() && !is_undecided() ) ||
+            (!is_inside() && !is_outside() && is_undecided() ) );
+    
+    if ( ((old_state == INSIDE) && (state== INSIDE)) ||
+        ((old_state == OUTSIDE) && (state== OUTSIDE)) ) {
+        // do nothing if state did not change
+    } else {
+        setInvalid();
+    }
+}
+
+void Octnode::setInside() {
+    if ( (state!=INSIDE) && ( all_child_state(INSIDE)   ) ) {
+        state = INSIDE;
+        if (parent && ( parent->state != INSIDE) )
+            parent->setInside();
+    }
+}
+
+void Octnode::setOutside() {
+    if ( (state!=OUTSIDE) && ( all_child_state(OUTSIDE)   ) )  {
+        state = OUTSIDE;
+        if (parent && ( parent->state != OUTSIDE ) )
+            parent->setOutside();
+    }
+}
+void Octnode::setUndecided() {
+    if (state != UNDECIDED) {
+        prev_state = state;
+        state = UNDECIDED;
+    }
+}
+
+bool Octnode::all_child_state(NodeState s) const {
+    if ( childcount == 8 ) {
+        return (  child[0]->state == s ) && 
+                ( child[1]->state == s ) && 
+                ( child[2]->state == s ) && 
+                ( child[3]->state == s ) && 
+                ( child[4]->state == s ) && 
+                ( child[5]->state == s ) && 
+                ( child[6]->state == s ) && 
+                ( child[7]->state == s ) ;
+    } else {
+        return true;
+    }
+}
 
 void Octnode::delete_children() {
     if (childcount==8) {
@@ -204,21 +302,20 @@ void Octnode::setValid() {
         parent->setChildValid( idx ); // try to propagate valid up the tree:
 }
 void Octnode::setChildValid( unsigned int id ) {
-    childStatus |= octant[id];
+    childStatus |= octant[id]; // OR with mask
     if (childStatus == 255) { // all children valid...
-        setValid(); // ...so *this valid
+        setValid(); // ...so this valid
     }
 }
 
 void Octnode::setChildInvalid( unsigned int id ) {
+    childStatus &= ~octant[id]; // AND with not-mask
     setInvalid();
-    childStatus &= ~octant[id];
 }
 
 void Octnode::setInvalid() { 
     isosurface_valid = false;
     if ( parent && parent->valid() )  {// update parent status also
-        //parent->setInvalid();
         parent->setChildInvalid(idx);
     }
 }
@@ -266,6 +363,26 @@ std::string Octnode::printF() {
         o << "f[" << n <<"] = " << f[n] << "\n";
     }
     return o.str();
+}
+
+std::string Octnode::spaces() const {
+    std::ostringstream stream;
+    for (unsigned int m=0;m<this->depth;m++)
+        stream << " ";  
+    return stream.str();
+}
+
+std::string Octnode::type() const {
+    std::ostringstream stream;
+    if (state == INSIDE)
+        stream << "inside";  
+    else if (state == OUTSIDE)
+        stream << "outside";  
+    else if (state == UNDECIDED)
+        stream << "undecided";  
+    else
+        assert(0);
+    return stream.str();
 }
 
 // string repr

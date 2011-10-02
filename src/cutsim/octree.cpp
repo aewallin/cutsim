@@ -69,8 +69,7 @@ void Octree::init(const unsigned int n) {
         std::vector<Octnode*> nodelist;
         get_leaf_nodes(root, nodelist);
         BOOST_FOREACH( Octnode* node, nodelist) {
-            node->setUndecided();
-            node->subdivide();
+            node->force_subdivide();
         }
     }
 }

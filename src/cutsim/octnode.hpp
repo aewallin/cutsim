@@ -27,17 +27,12 @@
 #include <set>
 #include <vector>
 
-
-
-
 #include "volume.hpp"
 #include "bbox.hpp"
 #include "glvertex.hpp"
 #include "gldata.hpp"
 
 namespace cutsim {
-
-
 
 /// Octnode represents a node in the octree.
 ///
@@ -49,107 +44,23 @@ class Octnode {
         NodeState state;
         NodeState prev_state;
         Color color;
-        
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth, GLData* g);
         virtual ~Octnode();
         /// create all eight children of this node
         void subdivide(); 
-
-        void sum(const OCTVolume* vol) {
-
-            for ( int n=0;n<8;++n) {
-                if (vol->dist( *(vertex[n]) ) > f[n])
-                    color = vol->color;
-                f[n] = std::max( f[n], vol->dist( *(vertex[n]) ) );
-            }
-            set_state();
+        void force_subdivide() { // this is only called from octree-init..
+            setUndecided();
+            subdivide();
         }
-        void diff(const OCTVolume* vol) {
-            for ( int n=0;n<8;++n)  {
-                if (-1*vol->dist( *(vertex[n]) ) < f[n])
-                    color = vol->color;
-                f[n] = std::min( f[n], -1.0*vol->dist( *(vertex[n]) ) );
-            }
-            set_state();
-        }
-        void intersect(const OCTVolume* vol) {
-            for ( int n=0;n<8;++n) {
-                if (vol->dist( *(vertex[n]) ) < f[n])
-                    color = vol->color;
-                f[n] = std::min( f[n], vol->dist( *(vertex[n]) ) );
-            }
-            set_state();
-        }
-        
-        
-        
-
-        
+        void sum(const OCTVolume* vol);
+        void diff(const OCTVolume* vol);
+        void intersect(const OCTVolume* vol);
         bool is_inside()    { return (state==INSIDE); }
         bool is_outside()   { return (state==OUTSIDE); }
         bool is_undecided() { return (state==UNDECIDED); }
         
-
-        
-        
-        
-        /*
-        void setInside(unsigned int id) {
-            childState[id] = INSIDE;
-            if ( all_child_state(INSIDE) && (state!=INSIDE) ) 
-                setInside();
-        }*/
-        
-
-        
-        /*
-        void setUndecided( unsigned int id ) {
-            childState[id] = UNDECIDED;
-            setUndecided(); // no checks, if one child UNDECIDED, then this UNDECIDED
-        }*/
-        
-
-        /*
-        void setOutside(unsigned int id) {
-            childState[id] = OUTSIDE;
-            if ( (state!=OUTSIDE) && all_child_state(OUTSIDE)  )   
-                setOutside(); 
-        }*/
-        
-        bool all_child_state(NodeState s) const {
-            if ( childcount == 8 ) {
-                return ( child[0]->state == s ) && 
-                        ( child[1]->state == s ) && 
-                        ( child[2]->state == s ) && 
-                        ( child[3]->state == s ) && 
-                        ( child[4]->state == s ) && 
-                        ( child[5]->state == s ) && 
-                        ( child[6]->state == s ) && 
-                        ( child[7]->state == s ) ;
-               /* for (unsigned int m=0;m<8;m++) {
-                    if ( child[m]->state != s ) 
-                        return false;
-                }*/
-            } else {
-                return true;
-            }
-            return true;
-        }
-        
-        /*
-        bool all_child_state(NodeState s) const {
-            if ( childcount == 8 ) {
-                for (unsigned int m=0;m<8;m++) {
-                    if ( child[m]->state != s ) 
-                        return false;
-                }
-            } else {
-                return false;
-            }
-            return true;
-        }*/
-        
+        bool all_child_state(NodeState s);
         void delete_children();
 
     // manipulate the valid-flag
@@ -171,11 +82,6 @@ class Octnode {
         std::vector<GLVertex*> vertex; 
         /// value of implicit function at vertex
         std::vector<double> f; 
-        /// flag set true if this node is outside
-        //bool outside;
-        /// flag for inside node
-        //bool inside;
-
         /// the center point of this node
         GLVertex* center; // the centerpoint of this node
         /// the tree-dept of this node
@@ -184,11 +90,8 @@ class Octnode {
         unsigned int idx; // index of node
         /// the scale of this node, i.e. distance from center out to corner vertices
         double scale; // distance from center to vertices
-
         /// bounding-box corresponding to this node
         Bbox bb;
-    
-
     
     // for manipulating vertexSet
         void addIndex(unsigned int id);
@@ -197,112 +100,31 @@ class Octnode {
         bool vertexSetEmpty() {return vertexSet.empty(); }
         unsigned int vertexSetTop() { return *(vertexSet.begin()); }
         void clearVertexSet();
-        
-        
+
     // string output
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         std::string str() const;
         std::string printF();
-        std::string spaces() const {
-            std::ostringstream stream;
-            for (unsigned int m=0;m<this->depth;m++)
-                stream << " ";  
-            return stream.str();
-        }
-        std::string type() const {
-            std::ostringstream stream;
-            if (state == INSIDE)
-                stream << "inside";  
-            else if (state == OUTSIDE)
-                stream << "outside";  
-            else if (state == UNDECIDED)
-                stream << "undecided";  
-            else
-                assert(0);
-            return stream.str();
-        }
-        
-        void setUndecided() {
-            //assert( state != UNDECIDED );
-            if (state != UNDECIDED) {
-                prev_state = state;
-                state = UNDECIDED;
-                //if (parent && (parent->state != UNDECIDED) )
-                //    parent->setUndecided();
-            }
-        }
+        std::string spaces() const;
+        std::string type() const;
         
     protected: 
-        void set_state() {
-            NodeState old_state = state;
-            bool outside = true;
-            bool inside = true;
-            for ( int n=0;n<8;n++) {
-                if ( f[n] >= 0.0 ) {// if one vertex is inside
-                    outside = false; // then it's not an outside-node
-                } else { // if one vertex is outside
-                    assert( f[n] < 0.0 );
-                    inside = false; // then it's not an inside node anymore
-                }
-            }
-            assert( !( outside && inside) ); // sanity check
-            
-            if ( (inside) && (!outside) )
-                setInside();
-            else if ( (outside) && (!inside) )
-                setOutside();
-            else if ( (!inside) && (!outside) )
-                setUndecided();
-            else
-                assert(0);
-            
-            // sanity check..
-            assert( (is_inside() && !is_outside() && !is_undecided() ) ||
-                    (!is_inside() && is_outside() && !is_undecided() ) ||
-                    (!is_inside() && !is_outside() && is_undecided() ) );
-            
-            if ( ((old_state == INSIDE) && (state== INSIDE)) ||
-                ((old_state == OUTSIDE) && (state== OUTSIDE))
-             ) {
-                } else {
-                    setInvalid();
-                }
-        }
-        
-        void setInside() {
-            if ( (state!=INSIDE) && ( all_child_state(INSIDE)   ) ) {
-                state = INSIDE;
-                if (parent && ( parent->state != INSIDE) )
-                    parent->setInside();
-            }
-        }
-        
-        void setOutside() {
-            if ( (state!=OUTSIDE) && ( all_child_state(OUTSIDE)   ) )  {
-                state = OUTSIDE;
-                if (parent && ( parent->state != OUTSIDE ) )
-                    parent->setOutside();
-            }
-        }
-        
-
-         
+        void set_state();
+        void setInside();
+        void setOutside();
+        void setUndecided();
         void setChildValid( unsigned int id );
         inline void setChildInvalid( unsigned int id );
-        
-        //void inherit_f();
-        
+
         // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;
-        /// flag for checking if evaluate() has run
-        bool evaluated;
         /// return center of child with index n
         GLVertex* childcenter(int n); // return position of child centerpoint
         GLData* g;
         /// flag for telling isosurface extraction is valid for this node
         /// if false, the node needs updating.
         bool isosurface_valid;
-        char childStatus;
+        char childStatus; // bit-field indicating if children have valid gldata
         
 // STATIC
         /// the direction to the vertices, from the center 
@@ -315,4 +137,4 @@ class Octnode {
 
 } // end namespace
 #endif
-// end file octnode.h
+// end file octnode.hpp
