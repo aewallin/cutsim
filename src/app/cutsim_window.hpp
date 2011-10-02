@@ -65,7 +65,7 @@ public:
         myProgress = new QProgressBar();
         myProgress->setMaximum(100);
         myProgress->setMinimum(0);
-        statusBar()->insertPermanentWidget( 1, myProgress , 0);        
+        statusBar()->insertPermanentWidget( 0, myProgress , 0);        
         createToolBar();        
         
         myG2m = new g2m::g2m(); // g-code interpreter
@@ -102,6 +102,8 @@ public:
         move(100,100); // position the main window
         resize(789,527);  // size window
         //showMaximized();
+        
+        myCutsim->updateGL();
     }
     
     QAction* getHelpMenu() { return helpAction; };
@@ -122,6 +124,7 @@ public slots:
         //debugMessage( tr("ui: setToolPosition( %1, )").arg(x) );
         myTools[currentTool]->setCenter( cutsim::GLVertex(x,y,z) );
         myCutsim->slot_diff_volume( myTools[currentTool] ); 
+        myCutsim->updateGL();
     }
     void slotToolChange(int t) {
         debugMessage( tr("ui: Tool-change to  %1 ").arg(t) );

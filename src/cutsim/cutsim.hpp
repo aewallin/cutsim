@@ -52,6 +52,7 @@ public:
     void diff_volume( const OCTVolume* vol );
     void sum_volume( const OCTVolume* vol );
     void intersect_volume( const OCTVolume* vol );
+    void updateGL(); 
 public slots:
     void slot_diff_volume( const OCTVolume* vol) { diff_volume(vol);}
     void slot_sum_volume( const OCTVolume* vol)  { sum_volume(vol);} 

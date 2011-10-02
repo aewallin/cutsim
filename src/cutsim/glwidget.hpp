@@ -53,14 +53,9 @@ class GLWidget : public QGLWidget {
         void sig(); // a test/dummy signal, emitted when the user presses "c"
         void s_sig(); // press "s" test/dummy
     public slots:
-        void slotWriteScreenshot() {
-            QImage img = grabFrameBuffer(); 
-            QString file_name = "frame_" + QString::number(file_number) + ".png";
-            img.save( file_name );
-            file_number++;
-        }
+        void slotWriteScreenshot();
     protected:
-        int file_number;
+        void genVBO(); // generate a VBO for each GLData object
         void resizeGL( int width, int height );
         void paintGL();
         void updateDir();
@@ -73,14 +68,6 @@ class GLWidget : public QGLWidget {
         void wheelEvent( QWheelEvent *e ) { zoomView( e->delta() ); }
         void mousePressEvent( QMouseEvent *e );
         void mouseReleaseEvent( QMouseEvent *e );
-        
-        // generate a VBO for each GLData object
-        void genVBO() {
-            BOOST_FOREACH(GLData* g, glObjects) {
-                g->genVBO();
-            }
-        }
-        
     private:
         /// camera position
         GLVertex _eye;
@@ -109,6 +96,7 @@ class GLWidget : public QGLWidget {
         bool _leftButtonPressed;
         bool _middleButtonPressed;
         QTime _lastFrameTime;
+        int file_number;
 };
 
 } // end ocl namespace

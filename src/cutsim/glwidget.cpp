@@ -53,6 +53,7 @@ GLWidget::GLWidget( QWidget *parent, char *name ) : QGLWidget(parent) {
 GLData* GLWidget::addObject() {
     GLData* g = new GLData();
     glObjects.push_back(g);
+    //g->genVBO();
     return g;
 }
 
@@ -131,7 +132,16 @@ void GLWidget::initializeGL() {
     //glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
 
     // glEnable(GL_DEPTH_TEST);
+    
+    // segfaults without this..
+    std::cout << "initializeGL() calling genVBO on " << glObjects.size() << " GLdatas\n";
     genVBO();  // for each gl-data, generate vbo
+}
+
+void GLWidget::genVBO() {
+    BOOST_FOREACH(GLData* g, glObjects) {
+        g->genVBO();
+    }
 }
 
 void GLWidget::resizeGL( int width, int height ) {
@@ -227,6 +237,15 @@ void GLWidget::paintGL()  {
     renderText( 10, 50, dir_str );
     
 }
+
+
+void GLWidget::slotWriteScreenshot() {
+    QImage img = grabFrameBuffer(); 
+    QString file_name = "frame_" + QString::number(file_number) + ".png";
+    img.save( file_name );
+    file_number++;
+}
+
 void GLWidget::updateDir() {
     _dirx = _up;
     GLVertex newy = _up.cross(_center-_eye);

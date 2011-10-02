@@ -43,46 +43,54 @@ Cutsim::~Cutsim() {
     delete g;
 }
 
+void Cutsim::updateGL() {
+    std::clock_t start, stop;
+    start = std::clock();
+    iso_algo->updateGL();
+    stop = std::clock();
+    std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+}
+
 void Cutsim::sum_volume( const OCTVolume* volume ) {
-    iso_algo->setColor(red,green,blue);
+    //iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     start = std::clock();
     tree->sum( volume );
     stop = std::clock();
     std::cout << "cutsim.cpp sum_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
     
-    start = std::clock();
-    iso_algo->updateGL();
-    stop = std::clock();
-    std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    //start = std::clock();
+    //iso_algo->updateGL();
+    //stop = std::clock();
+    //std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
 void Cutsim::diff_volume( const OCTVolume* volume ) {
-    iso_algo->setColor(red,green,blue);
+    //iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     start = std::clock();
     tree->diff( volume );
     stop = std::clock();
     std::cout << "cutsim.cpp diff_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 
-    start = std::clock();
-    iso_algo->updateGL();
-    stop = std::clock();
-    std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    //start = std::clock();
+    //iso_algo->updateGL();
+    //stop = std::clock();
+    //std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
 void Cutsim::intersect_volume( const OCTVolume* volume ) {
-    iso_algo->setColor(red,green,blue);
+    //iso_algo->setColor(red,green,blue);
     std::clock_t start, stop;
     start = std::clock();
     tree->intersect( volume );
     stop = std::clock();
     std::cout << "cutsim.cpp intersect_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 
-    start = std::clock();
-    iso_algo->updateGL();
-    stop = std::clock();
-    std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    //start = std::clock();
+    //iso_algo->updateGL();
+    //stop = std::clock();
+    //std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
 } // end namespace

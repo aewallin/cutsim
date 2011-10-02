@@ -50,11 +50,12 @@ class IsoSurfaceAlgorithm {
             //std::cout << update_calls << " calls made\n";
             //std::cout << valid_count << " valid_nodes\n";
         }
+        /*
         void setColor(GLfloat r, GLfloat g, GLfloat b) {
             red=r;
             green=g;
             blue=b;
-        }
+        }*/
 
     protected:
         virtual void updateGL( Octnode* node) =0 ;
@@ -83,7 +84,7 @@ class IsoSurfaceAlgorithm {
         }
     // DATA
         int update_calls, valid_count;
-        GLfloat red,green,blue; // current color for vertices
+        //GLfloat red,green,blue; // current color for vertices
         GLData* g;
         Octree* tree;
 };
