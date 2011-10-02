@@ -39,8 +39,7 @@ class IsoSurfaceAlgorithm {
         virtual ~IsoSurfaceAlgorithm() { }
         
         // return polygons corresponding to the octree node
-        //virtual std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node) = 0;
-        virtual void updateGL(){ 
+        virtual void updateGL() { 
             //update_calls=0;
             //valid_count=0;
             //debugValid();
@@ -58,12 +57,7 @@ class IsoSurfaceAlgorithm {
         }
 
     protected:
-        int update_calls, valid_count;
         virtual void updateGL( Octnode* node) =0 ;
-        GLfloat red,green,blue; // current color for vertices
-        GLData* g;
-        Octree* tree;
-        
         void remove_node_vertices(Octnode* current ) {
             while( !current->vertexSetEmpty() ) {
                 unsigned int delId = current->vertexSetTop();
@@ -87,6 +81,11 @@ class IsoSurfaceAlgorithm {
             }
             //std::cout << "debugValid() " << val << "valid nodes and " << inv << " invalid total=" << nodelist.size() <<" \n";
         }
+    // DATA
+        int update_calls, valid_count;
+        GLfloat red,green,blue; // current color for vertices
+        GLData* g;
+        Octree* tree;
 };
 
 /*

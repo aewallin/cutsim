@@ -49,11 +49,9 @@ class Cutsim : public QObject {
 public:
     Cutsim(double octree_size, unsigned int octree_max_depth, GLWidget* w);
     virtual ~Cutsim();
-
     void diff_volume( const OCTVolume* vol );
     void sum_volume( const OCTVolume* vol );
     void intersect_volume( const OCTVolume* vol );
-
 public slots:
     void slot_diff_volume( const OCTVolume* vol) { diff_volume(vol);}
     void slot_sum_volume( const OCTVolume* vol)  { sum_volume(vol);} 
@@ -63,8 +61,6 @@ private:
     Octree* tree; // this is the stock model
     GLData* g; // this is the graphics object drawn on the screen, representing the stock
     GLWidget* widget; // the widget where stock should be displayed
-    //OCTVolume* volume;
-    //std::vector<GLVertex> toolpos;
     GLfloat red,green,blue;
 };
 

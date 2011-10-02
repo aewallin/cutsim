@@ -93,26 +93,15 @@ struct VertexData {
 /// a GLData object holds data which is drawn by OpenGL using VBOs
 class GLData {
 public:
-    GLData() {
-        // some reasonable defaults...
-        type = GL_TRIANGLES;
-        polyVerts = 3;
-        polygonMode_face = GL_FRONT_AND_BACK;
-        polygonMode_mode = GL_LINE;
-        usagePattern = QGLBuffer::StaticDraw;
-    }
+    GLData();
     /// add a vertex with given position and color, return its index
     unsigned int addVertex(float x, float y, float z, float r, float g, float b);
     /// add vertex
     unsigned int addVertex(GLVertex v, Octnode* n);
     /// add vertex, give position, color, Octnode*
     unsigned int addVertex(float x, float y, float z, float r, float g, float b, Octnode* n);
-    
     /// for a given vertex, set the normal
-    void setNormal(unsigned int vertexIdx, float nx, float ny, float nz) {
-        vertexArray[vertexIdx].setNormal(nx,ny,nz);
-    }
-    
+    void setNormal(unsigned int vertexIdx, float nx, float ny, float nz);
     /// remove vertex with given index
     void removeVertex( unsigned int vertexIdx );
     /// add a polygon, return its index
@@ -121,21 +110,17 @@ public:
     void removePolygon( unsigned int polygonIdx);
     /// return the number of polygons
     int polygonCount() const { return indexArray.size(); }
-    
     /// generate the VBOs
     void genVBO();
     /// update VBO
     void updateVBO();
-    
     /// set polygon type to Triangles
     void setTriangles() {setType(GL_TRIANGLES); polyVerts=3;}
     /// set polygon type to Quads
     void setQuads() {setType(GL_QUADS); polyVerts=4;}
     /// set type to Points
     void setPoints() {setType(GL_POINTS); polyVerts=1;}
-    
     void setLineStrip() {setType(GL_LINE_STRIP); polyVerts=1;}
-    
     void setLines() {setType(GL_LINES); polyVerts=2;}
     
     void setUsageStaticDraw() {usagePattern = QGLBuffer::StaticDraw;}
@@ -189,14 +174,13 @@ public:
     static const unsigned int color_offset = 12;
     static const unsigned int normal_offset = 24;
 
-    
 protected:
     
     template <class Data>
     void updateBuffer(  QGLBuffer* buffer, Data& d) {
         //std::cout << " gldata.hpp updateBuffer() \n" << std::flush ;
         if (!buffer->bind()) {
-            std::cout << " gldata.hpp ERROR could not bind buffer data.size()="<< d.size() << "\n";
+            std::cout << " gldata.hpp updateBuffer() ERROR could not bind buffer data.size()="<< d.size() << "\n";
             //assert(0);
         }
         //std::cout << " gldata.hpp updateBuffer() BOUND \n" << std::flush ;

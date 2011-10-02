@@ -41,16 +41,13 @@ class MarchingCubes : public IsoSurfaceAlgorithm {
         MarchingCubes(GLData* gl, Octree* tr) : IsoSurfaceAlgorithm(gl,tr) {
             g->setTriangles(); 
             g->setUsageDynamicDraw();
-
+            g->setPolygonModeFill(); 
+            g->setPosition(0,0,0);
+            g->genVBO();
         }
         virtual ~MarchingCubes() { }
-        /// run mc on one Octnode, return triangles
-        //void updateGL() { updateGL( tree->root );}
-        
-        //std::vector< std::vector< GLVertex >  > polygonize_node(const Octnode* node);
-
     protected:
-        void updateGL( Octnode* node);
+        void updateGL(Octnode* node);
         void mc_node(Octnode* node); 
         /// generate the interpolated vertices required for triangle construction
         std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
@@ -63,10 +60,8 @@ class MarchingCubes : public IsoSurfaceAlgorithm {
         static const unsigned int edgeTable[256];
         /// Marching-Cubes triangle table
         static const int triTable[256][16]; 
-
 };
-
 
 } // end namespace
 #endif
-// end file marching_cubes.h
+// end file marching_cubes.hpp

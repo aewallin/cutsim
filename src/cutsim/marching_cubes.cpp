@@ -21,19 +21,21 @@
 
 namespace cutsim {
 
-void MarchingCubes::updateGL( Octnode* node) {
+void MarchingCubes::updateGL(Octnode* node) {
     // traverse tree here and call polygonize_node
     if (node->valid())
         return;
     
     if ( node->is_undecided() && node->isLeaf() ) {
         mc_node(node);
+        node->setValid();
     }
     
     // current node done, now recurse into tree.
     if ( node->childcount == 8 ) {
         for (unsigned int m=0;m<8;m++) {
-                updateGL( node->child[m] );
+                if (!node->child[m]->valid())
+                    updateGL( node->child[m] );
         }
     }
 }
@@ -42,7 +44,7 @@ void MarchingCubes::updateGL( Octnode* node) {
 void MarchingCubes::mc_node( Octnode* node) {
     assert( node->childcount == 0 ); // don't call this on non-leafs!
     assert( node->is_undecided() ); 
-    
+
     std::vector< std::vector< GLVertex > > triangles;
     unsigned int edgeTableIndex = mc_edgeTableIndex(node);
     unsigned int edges = edgeTable[edgeTableIndex];
@@ -70,12 +72,6 @@ void MarchingCubes::mc_node( Octnode* node) {
         node->addIndex( triangle[0] );
         node->addIndex( triangle[1] );
         node->addIndex( triangle[2] );
-        node->setValid();
-        //tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
-        //                          vertices[ triTable[edgeTableIndex][i+1] ], 
-        //                          vertices[ triTable[edgeTableIndex][i+2] ]  )
-        //                          );
-        //triangles.push_back( triangle );
     }
 }
         

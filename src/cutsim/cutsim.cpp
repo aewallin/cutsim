@@ -24,12 +24,7 @@ namespace cutsim {
 Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLWidget* w): widget(w) {
     // this is the GLData that corresponds to the tree-isosurface
     g = widget->addObject();
-    g->setTriangles(); // mc: triangles, dual_contour: quads
-    g->setPosition(0,0,0); // position offset (?used)
-    g->setUsageDynamicDraw();
-    g->setPolygonModeFill(); 
-    g->genVBO();
-    
+
     GLVertex octree_center(0,0,0);
     tree = new Octree(octree_size, octree_max_depth, octree_center, g );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";
@@ -54,7 +49,7 @@ void Cutsim::sum_volume( const OCTVolume* volume ) {
     start = std::clock();
     tree->sum( volume );
     stop = std::clock();
-    std::cout << " sum()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    std::cout << "cutsim.cpp sum_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
     
     start = std::clock();
     iso_algo->updateGL();
@@ -68,7 +63,7 @@ void Cutsim::diff_volume( const OCTVolume* volume ) {
     start = std::clock();
     tree->diff( volume );
     stop = std::clock();
-    std::cout << "cutsim.cpp diff()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    std::cout << "cutsim.cpp diff_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 
     start = std::clock();
     iso_algo->updateGL();
@@ -82,7 +77,7 @@ void Cutsim::intersect_volume( const OCTVolume* volume ) {
     start = std::clock();
     tree->intersect( volume );
     stop = std::clock();
-    std::cout << " intersect()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
+    std::cout << "cutsim.cpp intersect_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 
     start = std::clock();
     iso_algo->updateGL();

@@ -23,10 +23,18 @@
 #include <vector>
 
 #include "gldata.hpp"
-
 #include "octnode.hpp"
 
 namespace cutsim {
+
+GLData::GLData() {
+    // some reasonable defaults...
+    type = GL_TRIANGLES;
+    polyVerts = 3;
+    polygonMode_face = GL_FRONT_AND_BACK;
+    polygonMode_mode = GL_LINE;
+    usagePattern = QGLBuffer::StaticDraw;
+}
 
 unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
     return addVertex( GLVertex(x,y,z,r,g,b), NULL );
@@ -48,6 +56,9 @@ unsigned int GLData::addVertex(float x, float y, float z, float r, float g, floa
     return id;
 }
 
+void GLData::setNormal(unsigned int vertexIdx, float nx, float ny, float nz) {
+    vertexArray[vertexIdx].setNormal(nx,ny,nz);
+}
 
 void GLData::removeVertex( unsigned int vertexIdx ) {
     //std::cout << "GLData::removeVertex( " << vertexIdx << " with " << vertexDataArray[vertexIdx].polygons.size() << " polys )\n";
@@ -127,11 +138,8 @@ void GLData::genVBO() {
 }
 
 void GLData::updateVBO() {
-    //std::cout << "gldata.cpp GLData updateVBO vertexArray.size()= " << vertexArray.size() << " indexArray.size()=" << indexArray.size()<< "\n";
     updateBuffer( vertexBuffer, vertexArray );
-    //std::cout << "updateBuffer (vertexBuffer) done.\n" << std::flush;
     updateBuffer( indexBuffer, indexArray );
-    //std::cout << "gldata.cpp GLData updateVBO EXIT\n" << std::flush;
 }
 
 bool GLData::bind() {
@@ -147,7 +155,6 @@ void GLData::release() {
 void GLData::setPosition(float x, float y, float z) {
     pos = GLVertex(x,y,z);
 }
-    
     
 void GLData::print() {
     std::cout << "GLData vertices: \n";
