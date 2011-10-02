@@ -37,6 +37,7 @@ qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 set( OCL_TST_SRC 
      ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp 
      ${${PROJECT_NAME}_SOURCE_DIR}/text_area.cpp 
+     ${${PROJECT_NAME}_SOURCE_DIR}/cutsim_window.cpp 
      ${MOC_OUTFILES}
      )
 
