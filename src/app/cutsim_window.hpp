@@ -19,7 +19,7 @@ class QMenu;
 class CutsimWindow : public QMainWindow {
     Q_OBJECT
 public:
-    CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")) {
+    CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), settings("github.aewallin.cutsim","cutsim") {
         myGLWidget = new cutsim::GLWidget(); 
         unsigned int max_depth=8;
         double octree_cube_side=10.0;
@@ -93,9 +93,8 @@ public:
         connect( myPlayer, SIGNAL( signalToolChange( int ) ), this, SLOT( slotToolChange(int) ) );
      
 
-        // hard-code these paths for now
-        emit setRS274(     tr("/home/anders/emc2-dev/bin/rs274") );
-        emit setToolTable( tr("/home/anders/Desktop/cutsim/ngc/tooltable.tbl") );
+        findInterp();
+        chooseToolTable();
 
         QString title = tr(" cutsim - alpha     rev:") + VERSION_STRING;
         setWindowTitle(title);
@@ -107,7 +106,43 @@ public:
         
         myCutsim->updateGL();
     }
-    
+
+    ///find the interpreter. uses QSettings, so user is only asked once unless the file is deleted
+    void findInterp() {
+        QString interp;
+        interp = settings.value("rs274/binary","/usr/bin/rs274").toString();
+        if (!QFileInfo(interp).isExecutable()) {
+            QString m = "Tried to use ";
+            m += interp + " as the interpreter, but it doesn't exist or isn't executable.";
+            debugMessage(m);
+            interp = QFileDialog::getOpenFileName ( this, "Locate rs274 interpreter", "~", "EMC2 stand-alone interpreter (rs274)" );
+            if (!QFileInfo(interp).isExecutable()) {
+                debugMessage("interpreter does not exist!");
+            }
+            settings.setValue("rs274/binary",interp);
+        }
+        emit setRS274( interp );
+    }
+
+    ///find the tool table. uses QSettings, to preselect the last table used
+    void chooseToolTable() {
+        QString path;
+        bool ttconf = settings.contains("rs274/tool-table");
+        if (ttconf) {
+            //passing the file name as the path means that it is preselected
+            path = settings.value("rs274/tool-table").toString();
+        } else {
+            path =  "/usr/share/doc/emc2/examples/sample-configs/sim"; //location when installed
+        }
+        path = QFileDialog::getOpenFileName ( this, "Locate tool table", path, "EMC2 new-style tool table (*.tbl)" );
+
+        if (!QFileInfo(path).exists()){
+            debugMessage("tool table does not exist!");
+        }
+        settings.setValue("rs274/tool-table",path);
+        emit setToolTable(path);
+    }
+
     QAction* getHelpMenu() { return helpAction; };
     QString getArg(int n) {if(n<=args.count())return args[n];else return "n--";};
     QStringList* getArgs() {return &args;};
@@ -312,6 +347,7 @@ private:
     TextArea* canonText;
 
     QString myLastFolder;
+    QSettings settings;
 };
 
 #endif
