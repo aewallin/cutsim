@@ -38,15 +38,32 @@ set( OCL_TST_SRC
      ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp 
      ${${PROJECT_NAME}_SOURCE_DIR}/text_area.cpp 
      ${MOC_OUTFILES}
-     ) 
-     #  
+     )
 
-add_executable( ${PROJECT_NAME} ${OCL_TST_SRC} )
+################ create version_string.hpp, http://stackoverflow.com/questions/3780667
+# include the output directory, where the version_string.hpp file is generated
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+# a custom target that is always built
+add_custom_target(version_string ALL
+    DEPENDS ver_string )
+# creates version_string.hpp using cmake script
+add_custom_command(OUTPUT ver_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+                   COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+                                            -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake)
+# version_string.hpp is a generated file
+set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+    PROPERTIES GENERATED TRUE
+    HEADER_FILE_ONLY TRUE)
+
+
+add_executable( ${PROJECT_NAME} ${OCL_TST_SRC}
+                ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
 target_link_libraries( ${PROJECT_NAME} 
     cutsim g2m
     ${QT_LIBRARIES} 
     ${Boost_LIBRARIES} 
     ${OPENGL_LIBRARIES}
     )
+add_dependencies( ${PROJECT_NAME} version_string )
 
 install( TARGETS ${PROJECT_NAME} DESTINATION bin )

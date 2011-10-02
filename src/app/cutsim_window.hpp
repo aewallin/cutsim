@@ -9,6 +9,7 @@
 #include <g2m/g2m.hpp>
 #include <g2m/gplayer.hpp>
 
+#include "version_string.hpp"
 #include "text_area.hpp"
 
 class QAction;
@@ -96,7 +97,8 @@ public:
         emit setRS274(     tr("/home/anders/emc2-dev/bin/rs274") );
         emit setToolTable( tr("/home/anders/Desktop/cutsim/ngc/tooltable.tbl") );
 
-        setWindowTitle(tr(" cutsim - alpha"));
+        QString title = tr(" cutsim - alpha     rev:") + VERSION_STRING;
+        setWindowTitle(title);
         //setMinimumSize(300, 300);
         showNormal();
         move(100,100); // position the main window
