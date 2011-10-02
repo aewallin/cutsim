@@ -60,7 +60,7 @@ class Octnode {
         bool is_outside()   { return (state==OUTSIDE); }
         bool is_undecided() { return (state==UNDECIDED); }
         
-        bool all_child_state(NodeState s);
+        bool all_child_state(NodeState s) const;
         void delete_children();
 
     // manipulate the valid-flag
