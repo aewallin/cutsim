@@ -183,11 +183,8 @@ protected:
             std::cout << " gldata.hpp updateBuffer() ERROR could not bind buffer data.size()="<< d.size() << "\n";
             //assert(0);
         }
-        //std::cout << " gldata.hpp updateBuffer() BOUND \n" << std::flush ;
         buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
-        //std::cout << " gldata.hpp updateBuffer() ALLOCATED \n" << std::flush ;
         buffer->release();
-        //std::cout << " gldata.hpp updateBuffer() RELEASED \n" << std::flush ;
     }
     
     template <class Data>
@@ -199,12 +196,20 @@ protected:
             //assert(0);
         }
         buffer->setUsagePattern( usagePattern );
-        //std::cout << " allocating " << sizeof(typename Data::value_type)*d.size() << " bytes.\n";
         buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
-        //std::cout << " buffer size = " << buffer->size() << "\n";
         buffer->release();
         return buffer;
     }
+    
+    /*
+    bool unmap () {
+        return ( vertexBuffer->unmap() && indexBuffer->unmap() );
+    }
+    // return pointer to buffer 
+    void* mapVertex( QGLBuffer::Access acc ) {
+        return vertexBuffer->map(acc); // assumes create() and bind()
+    }*/
+    
     
     /// set type of drawing, e.g. GL_TRIANGLES, GL_QUADS
     void setType(GLenum t) { type = t; }

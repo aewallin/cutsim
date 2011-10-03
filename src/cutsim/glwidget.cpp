@@ -205,9 +205,9 @@ void GLWidget::paintGL()  {
         glEnableClientState(GL_NORMAL_ARRAY);
         
         // coords/vert, type, stride, offset
-        glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset));
-        glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); 
         glNormalPointer( GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::normal_offset));
+        glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); 
+        glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset)); // vertex last, for speed(?)
         
         //              mode       idx-count             type             offset
         glDrawElements( g->type , g->polygonCount() , GLData::index_type, 0);
