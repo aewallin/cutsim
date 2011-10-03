@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.4)
 #
 if (CMAKE_BUILD_TOOL MATCHES "make")
     MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
-    add_definitions(-Wall  -Wno-deprecated )
+    add_definitions(-Wall  -Wno-deprecated -Werror  )
     # qt does not like this: -Werror -pedantic-errors
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
@@ -28,39 +28,17 @@ if (NOT BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif(NOT BUILD_TYPE)
 
-# find out the number of CPUs
-# from: http://www.kitware.com/blog/home/post/63
-if(NOT DEFINED PROCESSOR_COUNT)
-  # Unknown:
-  set(PROCESSOR_COUNT 0)
-  # Linux:
-  set(cpuinfo_file "/proc/cpuinfo")
-  if(EXISTS "${cpuinfo_file}")
-    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
-    list(LENGTH procs PROCESSOR_COUNT)
-  endif()
-  MESSAGE(STATUS "Number of processors on this system " ${PROCESSOR_COUNT} )
-  # FIXME: how do we have cmake/make use all the processors?
-endif()
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-
 # find BOOST and boost-python
 find_package( Boost   REQUIRED)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     MESSAGE(STATUS "found Boost: " ${Boost_LIB_VERSION})
     MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
-    #MESSAGE(STATUS "boost-python lib is: " ${Boost_PYTHON_LIBRARY})
     MESSAGE(STATUS "boost_LIBRARY_DIRS is: " ${Boost_LIBRARY_DIRS})
     MESSAGE(STATUS "Boost_LIBRARIES is: " ${Boost_LIBRARIES})    
 endif()
 
-#
 # find OpenMP
-#
-
 find_package( OpenMP REQUIRED )
 
 IF (OPENMP_FOUND)
@@ -68,10 +46,8 @@ IF (OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF(OPENMP_FOUND)
 
-#
-# for cutsim, find OpenGL and Qt.
-#
 
+# find OpenGL and Qt.
 MESSAGE(STATUS "Cutting simulation requires OpenGL and Qt4...")
 find_package(OpenGL REQUIRED)
 if(OPENGL_FOUND)
@@ -116,19 +92,19 @@ set( CUTSIM_INCLUDE_FILES
     ${cutsim_SOURCE_DIR}/cutsim.hpp 
 )
 
-
 # include dirs
 include_directories( ${cutsim_SOURCE_DIR} )
-
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # this is the cutting sim
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
-add_library(cutsim SHARED 
+add_library(
+    cutsim 
+    SHARED 
     ${CUTSIM_SRC}
     ${MOC_OUTFILES}
 )
 target_link_libraries(cutsim  ${OPENGL_LIBRARIES})
-
 
 install(
     TARGETS cutsim

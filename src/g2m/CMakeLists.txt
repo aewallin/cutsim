@@ -35,7 +35,7 @@ set ( g2m_SRCS
     nanotimer.cpp
 )
 
-#fix vtable error
+# run qt MOC on these
 set( g2m_MOCS 
      g2m.hpp 
      gplayer.hpp
@@ -43,16 +43,20 @@ set( g2m_MOCS
 
 QT4_WRAP_CPP(MOCS ${g2m_MOCS})
 
-add_library ( g2m SHARED ${g2m_SRCS}  ${MOCS}  ) # ${g2m_HDRS} 
+add_library ( 
+    g2m 
+    SHARED 
+    ${g2m_SRCS}  
+    ${MOCS} 
+) 
 target_link_libraries ( g2m  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} )
 
 # install the shared library
 install(
     TARGETS g2m 
     DESTINATION lib/g2m
-    )
+)
 
-# install the headers
 # this installs the c++ include headers
 install(
     FILES ${g2m_HDRS}
