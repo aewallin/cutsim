@@ -24,7 +24,7 @@ if(Boost_FOUND)
     MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
 endif()
 
-set (MOC_HEADERS 
+set( MOC_HEADERS 
     cutsim_app.hpp
     cutsim_window.hpp 
     text_area.hpp
@@ -53,20 +53,22 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
                                             -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake
 )
-
 # version_string.hpp is a generated file
 set_source_files_properties(
     ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE
 )
+################ end create version_string.hpp
 
 add_executable( 
     ${PROJECT_NAME} 
     ${CUTSIM_SRC}
-    ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
 )
-
+add_dependencies( 
+    ${PROJECT_NAME} 
+    version_string 
+)
 target_link_libraries( 
     ${PROJECT_NAME} 
     cutsim 
@@ -74,11 +76,6 @@ target_link_libraries(
     ${QT_LIBRARIES} 
     ${Boost_LIBRARIES} 
     ${OPENGL_LIBRARIES}
-)
-
-add_dependencies( 
-    ${PROJECT_NAME} 
-    version_string 
 )
 
 install( 
