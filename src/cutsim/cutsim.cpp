@@ -22,9 +22,6 @@
 namespace cutsim {
 
 Cutsim::Cutsim (double octree_size, unsigned int octree_max_depth, GLData* gld): g(gld) {
-    // this is the GLData that corresponds to the tree-isosurface
-    //g = widget->addObject();
-
     GLVertex octree_center(0,0,0);
     tree = new Octree(octree_size, octree_max_depth, octree_center, g );
     std::cout << "Cutsim() ctor: tree before init: " << tree->str() << "\n";

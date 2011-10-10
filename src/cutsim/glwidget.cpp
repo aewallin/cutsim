@@ -31,9 +31,6 @@ namespace cutsim {
 #define PI 3.1415926535897932
 
 GLWidget::GLWidget( QWidget *parent, char *name ) {
-
-    //setCursor(cursor);
-    //updateDir();
     setSceneRadius(100);
     file_number=0;
 }
@@ -45,46 +42,29 @@ GLData* GLWidget::addGLData() {
     return g;
 }
 
-
-
-
-
-
 /// loop through glObjects and for each GLData draw it using VBO
 void GLWidget::draw()  {
 
-    
     BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
-        //glLoadIdentity();
-        //glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
+
         // apply a transformation-matrix here !?
         QMutexLocker locker( &(g->renderMutex) );
         glPolygonMode( g->polygonFaceMode(), g->polygonFillMode()  ); 
-
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
-        
         // http://www.opengl.org/sdk/docs/man/xhtml/glNormalPointer.xml
-        //                 type,                          stride,                 offset/pointer
         glNormalPointer( GLData::coordinate_type, sizeof( GLData::vertex_type ),    ((GLbyte*)g->getVertexArray()  + GLData::normal_offset ) );
         // http://www.opengl.org/sdk/docs/man/xhtml/glColorPointer.xml
-        //             coords/vert,                    type,                        stride,  offset/pointer
         glColorPointer(  3, GLData::color_type     , sizeof( GLData::vertex_type ), ((GLbyte*)g->getVertexArray()  + GLData::color_offset  ) ); 
         glVertexPointer( 3, GLData::coordinate_type, sizeof( GLData::vertex_type ), ((GLbyte*)g->getVertexArray()  + GLData::vertex_offset  ) ); 
         // http://www.opengl.org/sdk/docs/man/xhtml/glDrawElements.xml
-        //              mode       idx-count             type               offset/pointer
         glDrawElements( g->GLType() , g->indexCount() , GLData::index_type, g->getIndexArray());
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
     }
-    
-    
-
     lastFrameTime = QTime::currentTime();
-    
-    
 }
 
 
@@ -142,34 +122,4 @@ void GLWidget::drawCornerAxis() {
 }
 
 
-} // end ocl namespace
-
-
-// mouse movement
-// dx in [-1,1]
-// dx = (xnew - xold) / width
-// dy = (ynew - yold) / height
-
-// function that rotates point around axis:
-// rotatePoint( point, origin, direction, angle)
-
-// rotation around axis: 
-// dir_x = up
-// dir_y = up cross (center-eye) / norm( up cross (center-eye) )
-// now rotations are:
-// eye = rotatePoint(eye, center, dir_x, -dx * pi )
-// eye = rotatePoint(eye, center, dir_y, dy*pi )
-// up = rotatePoint( center+up, center, dir_y, dy*pi) - center
-// (normalize up after operations)
-//
-// zoom
-// eye = center + (eye-center)*(dy+1)
-//
-// pan
-// height of window in object space: length = 2* norm(eye-center)*tan(fovy/2)
-// new position of center is:
-// center = center + dir_y *dx*length *width/height
-//                 + dir_x * dy * length
-
-
-
+} // end cutsim namespace

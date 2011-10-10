@@ -1,7 +1,7 @@
 /*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
- *  This file is part of OpenCAMlib.
+ *  This file is part of Cutsim / OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,9 +18,6 @@
 */
 
 #include "cutsim_window.hpp"
-
-
-
 
 CutsimWindow::CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), settings("github.aewallin.cutsim","cutsim") {
         myGLWidget = new cutsim::GLWidget(); 
@@ -74,45 +71,35 @@ CutsimWindow::CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), s
         createToolBar();        
         
         myG2m = new g2m::g2m(); // g-code interpreter
-        connect( this, SIGNAL(setGcodeFile(QString)), myG2m, SLOT(setFile(QString)) );
-        
-        connect( this, SIGNAL(setRS274(QString)), myG2m, SLOT(setInterp(QString)) );
-        connect( this, SIGNAL(setToolTable(QString)), myG2m, SLOT(setToolTable(QString)) );
-        connect( this, SIGNAL( interpret() ), myG2m, SLOT( interpret_file() ) );
-        connect( myG2m, SIGNAL( debugMessage(QString) ), this, SLOT( debugMessage(QString) ) );
-        
+        connect( this, SIGNAL( setGcodeFile(QString) ),     myG2m, SLOT( setFile(QString)) );
+        connect( this, SIGNAL( setRS274(QString) ),         myG2m, SLOT( setInterp(QString)) );
+        connect( this, SIGNAL( setToolTable(QString) ),     myG2m, SLOT( setToolTable(QString)) );
+        connect( this, SIGNAL( interpret() ),               myG2m, SLOT( interpret_file() ) );
+        connect( myG2m, SIGNAL( debugMessage(QString) ),     this, SLOT( debugMessage(QString) ) );
         connect( myG2m, SIGNAL( gcodeLineMessage(QString) ), this, SLOT( appendGcodeLine(QString) ) );
         connect( myG2m, SIGNAL( canonLineMessage(QString) ), this, SLOT( appendCanonLine(QString) ) );
         
         myPlayer = new g2m::GPlayer();
         connect( myPlayer, SIGNAL( debugMessage(QString) ), this, SLOT( debugMessage(QString) ) );
-        connect( this, SIGNAL( play() ), myPlayer, SLOT( play() ) );
-        connect( this, SIGNAL( pause() ), myPlayer, SLOT( pause() ) );
-        connect( this, SIGNAL( stop() ), myPlayer, SLOT( stop() ) );
-        connect( myPlayer, SIGNAL( signalProgress(int) ), this, SLOT( slotSetProgress(int) ) );
-
-        connect( myG2m, SIGNAL( signalCanonLine(canonLine*) ), myPlayer, SLOT( appendCanonLine(canonLine*) ) );
-
+        connect( myPlayer, SIGNAL( signalProgress(int) ),   this, SLOT( slotSetProgress(int) ) );
+        connect(     this, SIGNAL( play() ), myPlayer, SLOT( play() ) );
+        connect(     this, SIGNAL( pause() ), myPlayer, SLOT( pause() ) );
+        connect(     this, SIGNAL( stop() ), myPlayer, SLOT( stop() ) );
+        connect(    myG2m, SIGNAL( signalCanonLine(canonLine*) ), myPlayer, SLOT( appendCanonLine(canonLine*) ) );
         connect( myPlayer, SIGNAL( signalToolPosition(double,double,double) ), this, SLOT( slotSetToolPosition(double,double,double) ) );
-        connect( myPlayer, SIGNAL( signalToolChange( int ) ), this, SLOT( slotToolChange(int) ) );
-     
+        connect( myPlayer, SIGNAL( signalToolChange( int ) ), this, SLOT( slotToolChange(int) ) );     
 
         findInterp();
         chooseToolTable();
-
         QString title = tr(" cutsim - ") + VERSION_STRING;
         setWindowTitle(title);
-        //setMinimumSize(300, 300);
         showNormal();
         move(100,100); // position the main window
-        resize(789,527);  // size window
-        //showMaximized();
-        
+        resize(789,527);  // size window        
         myCutsim->updateGL();
 }
 
 void CutsimWindow::slotSetToolPosition(double x, double y, double z) {
-    //debugMessage( tr("ui: setToolPosition( %1, )").arg(x) );
     myTools[currentTool]->setCenter( cutsim::GLVertex(x,y,z) );
     myCutsim->slot_diff_volume( myTools[currentTool] ); 
     myCutsim->updateGL();
@@ -179,7 +166,6 @@ void CutsimWindow::open() {
         myLastFolder = fileInfo.absolutePath();
         emit setGcodeFile( fileName );
         emit interpret();
-        //reader.importModel ( fileInfo.absoluteFilePath(), format, myOCC->getContext() );
     }
 }
 
