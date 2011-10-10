@@ -32,6 +32,8 @@ namespace cutsim {
 
 /// abstract base class for isosurface extraction algorithms
 /// 
+/// isosurface algorithms produce vertices and polygons based on an Octree
+/// vertices and polygons are added to a GLData using addVertex, addPolygon, etc.
 ///
 class IsoSurfaceAlgorithm {
     public:
@@ -46,23 +48,14 @@ class IsoSurfaceAlgorithm {
             updateGL( tree->root );
             //debugValid();
             
-            //g->updateVBO();
             //std::cout << update_calls << " calls made\n";
             //std::cout << valid_count << " valid_nodes\n";
         }
-        /*
-        void setColor(GLfloat r, GLfloat g, GLfloat b) {
-            red=r;
-            green=g;
-            blue=b;
-        }*/
-
     protected:
         virtual void updateGL( Octnode* node) =0 ;
         void remove_node_vertices(Octnode* current ) {
             while( !current->vertexSetEmpty() ) {
                 unsigned int delId = current->vertexSetTop();
-                //std::cout << "removing " << delId << "\n";
                 current->removeIndex( delId );
                 g->removeVertex( delId );
             }
@@ -80,11 +73,10 @@ class IsoSurfaceAlgorithm {
                 else
                     inv++;
             }
-            //std::cout << "debugValid() " << val << "valid nodes and " << inv << " invalid total=" << nodelist.size() <<" \n";
         }
+        
     // DATA
         int update_calls, valid_count;
-        //GLfloat red,green,blue; // current color for vertices
         GLData* g;
         Octree* tree;
 };

@@ -70,9 +70,21 @@ struct GLVertex {
         g=green;
         b=blue;
     }
-    //void str() {
-    //    std::cout << "(" << x << ", " << y << ", " << z << ")"; 
-    //}
+    
+    // assume p1-p2-p3 forms a triangle. set normals. set color.
+    static void set_normal_and_color(GLVertex& p1,GLVertex& p2,GLVertex& p3, Color c ) {
+        // calculate normal
+        GLVertex n = (p1-p2).cross( p1-p3 );
+        n.normalize();
+        p1.setNormal(n.x,n.y,n.z);
+        p2.setNormal(n.x,n.y,n.z);
+        p3.setNormal(n.x,n.y,n.z);
+        // setColor
+        p1.setColor( c );
+        p2.setColor( c );
+        p3.setColor( c );
+    }
+        
     QString str() { return QString("(%1, %2, %3 )").arg(x).arg(y).arg(z); }
     
 // DATA

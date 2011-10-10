@@ -43,31 +43,21 @@ void MarchingCubes::updateGL(Octnode* node) {
 // run mc on one Octnode
 void MarchingCubes::mc_node( Octnode* node) {
     assert( node->childcount == 0 ); // don't call this on non-leafs!
-    assert( node->is_undecided() ); 
+    assert( node->is_undecided() );
 
-    std::vector< std::vector< GLVertex > > triangles;
+    //std::vector< std::vector< GLVertex > > triangles;
     unsigned int edgeTableIndex = mc_edgeTableIndex(node);
     unsigned int edges = edgeTable[edgeTableIndex];
-    std::vector< GLVertex > vertices = interpolated_vertices(node, edges);          assert(vertices.size()==12);
+    std::vector< GLVertex > vertices = interpolated_vertices(node, edges);
     for (unsigned int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
         std::vector< unsigned int > triangle;
         GLVertex p1 = vertices[ triTable[edgeTableIndex][i    ] ];
         GLVertex p2 = vertices[ triTable[edgeTableIndex][i+1  ] ];
         GLVertex p3 = vertices[ triTable[edgeTableIndex][i+2  ] ];
-        // calculate normal
-        GLVertex n = (p1-p2).cross( p1-p3 );
-        n.normalize();
-        p1.setNormal(n.x,n.y,n.z);
-        p2.setNormal(n.x,n.y,n.z);
-        p3.setNormal(n.x,n.y,n.z);
-        // setColor
-        p1.setColor( node->color );
-        p2.setColor( node->color );
-        p3.setColor( node->color );
+        GLVertex::set_normal_and_color( p1, p2, p3, node->color );
         triangle.push_back( g->addVertex(  p1, node ) );
         triangle.push_back( g->addVertex(  p2, node ) );
         triangle.push_back( g->addVertex(  p3, node ) );
-
         g->addPolygon(triangle);
         node->addIndex( triangle[0] );
         node->addIndex( triangle[1] );

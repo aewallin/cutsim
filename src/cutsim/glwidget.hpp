@@ -58,11 +58,9 @@ class GLWidget : public QGLViewer  {
         }
     protected:
         virtual void draw();
-        virtual void init() {}
-        virtual void postDraw() {
-            QGLViewer::postDraw();
-            drawCornerAxis();
-        }
+        //virtual void init() {}
+        virtual void postDraw();
+        virtual void keyPressEvent(QKeyEvent *e);
     private:
         void drawCornerAxis();
         /// these are the GLData objects which will be drawn in the OpenGL scene
@@ -71,6 +69,7 @@ class GLWidget : public QGLViewer  {
         QTime lastFrameTime;
         /// used for number screenshots
         int file_number; 
+        bool corner_axis;
 };
 
 } // end ocl namespace

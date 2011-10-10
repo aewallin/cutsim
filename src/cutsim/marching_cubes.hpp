@@ -37,29 +37,26 @@ namespace cutsim {
 /// see http://en.wikipedia.org/wiki/Marching_cubes
 ///
 class MarchingCubes : public IsoSurfaceAlgorithm {
-    public:
-        MarchingCubes(GLData* gl, Octree* tr) : IsoSurfaceAlgorithm(gl,tr) {
-            g->setTriangles(); 
-            //g->setUsageDynamicDraw();
-            g->setPolygonModeFill(); 
-            //g->setPosition(0,0,0);
-            //g->genVBO();
-        }
-        virtual ~MarchingCubes() { }
-    protected:
-        void updateGL(Octnode* node);
-        void mc_node(Octnode* node); 
-        /// generate the interpolated vertices required for triangle construction
-        std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
-        /// use linear interpolation of the distance-field between vertices idx1 and idx2
-        /// to generate a new iso-surface point on the idx1-idx2 edge
-        GLVertex interpolate(const Octnode* node, int idx1, int idx2);
-        /// get table-index based on the funcion values (positive or negative) at the corners
-        unsigned int mc_edgeTableIndex(const Octnode* node);
-        /// Marching-Cubes edge table
-        static const unsigned int edgeTable[256];
-        /// Marching-Cubes triangle table
-        static const int triTable[256][16]; 
+public:
+    MarchingCubes(GLData* gl, Octree* tr) : IsoSurfaceAlgorithm(gl,tr) {
+        g->setTriangles(); 
+        g->setPolygonModeFill(); 
+    }
+    virtual ~MarchingCubes() { }
+protected:
+    void updateGL(Octnode* node);
+    void mc_node(Octnode* node); 
+    /// generate the interpolated vertices required for triangle construction
+    std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
+    /// use linear interpolation of the distance-field between vertices idx1 and idx2
+    /// to generate a new iso-surface point on the idx1-idx2 edge
+    GLVertex interpolate(const Octnode* node, int idx1, int idx2);
+    /// get table-index based on the funcion values (positive or negative) at the corners
+    unsigned int mc_edgeTableIndex(const Octnode* node);
+    /// Marching-Cubes edge table
+    static const unsigned int edgeTable[256];
+    /// Marching-Cubes triangle table
+    static const int triTable[256][16]; 
 };
 
 } // end namespace

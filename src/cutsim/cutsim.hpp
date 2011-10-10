@@ -43,7 +43,7 @@ namespace cutsim {
     
 /// a Cutsim stores an Octree stock model, uses an iso-surface extraction
 /// algorithm to generate surface triangles, and communicates with
-/// the corresponding GLData surface which is used for rendering
+/// the corresponding GLData surface which is used by GLWidget for rendering
 class Cutsim : public QObject {
     Q_OBJECT
 public:
@@ -61,8 +61,6 @@ private:
     IsoSurfaceAlgorithm* iso_algo; // the isosurface-extraction algorithm to use
     Octree* tree; // this is the stock model
     GLData* g; // this is the graphics object drawn on the screen, representing the stock
-    //GLWidget* widget; // the widget where stock should be displayed
-    GLfloat red,green,blue;
 };
 
 } // end namespace

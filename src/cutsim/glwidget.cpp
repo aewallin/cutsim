@@ -1,7 +1,7 @@
 /*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
- *  This file is part of OpenCAMlib.
+ *  This file is part of Cutsim / OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ GLWidget::GLWidget( QWidget *parent, char *name ) {
     setSceneRadius(20);
     showEntireScene();
     file_number=0;
+    corner_axis=true;
 }
 
 /// add new GLData object and return pointer to it.
@@ -68,6 +69,11 @@ void GLWidget::draw()  {
     lastFrameTime = QTime::currentTime();
 }
 
+void GLWidget::postDraw() {
+    QGLViewer::postDraw();
+    if (corner_axis)
+        drawCornerAxis();
+}
 
 void GLWidget::slotWriteScreenshot() {
     QImage img = grabFrameBuffer(); 
@@ -75,6 +81,24 @@ void GLWidget::slotWriteScreenshot() {
     img.save( file_name );
     file_number++;
 }
+
+void GLWidget::keyPressEvent(QKeyEvent *e) {
+    const Qt::KeyboardModifiers modifiers = e->modifiers();
+    // A simple switch on e->key() is not sufficient if we want to take state key into account.
+    // With a switch, it would have been impossible to separate 'F' from 'CTRL+F'.
+    // That's why we use imbricated if...else and a "handled" boolean.
+    bool handled = false;
+    if ((e->key()==Qt::Key_C) && (modifiers==Qt::NoButton)) {
+      corner_axis = !corner_axis;
+      handled=true;
+      updateGL();
+    }
+    
+    
+    if (!handled)
+        QGLViewer::keyPressEvent(e);
+}
+
 
 void GLWidget::drawCornerAxis() {
     int viewport[4];
