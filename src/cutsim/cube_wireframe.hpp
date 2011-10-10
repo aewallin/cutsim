@@ -32,7 +32,7 @@ class CubeWireFrame : public IsoSurfaceAlgorithm {
     public:
         CubeWireFrame(GLData* gl, Octree* tr ) : IsoSurfaceAlgorithm(gl,tr) {
             g->setLines(); // two indexes per line-segment
-            g->setUsageDynamicDraw();
+            //g->setUsageDynamicDraw();
 
             inside_color.set(1,0,0);
             undecided_color.set(0,1,0);

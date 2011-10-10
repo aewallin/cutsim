@@ -99,7 +99,7 @@ CutsimWindow::CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), s
         findInterp();
         chooseToolTable();
 
-        QString title = tr(" cutsim - rev:") + VERSION_STRING;
+        QString title = tr(" cutsim - ") + VERSION_STRING;
         setWindowTitle(title);
         //setMinimumSize(300, 300);
         showNormal();

@@ -46,6 +46,11 @@ IF (OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF(OPENMP_FOUND)
 
+# Find QGLViewer
+set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cutsim ) # FindQGLViewer.cmake is in this dir
+find_package(QGLViewer REQUIRED)
+
+
 
 # find OpenGL and Qt.
 MESSAGE(STATUS "Cutting simulation requires OpenGL and Qt4...")
@@ -104,7 +109,11 @@ add_library(
     ${CUTSIM_SRC}
     ${MOC_OUTFILES}
 )
-target_link_libraries(cutsim  ${OPENGL_LIBRARIES})
+target_link_libraries(
+    cutsim  
+    ${OPENGL_LIBRARIES}
+    ${QGLVIEWER_LIBRARIES}
+)
 
 install(
     TARGETS cutsim

@@ -47,6 +47,7 @@ void Cutsim::updateGL() {
     std::clock_t start, stop;
     start = std::clock();
     iso_algo->updateGL();
+    g->swap();
     stop = std::clock();
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }

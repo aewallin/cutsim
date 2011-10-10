@@ -55,7 +55,7 @@ class GLWidget : public QGLWidget {
     public slots:
         void slotWriteScreenshot();
     protected:
-        void genVBO(); // generate a VBO for each GLData object
+        //void genVBO(); // generate a VBO for each GLData object
         void resizeGL( int width, int height );
         void paintGL();
         void updateDir();

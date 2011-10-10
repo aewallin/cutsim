@@ -40,9 +40,9 @@ class MarchingCubes : public IsoSurfaceAlgorithm {
     public:
         MarchingCubes(GLData* gl, Octree* tr) : IsoSurfaceAlgorithm(gl,tr) {
             g->setTriangles(); 
-            g->setUsageDynamicDraw();
+            //g->setUsageDynamicDraw();
             g->setPolygonModeFill(); 
-            g->setPosition(0,0,0);
+            //g->setPosition(0,0,0);
             //g->genVBO();
         }
         virtual ~MarchingCubes() { }

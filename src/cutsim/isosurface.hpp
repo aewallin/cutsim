@@ -46,7 +46,7 @@ class IsoSurfaceAlgorithm {
             updateGL( tree->root );
             //debugValid();
             
-            g->updateVBO();
+            //g->updateVBO();
             //std::cout << update_calls << " calls made\n";
             //std::cout << valid_count << " valid_nodes\n";
         }

@@ -47,6 +47,9 @@ struct GLVertex {
          : x(x), y(y), z(z), r(0), g(0), b(0) {}
     GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) 
          : x(x), y(y), z(z), r(r), g(g), b(b) {}
+    GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat red, GLfloat gre, GLfloat blu, GLfloat xn, GLfloat yn, GLfloat zn) 
+         : x(x), y(y), z(z), r(red), g(gre), b(blu), nx(xn), ny(yn), nz(zn) {}
+         
     void setNormal(GLfloat xn, GLfloat yn, GLfloat zn) {
         nx=xn;
         ny=yn;

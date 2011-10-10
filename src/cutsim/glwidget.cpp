@@ -134,15 +134,16 @@ void GLWidget::initializeGL() {
     // glEnable(GL_DEPTH_TEST);
     
     // segfaults without this..
-    std::cout << "initializeGL() calling genVBO on " << glObjects.size() << " GLdatas\n";
-    genVBO();  // for each gl-data, generate vbo
+    //std::cout << "initializeGL() calling genVBO on " << glObjects.size() << " GLdatas\n";
+    //genVBO();  // for each gl-data, generate vbo
 }
 
+/*
 void GLWidget::genVBO() {
     BOOST_FOREACH(GLData* g, glObjects) {
         g->genVBO();
     }
-}
+}*/
 
 void GLWidget::resizeGL( int width, int height ) {
     if (height == 0)    {
@@ -182,43 +183,33 @@ void GLWidget::paintGL()  {
     //gluLookAt( 0,0,6 , // _eye.x, _eye.y, _eye.z,
     //           0,0,0 , //_center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
     //           0,1,0);
-    
-    
-    
+
     //glPushMatrix();
     
     BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
         //glLoadIdentity();
         //glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
         // apply a transformation-matrix here !?
+        QMutexLocker locker( &(g->renderMutex) );
+        glPolygonMode( g->polygonFaceMode(), g->polygonFillMode()  ); 
 
-        if ( !g->bind() ) // bind the vbo
-            assert(0);
-        
-        // void glPolygonMode(GLenum  face,  GLenum  mode);
-        // face = GL_FRONT | GL_BACK  | GL_FRONT_AND_BACK
-        // mode = GL_POINT, GL_LINE, GL_FILL
-        glPolygonMode( g->polygonMode_face, g->polygonMode_mode ); 
-        
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
         
-        // coords/vert, type, stride, offset
-        glNormalPointer( GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::normal_offset));
-        glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); 
-        glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset)); // vertex last, for speed(?)
-        
-        //              mode       idx-count             type             offset
-        glDrawElements( g->type , g->polygonCount() , GLData::index_type, 0);
+        // http://www.opengl.org/sdk/docs/man/xhtml/glNormalPointer.xml
+        //                 type,                          stride,                 offset/pointer
+        glNormalPointer( GLData::coordinate_type, sizeof( GLData::vertex_type ),    ((GLbyte*)g->getVertexArray()  + GLData::normal_offset ) );
+        // http://www.opengl.org/sdk/docs/man/xhtml/glColorPointer.xml
+        //             coords/vert,                    type,                        stride,  offset/pointer
+        glColorPointer(  3, GLData::color_type     , sizeof( GLData::vertex_type ), ((GLbyte*)g->getVertexArray()  + GLData::color_offset  ) ); 
+        glVertexPointer( 3, GLData::coordinate_type, sizeof( GLData::vertex_type ), ((GLbyte*)g->getVertexArray()  + GLData::vertex_offset  ) ); 
         // http://www.opengl.org/sdk/docs/man/xhtml/glDrawElements.xml
-        
-        
+        //              mode       idx-count             type               offset/pointer
+        glDrawElements( g->GLType() , g->indexCount() , GLData::index_type, g->getIndexArray());
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
-        
-        g->release();
     }
     
     
