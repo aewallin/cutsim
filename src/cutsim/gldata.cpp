@@ -1,7 +1,7 @@
 /*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
- *  This file is part of OpenCAMlib.
+ *  This file is part of Cutsim / OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -123,8 +123,6 @@ void GLData::removePolygon( unsigned int polygonIdx) {
     for (int m=0; m<polygonVertices() ; ++m) // this polygon has the following 3/4 vertices. we call removePolygon on them all
         vertexDataArray[ indexArray[workIndex][idx+m]   ].removePolygon(polygonIdx);
     
-
-    
     unsigned int last_index = (indexArray[workIndex].size()-polygonVertices());
     // if deleted polygon is last on the list, do nothing??
     if (idx!=last_index) { 
@@ -162,5 +160,5 @@ void GLData::print() {
 }
 
 
-} // end ocl namespace
+} // end cutsim namespace
 

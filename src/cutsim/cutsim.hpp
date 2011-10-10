@@ -47,7 +47,7 @@ namespace cutsim {
 class Cutsim : public QObject {
     Q_OBJECT
 public:
-    Cutsim(double octree_size, unsigned int octree_max_depth, GLWidget* w);
+    Cutsim(double octree_size, unsigned int octree_max_depth, GLData* gld);
     virtual ~Cutsim();
     void diff_volume( const OCTVolume* vol );
     void sum_volume( const OCTVolume* vol );
@@ -61,7 +61,7 @@ private:
     IsoSurfaceAlgorithm* iso_algo; // the isosurface-extraction algorithm to use
     Octree* tree; // this is the stock model
     GLData* g; // this is the graphics object drawn on the screen, representing the stock
-    GLWidget* widget; // the widget where stock should be displayed
+    //GLWidget* widget; // the widget where stock should be displayed
     GLfloat red,green,blue;
 };
 
