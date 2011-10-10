@@ -46,11 +46,9 @@ public:
 protected:
     void updateGL(Octnode* node);
     void mc_node(Octnode* node); 
-    /// generate the interpolated vertices required for triangle construction
     std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
-    /// use linear interpolation of the distance-field between vertices idx1 and idx2
-    /// to generate a new iso-surface point on the idx1-idx2 edge
     GLVertex interpolate(const Octnode* node, int idx1, int idx2);
+// DATA
     /// get table-index based on the funcion values (positive or negative) at the corners
     unsigned int mc_edgeTableIndex(const Octnode* node);
     /// Marching-Cubes edge table

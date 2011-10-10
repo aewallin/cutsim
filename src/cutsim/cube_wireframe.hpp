@@ -1,7 +1,7 @@
 /*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
- *  This file is part of OpenCAMlib.
+ *  This file is part of Cutsim / OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef CUBE_WIREFRAME_H
 #define CUBE_WIREFRAME_H
@@ -23,89 +23,81 @@
 #include <cassert>
 #include <vector>
 
-
 #include "isosurface.hpp"
 
 namespace cutsim {
 
 class CubeWireFrame : public IsoSurfaceAlgorithm {
-    public:
-        CubeWireFrame(GLData* gl, Octree* tr ) : IsoSurfaceAlgorithm(gl,tr) {
-            g->setLines(); // two indexes per line-segment
-            //g->setUsageDynamicDraw();
-
-            inside_color.set(1,0,0);
-            undecided_color.set(0,1,0);
-            outside_color.set(0,0,1);
-            
-            draw_inside=true;
-            draw_outside=true;
-            draw_undecided=true;
-            
-        }
+public:
+    CubeWireFrame(GLData* gl, Octree* tr ) : IsoSurfaceAlgorithm(gl,tr) {
+        g->setLines(); // two indexes per line-segment
+        inside_color.set(1,0,0);
+        undecided_color.set(0,1,0);
+        outside_color.set(0,0,1);
+        draw_inside=true;
+        draw_outside=true;
+        draw_undecided=true;
+    }
+protected:
+    Color inside_color;
+    Color outside_color;
+    Color undecided_color;
     
-
-
-    protected:
-        Color inside_color;
-        Color outside_color;
-        Color undecided_color;
-        
-        bool draw_inside, draw_outside,draw_undecided;
-        // traverse tree and add/remove gl-elements to GLData
-        void updateGL( Octnode* node) {
-            if (node->valid()) {
-                valid_count++;
-                return;
-            } else if ( !node->valid() ) {
-                update_calls++;
-                node->clearVertexSet();
-                
-                // add lines corresponding to the cube.
-                const int segTable[12][2] = { // cube image: http://paulbourke.net/geometry/polygonise/
-                    {0, 1},{1, 2},{2, 3},{3, 0},
-                    {4, 5},{5, 6},{6, 7},{7, 4},
-                    {0, 4},{1, 5},{2, 6},{3, 7}
-                };
-                if ( (node->is_inside() && draw_inside) ||
-                     (node->is_outside() && draw_outside) ||
-                     (node->is_undecided() && draw_undecided) 
-                    ) {
-                    for (unsigned int i=0; i <12 ; i++ ) {
-                        std::vector< unsigned int > lineSeg;
-                        GLVertex p1 = *(node->vertex)[ segTable[i][0 ] ];
-                        GLVertex p2 = *(node->vertex)[ segTable[i][1 ] ];
-                        Color line_color;
-                        if (node->is_outside()) {
-                            line_color = outside_color;
-                        } 
-                        if (node->is_inside()) {
-                            line_color = inside_color;
-                        } 
-                        if ( node->is_undecided() ) {
-                            line_color = undecided_color;
-                        }
-                        p1.setColor( line_color );
-                        p2.setColor( line_color );
-                            
-                        lineSeg.push_back( g->addVertex( p1, node ) );
-                        lineSeg.push_back( g->addVertex( p2, node ) );
-                        node->addIndex( lineSeg[0] ); 
-                        node->addIndex( lineSeg[1] ); 
-                        g->addPolygon( lineSeg );
+    bool draw_inside, draw_outside,draw_undecided;
+    // traverse tree and add/remove gl-elements to GLData
+    void updateGL( Octnode* node) {
+        if (node->valid()) {
+            valid_count++;
+            return;
+        } else if ( !node->valid() ) {
+            update_calls++;
+            node->clearVertexSet(); // remove all previous GLData
+            
+            // add lines corresponding to the cube.
+            const int segTable[12][2] = { // cube image: http://paulbourke.net/geometry/polygonise/
+                {0, 1},{1, 2},{2, 3},{3, 0},
+                {4, 5},{5, 6},{6, 7},{7, 4},
+                {0, 4},{1, 5},{2, 6},{3, 7}
+            };
+            if ( (node->is_inside() && draw_inside) ||
+                 (node->is_outside() && draw_outside) ||
+                 (node->is_undecided() && draw_undecided) 
+                ) {
+                for (unsigned int i=0; i <12 ; i++ ) {
+                    std::vector< unsigned int > lineSeg;
+                    GLVertex p1 = *(node->vertex)[ segTable[i][0 ] ];
+                    GLVertex p2 = *(node->vertex)[ segTable[i][1 ] ];
+                    Color line_color;
+                    if (node->is_outside()) {
+                        line_color = outside_color;
+                    } 
+                    if (node->is_inside()) {
+                        line_color = inside_color;
+                    } 
+                    if ( node->is_undecided() ) {
+                        line_color = undecided_color;
                     }
+                    p1.setColor( line_color );
+                    p2.setColor( line_color );
+                        
+                    lineSeg.push_back( g->addVertex( p1, node ) );
+                    lineSeg.push_back( g->addVertex( p2, node ) );
+                    node->addIndex( lineSeg[0] ); 
+                    node->addIndex( lineSeg[1] ); 
+                    g->addPolygon( lineSeg );
                 }
-                node->setValid();
-                
-                // current node done, now recurse into tree.
-                if ( node->childcount == 8 ) {
-                    for (unsigned int m=0;m<8;m++) {
-                        //if ( !node->child[m]->valid() )
-                            updateGL( node->child[m] );
-                    }
+            }
+            node->setValid();
+            
+            // current node done, now recurse into tree.
+            if ( node->childcount == 8 ) {
+                for (unsigned int m=0;m<8;m++) {
+                    //if ( !node->child[m]->valid() )
+                        updateGL( node->child[m] );
                 }
             }
         }
+    }
         
         /*
         std::vector< std::vector< GLVertex > > polygonize_node(const Octnode* node) {

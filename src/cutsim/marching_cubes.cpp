@@ -40,12 +40,11 @@ void MarchingCubes::updateGL(Octnode* node) {
     }
 }
 
-// run mc on one Octnode
+/// run mc on one Octnode
+/// this generates one or more triangles which are pushed to the GLData
 void MarchingCubes::mc_node( Octnode* node) {
     assert( node->childcount == 0 ); // don't call this on non-leafs!
     assert( node->is_undecided() );
-
-    //std::vector< std::vector< GLVertex > > triangles;
     unsigned int edgeTableIndex = mc_edgeTableIndex(node);
     unsigned int edges = edgeTable[edgeTableIndex];
     std::vector< GLVertex > vertices = interpolated_vertices(node, edges);
@@ -65,7 +64,6 @@ void MarchingCubes::mc_node( Octnode* node) {
     }
 }
         
-// generate the interpolated vertices required for triangle construction
 std::vector<GLVertex> MarchingCubes::interpolated_vertices(const Octnode* node, unsigned int edges) {
     std::vector<GLVertex> vertices(12);
     vertices[0] = *(node->vertex[0]); // intialize these to the node-vertex positions (?why?)
@@ -103,8 +101,8 @@ std::vector<GLVertex> MarchingCubes::interpolated_vertices(const Octnode* node, 
     return vertices;
 }
         
-// use linear interpolation of the distance-field between vertices idx1 and idx2
-// to generate a new iso-surface point on the idx1-idx2 edge
+/// use linear interpolation of the distance-field between vertices idx1 and idx2
+/// to generate a new iso-surface vertex on the idx1-idx2 edge
 GLVertex MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
     // p = p1 - f1 (p2-p1)/(f2-f1)
     if (!( fabs(node->f[idx2] - node->f[idx1] ) > 1e-16 ))
