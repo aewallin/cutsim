@@ -20,6 +20,8 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#include <QGLViewer/qglviewer.h>
+
 #include <QObject>
 #include <QGLBuffer>
 #include <QVarLengthArray>
@@ -42,22 +44,30 @@ namespace cutsim {
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + (i))
 
-class GLWidget : public QGLWidget {
+class GLWidget : public QGLViewer  {
     Q_OBJECT
     public:
         GLWidget( QWidget *parent=0, char *name=0 ) ;
         ~GLWidget() {}
-        void initializeGL();
+        //void initializeGL();
         GLData* addObject();
     signals:
-        void sig(); // a test/dummy signal, emitted when the user presses "c"
-        void s_sig(); // press "s" test/dummy
+        //void sig(); // a test/dummy signal, emitted when the user presses "c"
+        //void s_sig(); // press "s" test/dummy
     public slots:
         void slotWriteScreenshot();
     protected:
         //void genVBO(); // generate a VBO for each GLData object
-        void resizeGL( int width, int height );
-        void paintGL();
+        //void resizeGL( int width, int height );
+        virtual void draw();
+        
+        virtual void init() {}
+        virtual void postDraw() {
+            QGLViewer::postDraw();
+            drawCornerAxis();
+        }
+        void drawCornerAxis();
+        /*
         void updateDir();
         void zoomView( int delta );
         void zoomView( const QPoint& newPos );
@@ -68,35 +78,16 @@ class GLWidget : public QGLWidget {
         void wheelEvent( QWheelEvent *e ) { zoomView( e->delta() ); }
         void mousePressEvent( QMouseEvent *e );
         void mouseReleaseEvent( QMouseEvent *e );
+        */
     private:
-        /// camera position
-        GLVertex _eye;
-        /// camera up-vector 
-        GLVertex _up; 
-        /// camera look-at point
-        GLVertex _center;
-        /// rotation/pan y-axis 
-        GLVertex _diry; 
-        /// rotation/pan y-axis
-        GLVertex _dirx;
-        /// field of vision in y-dir 
-        float _fovy;
-        /// position of near clipping plane 
-        float z_near;
-        /// position of far clipping plane
-        float z_far;
+
         
         /// these are the GLData objects which will be drawn in the OpenGL scene
         std::vector<GLData*> glObjects;
 
-        QPoint _oldMousePos;
-        int _width;
-        int _height;
-        bool _rightButtonPressed;
-        bool _leftButtonPressed;
-        bool _middleButtonPressed;
-        QTime _lastFrameTime;
-        int file_number;
+
+        QTime lastFrameTime;
+        int file_number; // used for number screenshots
 };
 
 } // end ocl namespace

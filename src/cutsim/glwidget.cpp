@@ -30,22 +30,11 @@ namespace cutsim {
 
 #define PI 3.1415926535897932
 
-GLWidget::GLWidget( QWidget *parent, char *name ) : QGLWidget(parent) {
-    _fovy = 60.0;
-    z_near = 0.1;
-    z_far = 100.0;
-    _up.x=0;
-    _up.y=0;
-    _up.z=1;
-    _up *= 1/_up.norm();
-    _eye.x=20;
-    _eye.y=20;
-    _eye.z=20;
-    _center.x=0;
-    _center.y=0;
-    _center.z=0;
+GLWidget::GLWidget( QWidget *parent, char *name ) {
+
     //setCursor(cursor);
-    updateDir();
+    //updateDir();
+    setSceneRadius(100);
     file_number=0;
 }
 
@@ -53,138 +42,17 @@ GLWidget::GLWidget( QWidget *parent, char *name ) : QGLWidget(parent) {
 GLData* GLWidget::addObject() {
     GLData* g = new GLData();
     glObjects.push_back(g);
-    //g->genVBO();
     return g;
 }
 
-void GLWidget::initializeGL() {
-    std::cout << "initializeGL()\n";
-    glShadeModel(GL_SMOOTH);  // or GL_FLAT
-    glEnable(GL_LIGHTING);
-    //glEnable(GL_NORMALIZE); //or not (computationally expensive!)
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-    
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-    glLoadIdentity();
-    
 
-    
-    
-    //set the global ambient light
-    
-    // glLightModelf(
-    // light mode is one of GL_LIGHT_MODEL_LOCAL_VIEWER,
-    //                GL_LIGHT_MODEL_COLOR_CONTROL,
-    //                GL_LIGHT_MODEL_TWO_SIDE
-    
-    // glLightModelfv
-    //                GL_LIGHT_MODEL_AMBIENT,
-    //                GL_LIGHT_MODEL_COLOR_CONTROL,
-    //                GL_LIGHT_MODEL_LOCAL_VIEWER, and
-    //                GL_LIGHT_MODEL_TWO_SIDE
-    
-    //set the global ambient light (R, G, B, A)
-    //GLfloat ambient[4] = {.2,.2,.2,1};
-    GLfloat ambient[4] = {0.6,0.6,0.6,1.0};
-    glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, ambient);
 
-    // set up a light:
-    //GLfloat diffuseLight[] = {1,0,0,1};
-    //GLfloat ambientLight[] = {0.5,0.5,0.5,1};
-    
-    //glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    //glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    
-    
-    GLfloat specularLight[] = {0.5,0.5,0.5,1};
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
-    glEnable(GL_LIGHT0); //enable the light
-    GLfloat lightpos[] = {-10,-10,-10,1}; // set last term to 0 for a spotlight (see chp 5 in ogl prog guide)
-    glLightfv(GL_LIGHT0,GL_POSITION, lightpos);
-    
-    
-    // material property:
-    
-    //GLfloat specular[] = {0.6,0.6,0.6,1};
-    // glMaterialf(face, paramname, value)
-    // face = GL_FRONT, GL_BACK, or GL_FRONT_AND_BACK
-    // GL_SHININESS
-    
-    // glMaterial — specify material parameters for the lighting model
-    // face,          GL_AMBIENT,                rgba reflectance
-    //                GL_DIFFUSE,                
-    //                GL_SPECULAR,
-    //                GL_EMISSION,
-    //                GL_SHININESS,
-    //                GL_AMBIENT_AND_DIFFUSE, or
-    //                GL_COLOR_INDEXES.
-    
-    
-    GLfloat ambientMat[] = {0.5,0.5,0.5,1.0}; // rgba reflectance1
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, ambientMat);
-    
-    
-    //glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
 
-    // glEnable(GL_DEPTH_TEST);
-    
-    // segfaults without this..
-    //std::cout << "initializeGL() calling genVBO on " << glObjects.size() << " GLdatas\n";
-    //genVBO();  // for each gl-data, generate vbo
-}
-
-/*
-void GLWidget::genVBO() {
-    BOOST_FOREACH(GLData* g, glObjects) {
-        g->genVBO();
-    }
-}*/
-
-void GLWidget::resizeGL( int width, int height ) {
-    if (height == 0)    {
-       height = 1;
-    }
-    _width = width;
-    _height = height;
-    std::cout << "resizeGL(" << width << " , " << height << " )\n";
-    
-    glViewport(0, 0, _width, _height); // Reset The Current Viewport
-    glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
-    glLoadIdentity(); // Reset The Projection Matrix
-    
-    // Calculate The Aspect Ratio Of The Window
-    // void gluPerspective( fovy, aspect, zNear, zFar);
-    gluPerspective( _fovy, (GLfloat)_width / (GLfloat)_height, z_near, z_far);
-    
-    glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
-    glLoadIdentity();
-    gluLookAt( _eye.x, _eye.y, _eye.z, _center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //glLoadIdentity(); // Reset The Modelview Matrix
-    return;
-}
 
 
 /// loop through glObjects and for each GLData draw it using VBO
-void GLWidget::paintGL()  {
-    //glMatrixMode(GL_PROJECTION); 
-    //glLoadIdentity();
-    //
-    glMatrixMode(GL_MODELVIEW);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-    gluLookAt( _eye.x, _eye.y, _eye.z, _center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
-    //gluLookAt( 0,0,6 , // _eye.x, _eye.y, _eye.z,
-    //           0,0,0 , //_center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
-    //           0,1,0);
+void GLWidget::draw()  {
 
-    //glPushMatrix();
     
     BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
         //glLoadIdentity();
@@ -213,19 +81,9 @@ void GLWidget::paintGL()  {
     }
     
     
-    // calculate and display FPS (FIXME: does not work)
-    int msecs =  - QTime::currentTime().msecsTo( _lastFrameTime );
-    if (msecs == 0)
-        msecs = 1;
-    float fps = (float)1000/(float)msecs;
-    QString fps_str;
-    fps_str = QString("%1 FPS, eye=%2, center=%3, up=%4").arg(fps).arg(_eye.str()).arg(_center.str()).arg(_up.str());
-    renderText( 10, 20, fps_str );
-    _lastFrameTime = QTime::currentTime();
+
+    lastFrameTime = QTime::currentTime();
     
-    QString dir_str;
-    dir_str = QString("dir x = %1 dir y = %2 norm(y)= %3 ").arg(_dirx.str()).arg(_diry.str()).arg(_diry.norm());
-    renderText( 10, 50, dir_str );
     
 }
 
@@ -237,100 +95,52 @@ void GLWidget::slotWriteScreenshot() {
     file_number++;
 }
 
-void GLWidget::updateDir() {
-    _dirx = _up;
-    GLVertex newy = _up.cross(_center-_eye);
-    _diry = newy * ( (float)1.0/ newy.norm() );
-}
-void GLWidget::zoomView( const QPoint& newPos ) {
-    float dy = (float)(newPos.y() - _oldMousePos.y()) / (float)_height;
-    _oldMousePos = newPos;
-    zoomView( (int)(dy*120*5) );
-}
-
-void GLWidget::zoomView( int delta ) {
-    float dZoom = (float)delta*(0.1/120.0);
-    _eye = _center + (_eye-_center)*(dZoom + 1.0);
-    updateGL();
-}
-void GLWidget::panView(const QPoint& newPos) {           
-    float dx = (float)(newPos.x() - _oldMousePos.x()) / (float)_width;
-    float dy = (float)(newPos.y() - _oldMousePos.y()) / (float)_height;
-    _oldMousePos = newPos;
-    float length = 2* (_eye-_center).norm() * tan( (_fovy/360)*2*PI /2);
-    updateDir();
-    GLVertex y_pan = _diry * ( dx*length* (float)_width/(float)_height );
-    GLVertex x_pan = _dirx * ( dy*length ); 
-    _center += y_pan + x_pan; 
-    _eye += y_pan + x_pan;
-    updateGL();
-}
-void GLWidget::rotateView(const QPoint& newPos) {
-    float dx = (float)(newPos.x() - _oldMousePos.x()) / (float)_width;
-    float dy = (float)(newPos.y() - _oldMousePos.y()) / (float)_height;
-    _oldMousePos = newPos;
-    updateDir();
-    // rotate eye around center
-    _eye.rotate(_center, _dirx, -dx * PI );
-    _eye.rotate(_center, _diry, dy*PI );
-    
-    // now calculate the new up-vector
-    GLVertex upCenter = _center + _up;
-    upCenter.rotate( _center , _diry, dy*PI);
-    _up = upCenter - _center;
-    _up *= 1.0/_up.norm();
-    
-    updateGL();
-}
-
-
-void GLWidget::keyPressEvent( QKeyEvent *e ) {
-    std::cout << e->key() << " pressed.\n";
-    if ( e->key() == Qt::Key_C ) {
-        std::cout << " emitting sig().\n";
-        emit sig();
-    } else if ( e->key() == Qt::Key_S ) {
-        std::cout << " emitting s_sig().\n";
-        emit s_sig();
-    }
-    return;
+void GLWidget::drawCornerAxis() {
+    int viewport[4];
+    int scissor[4];
+    // The viewport and the scissor are changed to fit the lower left
+    // corner. Original values are saved.
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    glGetIntegerv(GL_SCISSOR_BOX, scissor);
+    // Axis viewport size, in pixels
+    const int size = 150;
+    glViewport(0,0,size,size);
+    glScissor(0,0,size,size);
+    // The Z-buffer is cleared to make the axis appear over the
+    // original image.
+    glClear(GL_DEPTH_BUFFER_BIT);
+    // Tune for best line rendering
+    glDisable(GL_LIGHTING);
+    glLineWidth(3.0);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(-1, 1, -1, 1, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glMultMatrixd( camera()->orientation().inverse().matrix() );
+    glBegin(GL_LINES);
+        glColor3f(1.0, 0.0, 0.0); // red X-axis
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(1.0, 0.0, 0.0);
+        glColor3f(0.0, 1.0, 0.0); // green Y-axis
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 1.0, 0.0);
+        glColor3f(0.0, 0.0, 1.0); // blue Z-axis
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 0.0, 1.0);
+    glEnd();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glEnable(GL_LIGHTING);
+    // The viewport and the scissor are restored.
+    glScissor(scissor[0],scissor[1],scissor[2],scissor[3]);
+    glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 }
 
-void GLWidget::mouseMoveEvent( QMouseEvent *e ) {
-    if (_leftButtonPressed ) {
-       panView( e->pos() ); 
-    } else if (_rightButtonPressed) {
-        rotateView( e->pos() ); 
-    }
-    else if (_middleButtonPressed) {
-        zoomView( e->pos() ); 
-    }
-}
-
-void GLWidget::mousePressEvent( QMouseEvent *e ) {
-    //qDebug() << " mousePress : " << e->pos() << " button=" << e->button() << "\n";
-    _oldMousePos = e->pos();
-    if (e->button() == Qt::LeftButton) {
-        setCursor(Qt::OpenHandCursor);
-        _leftButtonPressed = true;
-        //std::cout << " left button press\n";
-    } else if (e->button() == Qt::RightButton) {
-        setCursor(Qt::SizeAllCursor);
-        _rightButtonPressed = true;
-    }
-    else if (e->button() == Qt::MiddleButton) {
-        setCursor(Qt::SplitVCursor);
-        _middleButtonPressed = true;
-    }
-}
-
-void GLWidget::mouseReleaseEvent( QMouseEvent *e ) {
-    //qDebug() << " mouseRelease : " << e->pos() << "\n";
-    setCursor( Qt::ArrowCursor );
-    _rightButtonPressed = false;
-    _leftButtonPressed = false;
-    _middleButtonPressed = false;
-}
 
 } // end ocl namespace
 
