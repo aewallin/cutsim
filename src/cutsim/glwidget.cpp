@@ -39,7 +39,7 @@ GLWidget::GLWidget( QWidget *parent, char *name ) {
 }
 
 /// add new GLData object and return pointer to it.
-GLData* GLWidget::addObject() {
+GLData* GLWidget::addGLData() {
     GLData* g = new GLData();
     glObjects.push_back(g);
     return g;

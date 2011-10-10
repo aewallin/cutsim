@@ -50,7 +50,7 @@ class GLWidget : public QGLViewer  {
         GLWidget( QWidget *parent=0, char *name=0 ) ;
         ~GLWidget() {}
         //void initializeGL();
-        GLData* addObject();
+        GLData* addGLData();
     signals:
         //void sig(); // a test/dummy signal, emitted when the user presses "c"
         //void s_sig(); // press "s" test/dummy

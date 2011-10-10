@@ -26,7 +26,8 @@ CutsimWindow::CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), s
         myGLWidget = new cutsim::GLWidget(); 
         unsigned int max_depth=8;
         double octree_cube_side=10.0;
-        myCutsim  =  new cutsim::Cutsim(octree_cube_side , max_depth, myGLWidget);
+        cutsim::GLData* gld = myGLWidget->addGLData();
+        myCutsim  =  new cutsim::Cutsim(octree_cube_side , max_depth, gld);
         this->setCentralWidget(myGLWidget);
         
         // hard-coded stock
