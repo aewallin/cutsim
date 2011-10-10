@@ -1,4 +1,4 @@
-project(cutsim)
+project(libcutsim)
 
 cmake_minimum_required(VERSION 2.4)
 
@@ -47,7 +47,7 @@ IF (OPENMP_FOUND)
 ENDIF(OPENMP_FOUND)
 
 # Find QGLViewer
-set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cutsim ) # FindQGLViewer.cmake is in this dir
+set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ) # FindQGLViewer.cmake is in this dir
 find_package(QGLViewer REQUIRED)
 
 
@@ -65,61 +65,64 @@ INCLUDE(${QT_USE_FILE})
 MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
 
 set (MOC_HEADERS  # these headers need Qt MOCing
-    ${cutsim_SOURCE_DIR}/glwidget.hpp
-    ${cutsim_SOURCE_DIR}/cutsim.hpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/glwidget.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cutsim.hpp 
 )
     
 # this defines the source-files
 
+MESSAGE(STATUS "CMAKE_SOURCE_DIR = " ${CMAKE_SOURCE_DIR} )
+
 set( CUTSIM_SRC
-    ${cutsim_SOURCE_DIR}/volume.cpp
-    ${cutsim_SOURCE_DIR}/octnode.cpp
-    ${cutsim_SOURCE_DIR}/octree.cpp
-    ${cutsim_SOURCE_DIR}/marching_cubes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/volume.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/octnode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/octree.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/marching_cubes.cpp
     
-    ${cutsim_SOURCE_DIR}/glwidget.cpp 
-    ${cutsim_SOURCE_DIR}/gldata.cpp 
-    ${cutsim_SOURCE_DIR}/bbox.cpp 
-    ${cutsim_SOURCE_DIR}/cutsim.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/glwidget.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/gldata.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/bbox.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/cutsim.cpp 
 )
 
 set( CUTSIM_INCLUDE_FILES
-    ${cutsim_SOURCE_DIR}/octnode.hpp
-    ${cutsim_SOURCE_DIR}/octree.hpp
-    ${cutsim_SOURCE_DIR}/volume.hpp
-    ${cutsim_SOURCE_DIR}/bbox.hpp
-    ${cutsim_SOURCE_DIR}/isosurface.hpp
-    ${cutsim_SOURCE_DIR}/marching_cubes.hpp
-    ${cutsim_SOURCE_DIR}/cube_wireframe.hpp
-    ${cutsim_SOURCE_DIR}/gldata.hpp
-    ${cutsim_SOURCE_DIR}/glvertex.hpp
-    ${cutsim_SOURCE_DIR}/glwidget.hpp
-    ${cutsim_SOURCE_DIR}/cutsim.hpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/octnode.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/octree.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/volume.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bbox.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/isosurface.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/marching_cubes.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cube_wireframe.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gldata.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/glvertex.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/glwidget.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cutsim.hpp 
 )
 
 # include dirs
-include_directories( ${cutsim_SOURCE_DIR} )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # this is the cutting sim
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 add_library(
-    cutsim 
+    libcutsim
     SHARED 
     ${CUTSIM_SRC}
     ${MOC_OUTFILES}
 )
+set_target_properties(libcutsim PROPERTIES PREFIX "") # avoid liblibcutsim 
 target_link_libraries(
-    cutsim  
+    libcutsim  
     ${OPENGL_LIBRARIES}
     ${QGLVIEWER_LIBRARIES}
 )
 
 install(
-    TARGETS cutsim
+    TARGETS libcutsim
     LIBRARY 
-    DESTINATION lib/cutsim
-    ARCHIVE DESTINATION lib/cutsim
+    DESTINATION lib/libcutsim
+    ARCHIVE DESTINATION lib/libcutsim
     PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 

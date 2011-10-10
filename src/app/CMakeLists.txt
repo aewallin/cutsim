@@ -1,4 +1,4 @@
-project(cutsim5)
+project(cutsim)
 
 cmake_minimum_required(VERSION 2.4)
 
@@ -71,7 +71,7 @@ add_dependencies(
 )
 target_link_libraries( 
     ${PROJECT_NAME} 
-    cutsim 
+    libcutsim 
     g2m
     ${QT_LIBRARIES} 
     ${Boost_LIBRARIES} 
