@@ -18,7 +18,6 @@
 
 //#include <QMessageBox>
 
-//#include "qocc.h"
 
 class CutsimApplication : public QApplication {
     Q_OBJECT

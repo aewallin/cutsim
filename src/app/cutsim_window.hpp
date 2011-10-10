@@ -89,7 +89,9 @@ private:
     QProgressBar* myProgress;
     QToolBar* myToolBar;
     cutsim::Cutsim* myCutsim;
+    
     cutsim::GLWidget* myGLWidget;
+    
     std::vector<cutsim::SphereVolume*> myTools;
     unsigned int currentTool;
     g2m::g2m* myG2m;

@@ -31,10 +31,8 @@ namespace cutsim {
 #define PI 3.1415926535897932
 
 GLWidget::GLWidget( QWidget *parent, char *name ) {
-
-    //setCursor(cursor);
-    //updateDir();
-    setSceneRadius(100);
+    setSceneRadius(20);
+    showEntireScene();
     file_number=0;
 }
 
