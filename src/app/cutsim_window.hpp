@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QMainWindow>
-#include <QPluginLoader>
+//#include <QPluginLoader>
+//#include <QMutex>
 
 #include <cutsim/cutsim.hpp>
 #include <cutsim/glwidget.hpp>
@@ -32,6 +33,8 @@ public slots:
     void appendCanonLine(QString s) { canonText->appendLine(s); }
     void slotSetToolPosition(double x, double y, double z);
     void slotToolChange(int t);
+    void slotDiffDone();
+    void slotGLDone();
 signals:
     void setGcodeFile(QString f);
     void setRS274(QString s);
@@ -40,6 +43,7 @@ signals:
     void play();
     void pause();
     void stop();
+    void signalMoveDone();
 private slots:
     void newFile() { statusBar()->showMessage(tr("Invoked File|New")); }
     void open();
@@ -102,7 +106,6 @@ private:
     QStringList args;
     QString myLastFolder;
     QSettings settings;
-    
 };
 
 #endif

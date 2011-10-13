@@ -88,7 +88,12 @@ CutsimWindow::CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), s
         connect(    myG2m, SIGNAL( signalCanonLine(canonLine*) ), myPlayer, SLOT( appendCanonLine(canonLine*) ) );
         connect( myPlayer, SIGNAL( signalToolPosition(double,double,double) ), this, SLOT( slotSetToolPosition(double,double,double) ) );
         connect( myPlayer, SIGNAL( signalToolChange( int ) ), this, SLOT( slotToolChange(int) ) );     
-
+        
+        connect( this, SIGNAL( signalMoveDone() ), myPlayer, SLOT( slotRequestMove() ) );
+        
+        connect( myCutsim, SIGNAL( signalDiffDone() ), this, SLOT( slotDiffDone() ) ); 
+        connect( myCutsim, SIGNAL( signalGLDone() ), this, SLOT( slotGLDone() ) ); 
+        
         findInterp();
         chooseToolTable();
         QString title = tr(" cutsim - ") + VERSION_STRING;
@@ -99,10 +104,21 @@ CutsimWindow::CutsimWindow(QStringList ags) : args(ags), myLastFolder(tr("")), s
         myCutsim->updateGL();
 }
 
+// called by gplayer
 void CutsimWindow::slotSetToolPosition(double x, double y, double z) {
     myTools[currentTool]->setCenter( cutsim::GLVertex(x,y,z) );
-    myCutsim->slot_diff_volume( myTools[currentTool] ); 
-    myCutsim->updateGL();
+    myCutsim->slot_diff_volume_mt( myTools[currentTool] ); 
+}
+
+void CutsimWindow::slotDiffDone() { // called when the cut-thread is done and we can update GL
+    qDebug() << " slotDiffDone() ";
+    myCutsim->update_gl_mt(); //updateGL();
+}
+
+void CutsimWindow::slotGLDone() { // called when GL-update done. we can now request a new move from gplayer
+    // request more g-code from player here.
+    emit signalMoveDone();
+    qDebug() << " slotGLDone() ";
 }
 
 void CutsimWindow::slotToolChange(int t) {
