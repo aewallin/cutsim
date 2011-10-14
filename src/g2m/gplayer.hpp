@@ -90,8 +90,8 @@ class GPlayer : public QObject {
                 first = false;
             }   
             if (cl->isMotion() ) {
-                Point start = cl->getStart().loc;
-                Point end = cl->getEnd().loc;
+                //Point start = cl->getStart().loc;
+                //Point end = cl->getEnd().loc;
                 // divide motion into sampled points. signal motion along path.
                 double ds = 0.5;
                 int n_samples = std::max( (int)( cl->length()/ds ) , 2 ); // want at least two points: start-end
