@@ -36,10 +36,11 @@ canonMotionless::canonMotionless(std::string canonL, machineStatus prevStatus):c
   if (cmdMatch("COMMENT")) {
     //do nothing
   } else if (cmdMatch("MESSAGE")) {
-    size_t a,b;
+    
+    /*size_t a,b;
     a = myLine.find_first_of("\"") + 1;
     b = myLine.find_last_of("\"");
-    //uio::infoMsg("Message: " + myLine.substr(a,b-a));
+    */
   } else if (cmdMatch("STOP_SPINDLE_TURNING")) {
     status.setSpindleStatus(SPINDLE_STATUS(OFF));
   } else if (cmdMatch("START_SPINDLE_CLOCKWISE")) {
