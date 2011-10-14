@@ -325,20 +325,26 @@ bool Octnode::valid() const {
 
 
 void Octnode::addIndex(unsigned int id) { 
+#ifndef NDEBUG
     std::set<unsigned int>::iterator found = vertexSet.find( id );
     assert( found == vertexSet.end() ); // we should not have id
+#endif
     vertexSet.insert(id); 
 }
 void Octnode::swapIndex(unsigned int oldId, unsigned int newId) {
+#ifndef NDEBUG
     std::set<unsigned int>::iterator found = vertexSet.find(oldId);
     assert( found != vertexSet.end() ); // we must have oldId
+#endif
     vertexSet.erase(oldId);
     vertexSet.insert(newId);
 }
 
 void Octnode::removeIndex(unsigned int id) {
+#ifndef NDEBUG
     std::set<unsigned int>::iterator found = vertexSet.find( id );
     assert( found != vertexSet.end() ); // we must have id
+#endif
     vertexSet.erase(id);
 }
 
