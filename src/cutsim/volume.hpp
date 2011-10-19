@@ -63,8 +63,9 @@ class Volume {
         /// bounding-box. This holds the maximum(minimum) points along the X,Y, and Z-coordinates
         /// of the volume (i.e. the volume where dist(p) returns negative values)
         Bbox bb;
-
+        /// the color of this Volume
         Color color;
+        /// set the color
         void setColor(GLfloat r, GLfloat g, GLfloat b) {
             color.r=r; color.g=g; color.b=b;
         }
@@ -77,11 +78,12 @@ class SphereVolume: public Volume {
     public:
         /// default constructor
         SphereVolume();
-        
+        /// set radius of sphere
         void setRadius(double r) {
             radius=r;
             calcBB();
         }
+        /// set the centerpoint of the sphere
         void setCenter(GLVertex v) {
             center = v;
             calcBB();
