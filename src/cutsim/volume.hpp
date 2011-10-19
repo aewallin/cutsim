@@ -32,16 +32,25 @@ namespace cutsim {
     
 /// base-class for defining implicit volumes from which to build octrees
 /// an implicit volume is defined as a function dist(Point p)
-/// which returns a negative value inside the volume and a positive volume outside
+/// which returns a positive value inside the volume and a negative value outside.
+/// 
+/// the "positive inside, negative outside" sign-convetion means that boolean operations can be done with:
+///
+///  A U B ('union' or 'sum') =  max( d(A),  d(B) )
+///  A \ B ('diff' or 'minus') = min( d(A), -d(B) )
+///  A int B ('intersection') =  min( d(A),  d(B) ) 
+///
+/// reference: Frisken et al. "Designing with Distance Fields"
+/// http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.69.9025
 ///
 /// iso-surface extraction using standard marching-cubes requires just the distance
 /// field to be stored at each corner vertex of an octree leaf-node.
 ///
-/// advanced iso-surface extraction using extended-marching-cubes/dual-contouring may require
+/// advanced iso-surface extraction using extended-marching-cubes or dual-contouring may require
 /// more information such as normals of the distance field or exact
-/// intersection points and normals.
-/// in multi-material simulation a material-index can be stored.
-/// each cutter may cut the material with a color of its own.
+/// intersection points and normals. This is similar to a tri-dexel representation.
+/// In multi-material simulation a material-index can be stored.
+/// Each cutter may also cut the material with a color of its own (new vertices have the color of the cutter).
 class Volume {
     public:
         /// default constructor
