@@ -71,9 +71,9 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     scale = nodescale;
     depth = nodedepth;
     
-    child.resize(8);
-    vertex.resize(8);
-    f.resize(8);
+    //child.resize(8);
+    //vertex.resize(8);
+    //f.resize(8);
     if (parent) {
         center = parent->childcenter(idx);
         state = parent->prev_state;

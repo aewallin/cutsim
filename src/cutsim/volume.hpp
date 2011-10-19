@@ -357,6 +357,108 @@ class CylMoveOCTVolume: public OCTVolume {
         double dist(Point& p) const {return -1;}
 };*/
 
+/// box-volume
+/// from corner, go out in the three directions v1,v2,v3
+/// interior points = corner + a*v1 + b*v2 + c*v3  
+/// where a, b, c are in [0,1]
+class RectOCTVolume : public OCTVolume {
+    public:
+        /// default constructor
+        RectOCTVolume();
+        /// one corner of the box
+        GLVertex corner;
+        /// first vector from corner, to span the box
+        GLVertex v1;
+        /// second vector
+        GLVertex v2;
+        /// third vector
+        GLVertex v3;
+        bool isInside(GLVertex& p) const;
+        /// update the bounding-box
+        void calcBB();
+        double dist(const GLVertex& p) const {
+            // translate to origo
+            double max_x = corner.x + v1.x;
+            double min_x = corner.x;
+            double max_y = corner.y + v2.y;
+            double min_y = corner.y;
+            double max_z = corner.z + v3.z;
+            double min_z = corner.z;
+            double dOut = 0.0;
+
+            if ( (min_x <= p.x) && (p.x <= max_x) && (min_y <= p.y) && (p.y <= max_y) && (min_z <= p.z) && (p.z <= max_z) )   {
+                double xdist,ydist,zdist;
+                if ( (p.x-min_x) > (max_x-p.x) )
+                    xdist = max_x-p.x;                    
+                else
+                    xdist = p.x-min_x;
+
+                if ( (p.y-min_y) > (max_y-p.y) )
+                    ydist = max_y-p.y;                    
+                else
+                    ydist = p.y-min_y;
+                
+                if ( (p.z-min_z) > (max_z-p.z) )
+                    zdist = max_z-p.z;                    
+                else
+                    zdist = p.z-min_z;
+
+                if ( xdist <= ydist && xdist <= zdist )
+                    dOut = -xdist;
+                else if ( ydist < xdist && ydist < zdist )
+                    dOut = -ydist;
+                else if ( zdist < xdist && zdist< xdist )
+                    dOut = -zdist;
+                else {
+                    assert(0);
+                    return -1;
+                }
+            }else if ( (min_y <= p.y) && (p.y <= max_y) && (min_z <= p.z) && (p.z <= max_z) )   {
+                if (p.x < min_x) {
+                    dOut = min_x - p.x;
+                } else if ( p.x > max_x ) {
+                    dOut = p.x-max_x;
+                }
+            }else if ( (min_x <= p.x) && (p.x <= max_x) && (min_z <= p.z) && (p.z <= max_z) )   {
+                if (p.y < min_y) {
+                    dOut = min_y - p.y;
+                } else if ( p.y > max_y ) {
+                    dOut = p.y-max_y;
+                }
+            }else if ( (min_x <= p.x) && (p.x <= max_x) && (min_y <= p.y) && (p.y <= max_y) )   {
+                if (p.z < min_z) {
+                    dOut = min_z - p.z;
+                }else if ( p.z > max_z ) {
+                    dOut = p.z-max_z;
+                }
+            }else if ( (p.x > max_x) && (p.y > max_y))
+                dOut = sqrt((p.x - max_x)*(p.x - max_x)+(p.y - max_y)*(p.y - max_y));
+            else if ( (p.x > max_x) && (p.z < min_z))
+                dOut = sqrt((p.x - max_x)*(p.x - max_x)+(min_z - p.z)*(min_z - p.z));
+            else if ( (p.x < min_x) && (p.y > max_y))
+                dOut = sqrt((min_x - p.x)*(min_x - p.x)+(p.y - max_y)*(p.y - max_y));
+            else if ( (p.y > max_y) && (p.z > max_z))
+                dOut = sqrt((p.y - max_y)*(p.y - max_y)+(p.z - max_z)*(p.z - max_z));
+            else if ( (p.x > max_x) && (p.z > max_z))
+                dOut = sqrt((p.x - max_x)*(p.x - max_x)+(p.z - max_z)*(p.z - max_z));
+            else if ( (p.x > max_x) && (p.y < min_y))
+                dOut = sqrt((p.x - max_x)*(p.x - max_x)+(min_y - p.y)*(min_y - p.y));
+            else if ( (p.x < min_x) && (p.y < min_y))
+                dOut = sqrt((min_x - p.x)*(min_x - p.x)+(p.y - max_y)*(p.y - max_y));
+            else if ( (p.y < min_y) && (p.z > max_z))
+                dOut = sqrt((min_y - p.y)*(min_y - p.y)+(p.z - max_z)*(p.z - max_z));
+            else if ( (p.x < min_x) && (p.z < min_z) )
+                dOut = sqrt((p.x - max_x)*(p.x - max_x)+(min_z - p.z)*(min_z - p.z));
+            else if ( (p.y > max_y) && (p.z < min_z))
+                dOut = sqrt((p.y - max_y)*(p.y - max_y)+(min_y - p.y)*(min_y - p.y));
+            else if ( (p.x < min_x) && (p.z > max_z))
+                dOut = sqrt((min_x - p.x)*(min_x - p.x)+(p.z - max_z)*(p.z - max_z));
+            else if ( (p.y < min_y) && (p.z < min_z))
+                dOut = sqrt((min_y - p.y)*(min_y - p.y)+(min_z - p.z)*(min_z - p.z));
+                
+            return -dOut;
+        }
+};
 } // end namespace
 #endif
 // end file volume.hpp
