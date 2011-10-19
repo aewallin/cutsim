@@ -19,8 +19,6 @@
 
 #include <iostream>
 
-#include <GL/glut.h>
-
 #include <QObject>
 #include <QTimer>
 
