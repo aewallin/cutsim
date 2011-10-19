@@ -56,11 +56,14 @@ class Volume {
         /// default constructor
         Volume(){};
         /// return signed distance from volume surface to Point p
+        /// Points p inside the volume should return positive values.
+        /// Points p outside the volume should return negative values.
         virtual double dist(const GLVertex& p) const = 0;
 
-        /// bounding-box
+        /// bounding-box. This holds the maximum(minimum) points along the X,Y, and Z-coordinates
+        /// of the volume (i.e. the volume where dist(p) returns negative values)
         Bbox bb;
-        //bool invert;
+
         Color color;
         void setColor(GLfloat r, GLfloat g, GLfloat b) {
             color.r=r; color.g=g; color.b=b;
@@ -109,7 +112,6 @@ class RectVolume : public Volume {
         GLVertex v2;
         /// third vector
         GLVertex v3;
-        bool isInside(GLVertex& p) const;
         /// update the bounding-box
         void calcBB();
         double dist(const GLVertex& p) const;
