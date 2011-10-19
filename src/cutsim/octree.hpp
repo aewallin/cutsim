@@ -31,7 +31,7 @@
 namespace cutsim {
 
 class Octnode;
-class OCTVolume;
+class Volume;
 
 
 /// Octree class for cutting simulation
@@ -53,9 +53,9 @@ class Octree {
         virtual ~Octree();
         
     // bolean operations on tree
-        void diff(const OCTVolume* vol) { diff( this->root, vol); }
-        void sum(const OCTVolume* vol) { sum( this->root, vol); }
-        void intersect(const OCTVolume* vol) { intersect( this->root, vol); }
+        void diff(const Volume* vol) { diff( this->root, vol); }
+        void sum(const Volume* vol) { sum( this->root, vol); }
+        void intersect(const Volume* vol) { intersect( this->root, vol); }
         
 // debug, can be removed?
         void get_leaf_nodes( std::vector<Octnode*>& nodelist) const { get_leaf_nodes( root,  nodelist); }
@@ -91,9 +91,9 @@ class Octree {
         /// run isosurface-algorithm on current Octnode, and push gl-data to GLData
         //void updateGL(Octnode* current);
         /// recursively traverse the tree subtracting vol
-        void diff(Octnode* current, const OCTVolume* vol);
-        void sum(Octnode* current, const OCTVolume* vol);
-        void intersect(Octnode* current, const OCTVolume* vol);
+        void diff(Octnode* current, const Volume* vol);
+        void sum(Octnode* current, const Volume* vol);
+        void intersect(Octnode* current, const Volume* vol);
         
         /// remove vertices associated with the current node
         //void remove_node_vertices(Octnode* current );

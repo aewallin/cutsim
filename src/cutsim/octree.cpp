@@ -119,7 +119,7 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
 }
 
 // sum (union) of tree and OCTVolume
-void Octree::sum(Octnode* current, const OCTVolume* vol) {
+void Octree::sum(Octnode* current, const Volume* vol) {
     if ( !vol->bb.overlaps( current->bb ) || current->is_inside() ) // if no overlap, or already INSIDE, then quit.
         return; // abort if no overlap.
     
@@ -143,7 +143,7 @@ void Octree::sum(Octnode* current, const OCTVolume* vol) {
 }
 
 
-void Octree::diff(Octnode* current, const OCTVolume* vol) {
+void Octree::diff(Octnode* current, const Volume* vol) {
     if (  !vol->bb.overlaps( current->bb ) || current->is_outside() ) // if no overlap, or already OUTSIDE, then quit.
         return;   
     
@@ -167,7 +167,7 @@ void Octree::diff(Octnode* current, const OCTVolume* vol) {
     }
 }
 
-void Octree::intersect(Octnode* current, const OCTVolume* vol) {
+void Octree::intersect(Octnode* current, const Volume* vol) {
     if (   current->is_outside() ) // if already OUTSIDE, then quit.
         return;   
     

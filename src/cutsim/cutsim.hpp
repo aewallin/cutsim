@@ -45,7 +45,7 @@ namespace cutsim {
 class DiffTask : public QObject, public QRunnable  {
     Q_OBJECT
 public:
-    DiffTask(Octree* t, GLData* g, const OCTVolume* v) : tree(t), gld(g), vol(v) {
+    DiffTask(Octree* t, GLData* g, const Volume* v) : tree(t), gld(g), vol(v) {
     }
     void run() {
         qDebug() << "DiffTask thread" << QThread::currentThread();
@@ -62,7 +62,7 @@ signals:
 private:
     Octree* tree;
     GLData* gld;
-    const OCTVolume* vol;
+    const Volume* vol;
 };
 
 class UpdateGLTask : public QObject, public QRunnable  {
@@ -98,9 +98,9 @@ class Cutsim : public QObject {
 public:
     Cutsim(double octree_size, unsigned int octree_max_depth, GLData* gld);
     virtual ~Cutsim();
-    void diff_volume( const OCTVolume* vol );
-    void sum_volume( const OCTVolume* vol );
-    void intersect_volume( const OCTVolume* vol );
+    void diff_volume( const Volume* vol );
+    void sum_volume( const Volume* vol );
+    void intersect_volume( const Volume* vol );
     void updateGL(); 
 signals:
     void signalDiffDone();
@@ -113,8 +113,8 @@ public slots:
     void slotGLDone() {
         emit signalGLDone();
     }
-    void slot_diff_volume( const OCTVolume* vol) { diff_volume(vol);}
-    void slot_diff_volume_mt( const OCTVolume* vol) { 
+    void slot_diff_volume( const Volume* vol) { diff_volume(vol);}
+    void slot_diff_volume_mt( const Volume* vol) { 
         DiffTask* dt = new DiffTask(tree, g, vol);
         connect( dt, SIGNAL( signalDone() ), this, SLOT( slotDiffDone() ) );
         QThreadPool::globalInstance()->start(dt);
@@ -128,8 +128,8 @@ public slots:
         
         //QThreadPool::globalInstance()->waitForDone();
     }
-    void slot_sum_volume( const OCTVolume* vol)  { sum_volume(vol);} 
-    void slot_int_volume( const OCTVolume* vol)  { intersect_volume(vol);}
+    void slot_sum_volume( const Volume* vol)  { sum_volume(vol);} 
+    void slot_int_volume( const Volume* vol)  { intersect_volume(vol);}
 private:
     IsoSurfaceAlgorithm* iso_algo; // the isosurface-extraction algorithm to use
     Octree* tree; // this is the stock model

@@ -48,7 +48,7 @@ void Cutsim::updateGL() {
     std::cout << "cutsim.cpp updateGL() : " << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
-void Cutsim::sum_volume( const OCTVolume* volume ) {
+void Cutsim::sum_volume( const Volume* volume ) {
     std::clock_t start, stop;
     start = std::clock();
     tree->sum( volume );
@@ -56,7 +56,7 @@ void Cutsim::sum_volume( const OCTVolume* volume ) {
     std::cout << "cutsim.cpp sum_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
-void Cutsim::diff_volume( const OCTVolume* volume ) {
+void Cutsim::diff_volume( const Volume* volume ) {
     std::clock_t start, stop;
     start = std::clock();
     tree->diff( volume );
@@ -64,7 +64,7 @@ void Cutsim::diff_volume( const OCTVolume* volume ) {
     std::cout << "cutsim.cpp diff_volume()  :" << ( ( stop - start ) / (double)CLOCKS_PER_SEC ) <<'\n';
 }
 
-void Cutsim::intersect_volume( const OCTVolume* volume ) {
+void Cutsim::intersect_volume( const Volume* volume ) {
     std::clock_t start, stop;
     start = std::clock();
     tree->intersect( volume );

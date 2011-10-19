@@ -158,7 +158,7 @@ void Octnode::subdivide() {
     }
 }
 
-void Octnode::sum(const OCTVolume* vol) {
+void Octnode::sum(const Volume* vol) {
     for ( int n=0;n<8;++n) {
         if (vol->dist( *(vertex[n]) ) > f[n])
             color = vol->color;
@@ -166,7 +166,7 @@ void Octnode::sum(const OCTVolume* vol) {
     }
     set_state();
 }
-void Octnode::diff(const OCTVolume* vol) {
+void Octnode::diff(const Volume* vol) {
     for ( int n=0;n<8;++n)  {
         if (-1*vol->dist( *(vertex[n]) ) < f[n])
             color = vol->color;
@@ -174,7 +174,7 @@ void Octnode::diff(const OCTVolume* vol) {
     }
     set_state();
 }
-void Octnode::intersect(const OCTVolume* vol) {
+void Octnode::intersect(const Volume* vol) {
     for ( int n=0;n<8;++n) {
         if (vol->dist( *(vertex[n]) ) < f[n])
             color = vol->color;

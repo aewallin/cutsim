@@ -53,9 +53,9 @@ class Octnode {
             setUndecided();
             subdivide();
         }
-        void sum(const OCTVolume* vol);
-        void diff(const OCTVolume* vol);
-        void intersect(const OCTVolume* vol);
+        void sum(const Volume* vol);
+        void diff(const Volume* vol);
+        void intersect(const Volume* vol);
         bool is_inside()    { return (state==INSIDE); }
         bool is_outside()   { return (state==OUTSIDE); }
         bool is_undecided() { return (state==UNDECIDED); }
@@ -73,17 +73,14 @@ class Octnode {
         inline bool isLeaf() {return (childcount==0);}
     // DATA
         /// pointers to child nodes
-        //std::vector<Octnode*> child;
         Octnode* child[8];
         /// pointer to parent node
         Octnode* parent;
         /// number of children
         unsigned int childcount;
         /// The eight corners of this node
-        //std::vector<GLVertex*> vertex; 
         GLVertex* vertex[8]; 
-        /// value of implicit function at vertex
-        //std::vector<double> f; 
+        /// value of distance-field at corner vertex
         double f[8]; 
         /// the center point of this node
         GLVertex* center; // the centerpoint of this node
@@ -123,11 +120,14 @@ class Octnode {
         std::set<unsigned int> vertexSet;
         /// return center of child with index n
         GLVertex* childcenter(int n); // return position of child centerpoint
+        /// The GLData, i.e. vertices and polygons, associated with this node
+        /// when this node is deleted we notify the GLData that vertices should be removed
         GLData* g;
         /// flag for telling isosurface extraction is valid for this node
         /// if false, the node needs updating.
         bool isosurface_valid;
-        char childStatus; // bit-field indicating if children have valid gldata
+        /// bit-field indicating if children have valid gldata
+        char childStatus; 
         
 // STATIC
         /// the direction to the vertices, from the center 
