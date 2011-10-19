@@ -39,10 +39,14 @@ This class inherits from canonMotion.
 class linearMotion: protected canonMotion {
   friend canonLine* canonLine::canonLineFactory(std::string l, machineStatus s);
   public:
+    /// create linear motion
     linearMotion(std::string canonL, machineStatus prevStatus);
+    /// return type of motion
     MOTION_TYPE getMotionType();
     //std::vector<Point> points(); // points sampled along the motion
+    /// return interpolated point along this move, a distance s from the start of the move
     Point point(double s);
+    /// return length of this move
     double length();
 };
 
