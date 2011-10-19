@@ -102,7 +102,7 @@ bool g2m::chooseToolTable() {
   return true;
 }
 
-// called from interpret()
+/// set the tooltable and start interpreting input from stdin. called from interpret()
 bool g2m::startInterp(QProcess &tc) {
     if (!chooseToolTable())
         return false;
@@ -115,7 +115,7 @@ bool g2m::startInterp(QProcess &tc) {
     return true;
 }
 
-// called after "file" set in constructor
+/// called after "file" set in constructor
 void g2m::interpret() {
     //success = false;
     QProcess toCanon;
@@ -183,7 +183,8 @@ void g2m::interpret() {
     return;
 }
 
-// input string is a canon-string from rs274
+/// process a canon-line input string. this is a canon-string from rs274.
+/// call canonLineFactory to produce a canonLine and save it to lineVector
 bool g2m::processCanonLine (std::string l) {
     canonLine* cl;
     if (lineVector.size()==0) { 
@@ -206,6 +207,7 @@ bool g2m::processCanonLine (std::string l) {
     return false;
 }
 
+/// output information to std::cout
 void g2m::infoMsg(std::string s) {
     std::cout << s << std::endl;
 }

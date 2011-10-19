@@ -45,29 +45,39 @@ class g2m : public QObject {
     Q_OBJECT;
     public:
         g2m()  { debug=false; }
+        /// return vector of canonLines
         std::vector<canonLine*> getCanonLines() { return lineVector; }
         
     public slots:
+        /// run the interpreter
         void interpret_file();
+        /// set the path to the .ngc g-code file
         void setFile(QString infile) {
             emit debugMessage( tr("g2m: setting file %1").arg(infile) ); 
             file = infile; 
         }
+        /// set the path to the tootable
         void setToolTable(QString tbl_file) { 
             emit debugMessage( tr("g2m: setting tooltable %1").arg(tbl_file) ); 
             tooltable = tbl_file; 
         }
+        /// set the path to the rs274 binary
         void setInterp(QString interp_binary) { 
             emit debugMessage( tr("g2m: setting rs274 path:  %1").arg(interp_binary) ); 
             interp = interp_binary; 
         }
         
+        /// set debug mode on/off
         void setDebug(bool d) {debug=d;}
         
     signals:
+        /// debug messages
         void debugMessage(QString s);
+        /// emitted while .ngc g-code file is read. the g-code line read.
         void gcodeLineMessage(QString s);
+        /// emitted during interpret(), the canon line as a string
         void canonLineMessage(QString s);
+        /// emitted during interpret(), the current canonLine object
         void signalCanonLine(canonLine* line);
         
     protected:    
@@ -76,11 +86,17 @@ class g2m : public QObject {
         bool processCanonLine(std::string l);
         bool startInterp(QProcess &tc);
         void infoMsg(std::string s);
+        /// the canonLines produced when interpreting g-code
         std::vector<canonLine*> lineVector;
+        /// path to .ngc g-code file
         QString file;
+        /// path to tooltable
         QString tooltable;
+        /// path to rs274 executable
         QString interp;
+        /// flag for debug mode
         bool debug;
+        /// number of lines in the .ngc g-code file
         int gcode_lines;
 };
 
