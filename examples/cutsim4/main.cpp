@@ -23,18 +23,18 @@ int main( int argc, char **argv ) {
     // create the octree that represents the material
     unsigned int max_depth=8;
     double octree_cube_side=10.0;
-    cutsim::Cutsim* cs = new cutsim::Cutsim(octree_cube_side , max_depth, w);
+    cutsim::Cutsim* cs = new cutsim::Cutsim(octree_cube_side , max_depth, w->addGLData());
 
     // do some operations on the material    
     cutsim::SphereVolume* stock = new cutsim::SphereVolume();
-    stock->setRadius(15);
-    stock->setCenter( cutsim::GLVertex(10,10,10) );
+    stock->setRadius(7);
+    stock->setCenter( cutsim::GLVertex(0,0,0) );
     stock->setColor(0,1,1);
 
     cs->sum_volume(stock);
     
-    stock->setCenter( cutsim::GLVertex(-10,10,10) );
-    stock->setRadius( 13 );
+    stock->setCenter( cutsim::GLVertex(0,0,7) );
+    stock->setRadius( 5 );
     stock->setColor(1,1,0);
     cs->diff_volume(stock);
     //cs->sum_volume(stock);
@@ -44,6 +44,7 @@ int main( int argc, char **argv ) {
     
     // show the main window
     w->show();
+    cs->updateGL();
     std::cout << " w->show() done.\n";
     return app.exec();
 }
