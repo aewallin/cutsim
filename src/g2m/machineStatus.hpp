@@ -30,9 +30,14 @@ enum CANON_PLANE {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ};
 enum SPINDLE_STATUS {OFF,CW,CCW,BRAKE};
 enum MOTION_TYPE { NOT_DEFINED, MOTIONLESS, HELICAL, STRAIGHT_FEED, TRAVERSE };
 
+
+/// coolant-status
 struct coolantStruct {
+    /// is flood on?
     bool flood; 
+    /// is mist on?
     bool mist; 
+    /// is the spindle on?
     bool spindle;
 };
 
@@ -51,39 +56,77 @@ class machineStatus {
     machineStatus(Pose initial);
     void setMotionType(MOTION_TYPE m);
     void setEndPose(Pose newPose);
+    /// set endPose
     void setEndPose(Point p);
-    //void addToBounds();
+    /// set current feedrate
     void setFeed(const double f) {F=f;};
+    /// set spindle speed
     void setSpindleSpeed(const double s) {S=s;};
+    /// set spindle status
     void setSpindleStatus(const SPINDLE_STATUS s) {spindleStat=s;};
+    /// set coolant status
     void setCoolant(coolantStruct c) {coolant = c;};
+    /// set the current plane
     void setPlane(CANON_PLANE p) {plane = p;};
+    /// return the current feedrate
     double getFeed() const {return F;};
+    /// return spindle speed
     double getSpindleSpeed() const {return S;};
+    /// return the spindle-status structure
     SPINDLE_STATUS getSpindleStatus() const {return spindleStat;};
+    /// return the coolant structure
     const coolantStruct getCoolant() {return coolant;};
+    /// return startPose
     const Pose getStartPose() {return startPose;};
+    /// return endPose
     const Pose getEndPose() {return endPose;};
+    /// return the current plane
     CANON_PLANE getPlane() const {return plane;};
+    /// set startDir
     void setStartDir( Point d) {startDir = d;};
+    /// return startDir
     const Point getStartDir() const {return startDir;};
+    /// set endDir
     void setEndDir( Point d) {endDir = d;};
+    /// return endDir
     const Point getEndDir() const {return endDir;};
+    /// return prevEndDir
     const Point getPrevEndDir() const {return prevEndDir;};
     void clearAll(void);
+    /// return first
     bool isFirst() {return first;};
-    
+    /// set the tool index
     void setTool(int n); //n is the ID of the tool to be used.
+    /// return the current tool index
     int  getTool() const {return myTool;};
   protected:
-    Pose startPose, endPose;
-    double F,S;  //feedrate, spindle speed
+    /// machine Pose at start of this move
+    Pose startPose;
+    /// machine Pose at end of this move
+    Pose endPose;
+    /// feed-rate
+    double F
+    /// spindle speed
+    double S;  
+    /// coolant status
     coolantStruct coolant;
-    Point startDir, endDir, prevEndDir;
-    bool first,lastMotionWasTraverse;
+    /// the direction in which the current move starts
+    Point startDir;
+    /// the direction in which the current move ends
+    Point endDir;
+    /// endDir of the previous move
+    Point prevEndDir;
+    /// flag indicating very first move of g-code program(?)
+    bool first;
+    /// misc flag(?)
+    bool lastMotionWasTraverse;
+    /// index of current tool
     int myTool;
+    /// the current motion type
     MOTION_TYPE motionType;
+    /// the status of the spindle
     SPINDLE_STATUS spindleStat;
+    /// the current plane (used e.g. for G2 and G3 moves), either XY, XZ, or YZ
     CANON_PLANE plane;
   private:
     machineStatus();  //prevent use of this ctor by making it private 

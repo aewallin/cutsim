@@ -25,6 +25,7 @@
 
 namespace g2m {
 
+/// copy-constructor
 machineStatus::machineStatus(const machineStatus& oldStatus) {
     spindleStat = oldStatus.spindleStat;
     F = oldStatus.F;
@@ -58,6 +59,7 @@ machineStatus::machineStatus(Pose initial) {
     setTool(1);
 }
 
+/// reset machineStatus to reasonable defaults
 void machineStatus::clearAll() {
     F=S=0.0;
     plane = CANON_PLANE_XY;
@@ -90,19 +92,17 @@ void machineStatus::setMotionType(MOTION_TYPE m) {
 }
 
 
-/** \fn setEndPose
-Set end points, and call addToBounds to add points to bndbox. For an arc or helix,
-*  the edge must be added from its ctor with addArcToBbox.
-\sa addArcToBbox(TopoDS_Edge e)
-*/
+/// \fn setEndPose
 void machineStatus::setEndPose( Point p) {
     endPose = Pose( p, Point(0,0,1) );
 }
+
+/// setEndPose
 void machineStatus::setEndPose( Pose newPose) {
     endPose = newPose;
 }
 
-
+/// set the current tool index
 void machineStatus::setTool(int n) {
     //std::cout << "adding tool " << n << ".\n";
     myTool = n;
