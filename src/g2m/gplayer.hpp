@@ -28,6 +28,7 @@ class GPlayer : public QObject {
             first = true;
         }
     public slots:
+        /// start or resume executing the program
         void play() {
             qDebug() << " gplayer::play() ";
             slotRequestMove();
@@ -79,7 +80,7 @@ class GPlayer : public QObject {
             double e = timer.getElapsedS();
             emit debugMessage( tr("Gplayer: play() took ") + timer.humanreadable(e)  ) ;
         }*/
-        
+        /// signal the next move
         void slotRequestMove() {
             // UI request that we signal the next signalToolPosition()
             canonLine* cl = lines[current_line];
@@ -121,26 +122,40 @@ class GPlayer : public QObject {
             }
             emit signalProgress( (int)(100*current_line/(lines.size()-1)) ); // report progress to ui
         }
+        /// pause program
         void pause() {
             emit debugMessage( tr("GPlayer: pause") );
         }
+        /// stop the execution of the g-code program
         void stop() {
             emit debugMessage( tr("GPlayer: stop") );
         }
+        /// add a canonLine to the vector of lines to be processed
+        /// \param l the new canonLine to be added
         void appendCanonLine( canonLine* l) {
             lines.push_back(l);
         }
     signals:
+        /// signal a new tool position
         void signalToolPosition( double x, double y, double z ); // three-axis for now..
+        /// signal a tool change to new tool \param t
         void signalToolChange( int t );
-        void signalProgress( int p ); // signal the UI how far along the g-code program we are
+        /// signal the UI how far along the g-code program we are
+        void signalProgress( int p ); 
+        /// signal a debug message
         void debugMessage(QString s);
     protected:
+        /// flag for first move of g-code
         bool first;
+        /// index of current tool
         int current_tool;
+        /// the current canonLine being processed
         unsigned int current_line;
+        /// loop variable
         int m;
+        /// flag indicating when current move done
         bool move_done;
+        /// vector of canonLines to process
         std::vector<canonLine*> lines;
 };
               /*  
