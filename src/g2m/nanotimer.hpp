@@ -26,14 +26,20 @@
 
 namespace g2m {
 
+/// a timing class for benchmarking and debugging.
 class nanotimer {
   private:
+    /// time-stamp when start() was called
     timespec begin;
   public:
     nanotimer() {}
+    /// start the timer()
     void start();
+    /// return nanoseconds since start()
     long getElapsed();
+    /// return seconds since start()
     double getElapsedS();
+    /// return a QString with seconds, milliseconds, microseconds
     static QString humanreadable(double s);
 };
 
