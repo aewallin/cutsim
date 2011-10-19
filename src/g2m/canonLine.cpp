@@ -33,7 +33,7 @@
 
 namespace g2m {
 
-// note, the constructor is protected!
+/// note, the constructor is protected!
 canonLine::canonLine(std::string canonL, machineStatus prevStatus): myLine(canonL), status(prevStatus) {                       
   tokenize(myLine,canonTokens);
 }
@@ -74,6 +74,7 @@ inline int canonLine::tok2i(uint n,uint offset) {
   return i;
 }
 
+/// return the n:th canon-token
 std::string canonLine::cantok(unsigned int n) {
   if (n < canonTokens.size()) {
     return canonTokens[n]; 
@@ -91,6 +92,7 @@ bool canonLine::cmdMatch(std::string m) {
     return (m.compare(canonTokens[2]) == 0); //compare returns zero for a match
 }
 
+/// return canonTokens[2] 
 const std::string canonLine::getCanonicalCommand() {
   if (canonTokens.size() < 3 ) 
     return "BAD_LINE_NO_CMD";

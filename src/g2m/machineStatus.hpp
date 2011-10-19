@@ -105,7 +105,7 @@ class machineStatus {
     /// machine Pose at end of this move
     Pose endPose;
     /// feed-rate
-    double F
+    double F;
     /// spindle speed
     double S;  
     /// coolant status

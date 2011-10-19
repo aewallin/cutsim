@@ -43,18 +43,27 @@ You cannot create objects of this class - instead, create an object of a class
 */
 class canonLine {
   public:
+    /// return the canon-line as a string
     const std::string getLine() {return myLine;};
+    /// return Pose at start of this move
     const Pose getStart() {return status.getStartPose(); };
+    /// return the Pose at end of this move
     const Pose getEnd() {return status.getEndPose(); };
-    int getN(); //returns the number after N on the line, -1 if none
-    int getLineNum() {return tok2i(0);} //returns the canon line number
-    const std::string getCanonType();
-    const machineStatus* getStatus() {return &status;} //returns the machine's status after execution of this canon line
+    int getN(); 
+    ///returns the canon line number
+    int getLineNum() {return tok2i(0);} 
+    //const std::string getCanonType();
+    /// returns the machine's status after execution of this canon line
+    const machineStatus* getStatus() {return &status;} 
+    /// return type of motion
     virtual MOTION_TYPE getMotionType() { return NOT_DEFINED;} //= 0;
-    virtual bool isMotion() {return false;} // = 0;
+    /// return false for motion
+    virtual bool isMotion() {return false;} 
+    /// return true if this is the end of the nc-program
     virtual bool isNCend() {return false;}
-    //virtual std::vector<Point> points() { return std::vector<Point>(); }
+    /// return length of the motion
     virtual double length() {assert(0); return -1;}
+    /// return interpolated point at position t along the motion
     virtual Point point(double t) {assert(0); return Point();}
     
     // produce a canonLine based on string l, and previous machineStatus s
@@ -71,9 +80,12 @@ class canonLine {
     const std::string getCanonicalCommand();
     bool cmdMatch(std::string m);
 // DATA
-    std::string myLine; // the canon-line
-    machineStatus status; //the machine's status *after* execution of this canon line
-    std::vector<std::string> canonTokens; // the tokens are here, after tokenizing myLine
+    /// the canon-line as a string
+    std::string myLine; 
+    /// the machine's status *after* execution of this canon line
+    machineStatus status; 
+    /// the tokens in this canonLine, set after tokenizing myLine
+    std::vector<std::string> canonTokens; 
 };
 
 } // end namespace

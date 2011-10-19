@@ -44,7 +44,6 @@ class helicalMotion: protected canonMotion {
   public:
     /// create helical motion
     helicalMotion(std::string canonL, machineStatus prevStatus);
-    /// returns HELICAL
     MOTION_TYPE getMotionType() {return HELICAL;};
     /// return interpolated point along helix, a distance s from the start
     Point point(double s);

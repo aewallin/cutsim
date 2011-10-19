@@ -41,13 +41,21 @@ This class is for anything other than STRAIGHT_FEED, STRAIGHT_TRAVERSE, and ARC_
 class canonMotionless: protected canonLine {
   friend canonLine* canonLine::canonLineFactory(std::string l, machineStatus s);
   public:
+    /// create motionless canon-line
     canonMotionless(std::string canonL, machineStatus prevStatus);
+    /// return false
     bool isMotion() {return false;};
+    /// return type of motion
     MOTION_TYPE getMotionType() {return MOTIONLESS;};
     ///returns true if this command is a valid terminator for the NC file (i.e.
     bool isNCend() {return ncEnd;};
   protected:
-    bool match, handled, ncEnd;
+    /// flag(?)
+    bool match;
+    /// flag indicating that this canon-line is handled
+    bool handled;
+    /// flag indicating end of g-code program
+    bool ncEnd;
 };
 
 } // end namespace

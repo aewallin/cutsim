@@ -47,14 +47,22 @@ Also, rapid and traverse are used interchangeably, at least in my comments...
 */
 class canonMotion: protected canonLine {
   public:
+    /// return type of motion
     virtual MOTION_TYPE getMotionType() {return NOT_DEFINED;}
+    /// return true
     bool isMotion() {return true;};
+    /// return start
     Point getStart() const {return start;}
+    /// return end
     Point getEnd() const {return end;}
   protected:
+    /// create canonMotion
     canonMotion(std::string canonL, machineStatus prevStatus);
     Pose getPoseFromCmd();
-    Point start, end;
+    /// start of this move
+    Point start;
+    /// end of this move
+    Point end;
 };
 
 

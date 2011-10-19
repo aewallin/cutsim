@@ -41,7 +41,6 @@ class linearMotion: protected canonMotion {
   public:
     /// create linear motion
     linearMotion(std::string canonL, machineStatus prevStatus);
-    /// return type of motion
     MOTION_TYPE getMotionType();
     //std::vector<Point> points(); // points sampled along the motion
     /// return interpolated point along this move, a distance s from the start of the move
