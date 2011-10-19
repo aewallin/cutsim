@@ -73,15 +73,18 @@ class Octnode {
         inline bool isLeaf() {return (childcount==0);}
     // DATA
         /// pointers to child nodes
-        std::vector<Octnode*> child;
+        //std::vector<Octnode*> child;
+        Octnode* child[8];
         /// pointer to parent node
         Octnode* parent;
         /// number of children
         unsigned int childcount;
         /// The eight corners of this node
-        std::vector<GLVertex*> vertex; 
+        //std::vector<GLVertex*> vertex; 
+        GLVertex* vertex[8]; 
         /// value of implicit function at vertex
-        std::vector<double> f; 
+        //std::vector<double> f; 
+        double f[8]; 
         /// the center point of this node
         GLVertex* center; // the centerpoint of this node
         /// the tree-dept of this node
