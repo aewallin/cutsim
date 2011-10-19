@@ -34,6 +34,7 @@
 
 namespace cutsim {
 
+/// \class Octnode
 /// Octnode represents a node in the octree.
 ///
 /// each node in the octree is a cube with side length scale
