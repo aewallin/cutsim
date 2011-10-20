@@ -16,9 +16,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-//#include <QMessageBox>
 
 
+/// the QApplication 
 class CutsimApplication : public QApplication {
     Q_OBJECT
 public:

@@ -17,6 +17,9 @@ class QAction;
 class QLabel;
 class QMenu;
 
+/// the main application window for the cutting-simulation
+/// this includes menus, toolbars, text-areas for g-code and canon-lines and debug
+/// the 3D view of tool/stock.
 class CutsimWindow : public QMainWindow {
     Q_OBJECT
 public:

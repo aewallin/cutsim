@@ -92,7 +92,7 @@ void machineStatus::setMotionType(MOTION_TYPE m) {
 }
 
 
-/// \fn setEndPose
+///  setEndPose
 void machineStatus::setEndPose( Point p) {
     endPose = Pose( p, Point(0,0,1) );
 }

@@ -7,6 +7,7 @@
 
 namespace g2m {
 
+/// a point in 3D space
 struct Point {
     /// Create point at (0,0,0)
     Point():x(0),y(0),z(0) {}

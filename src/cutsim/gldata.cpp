@@ -46,7 +46,8 @@ GLData::GLData() {
 unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
     return addVertex( GLVertex(x,y,z,r,g,b), NULL );
 }
-    
+
+/// add vertex, associate given Octnode with the vertex, and return index
 unsigned int GLData::addVertex(GLVertex v, Octnode* n) {
     // add vertex with empty polygon-list.
     unsigned int idx = vertexArray[workIndex].size();
@@ -57,16 +58,19 @@ unsigned int GLData::addVertex(GLVertex v, Octnode* n) {
     return idx; // return index of newly appended vertex
 }
 
+/// add vertex at given position
 unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b, Octnode* n) {
     unsigned int id = addVertex(x,y,z,r,g,b);
     vertexDataArray[id].node = n;
     return id;
 }
 
+/// set vertex normal
 void GLData::setNormal(unsigned int vertexIdx, float nx, float ny, float nz) {
     vertexArray[workIndex][vertexIdx].setNormal(nx,ny,nz);
 }
 
+/// modify given vertex
 void GLData::modifyVertex( unsigned int id, float x, float y, float z, float r, float g, float b, float nx, float ny, float nz) {
     GLVertex p = GLVertex(x,y,z,r,g,b,nx,ny,nz);
     vertexArray[workIndex][id] = p;
@@ -138,6 +142,7 @@ void GLData::removePolygon( unsigned int polygonIdx) {
     indexArray[workIndex].resize( indexArray[workIndex].size()-polygonVertices() ); // shorten array
 } 
 
+/// string output
 void GLData::print() {
     std::cout << "GLData vertices: \n";
     //int n = 0;
