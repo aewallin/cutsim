@@ -27,10 +27,15 @@
 
 namespace cutsim {
 
+/// color of a GL-vertex
 struct Color {
+    /// red
     GLfloat r;
+    /// green
     GLfloat g;
+    /// blue
     GLfloat b;
+    /// set color
     void set(GLfloat ri, GLfloat gi, GLfloat bi) {
         r=ri;
         g=gi;
@@ -42,14 +47,19 @@ struct Color {
 /// normal is (nx,ny,nz)
 /// color is (r,g,b)
 struct GLVertex {
+    /// default (0,0,0) ctor
     GLVertex() : x(0), y(0), z(0), r(0), g(0), b(0) {}
+    /// ctor with given (x,y,z)
     GLVertex(GLfloat x, GLfloat y, GLfloat z) 
          : x(x), y(y), z(z), r(0), g(0), b(0) {}
+    /// ctor with given (x,y,z) and (r,g,b)
     GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) 
          : x(x), y(y), z(z), r(r), g(g), b(b) {}
+    /// ctor with given position (x,y,z) color (r,g,b) and normal (xn,yn,zn)
     GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat red, GLfloat gre, GLfloat blu, GLfloat xn, GLfloat yn, GLfloat zn) 
          : x(x), y(y), z(z), r(red), g(gre), b(blu), nx(xn), ny(yn), nz(zn) {}
-         
+    
+    /// set normal
     void setNormal(GLfloat xn, GLfloat yn, GLfloat zn) {
         nx=xn;
         ny=yn;
@@ -62,16 +72,18 @@ struct GLVertex {
             nz /= norm;
         }
     }
+    /// set the vertex color
     void setColor( Color c ) {
         setColor( c.r, c.g, c.b);
     }
+    /// set the vertex color
     void setColor(GLfloat red, GLfloat green, GLfloat blue) {
         r=red;
         g=green;
         b=blue;
     }
     
-    // assume p1-p2-p3 forms a triangle. set normals. set color.
+    /// assume p1-p2-p3 forms a triangle. set normals. set color.
     static void set_normal_and_color(GLVertex& p1,GLVertex& p2,GLVertex& p3, Color c ) {
         GLVertex n = (p1-p2).cross( p1-p3 );
         n.normalize();
@@ -82,52 +94,73 @@ struct GLVertex {
         p2.setColor( c );
         p3.setColor( c );
     }
-        
+    /// string output
     QString str() { return QString("(%1, %2, %3 )").arg(x).arg(y).arg(z); }
     
 // DATA
-    GLfloat x,y,z; // position
-    GLfloat r,g,b; // color, 12-bytes offset from position data.
-    GLfloat nx,ny,nz; // normal, 24-bytes offset
+    /// x-coordinate
+    GLfloat x;
+    /// y-coordinate
+    GLfloat y;
+    /// z-coordinate
+    GLfloat z; 
+    /// red
+    GLfloat r;
+    /// green
+    GLfloat g;
+    /// blue
+    GLfloat b; // color, 12-bytes offset from position data.
+    /// normal x-coordinate
+    GLfloat nx;
+    /// normal y-coordinate
+    GLfloat ny;
+    /// normal z-coordinate
+    GLfloat nz; // normal, 24-bytes offset
     
 // Operators etc
+    /// return length
     GLfloat norm() const {
         return sqrt( x*x + y*y + z*z );
     }
+    /// set length to 1
     void normalize() {
         if (this->norm() != 0.0)
             *this *=(1/this->norm());
     }
+    /// multiplication by scalar
     GLVertex& operator*=(const double &a) {
         x*=a;
         y*=a;
         z*=a;
         return *this;
     }
+    /// multiplication by scalar
     GLVertex  operator*(const double &a) const {
         return GLVertex(*this) *= a;
     }
+    /// vector addition
     GLVertex& operator+=( const GLVertex& p) {
         x+=p.x;
         y+=p.y;
         z+=p.z;
         return *this;
     }
-    
+    /// vector addition
     const GLVertex operator+( const GLVertex &p) const {
         return GLVertex(*this) += p;
     }
-    
+    /// vector subtraction
     GLVertex& operator-=( const GLVertex& p) {
         x-=p.x;
         y-=p.y;
         z-=p.z;
         return *this;
     }
-    
+    /// vector subtraction
     const GLVertex operator-( const GLVertex &p) const {
         return GLVertex(*this) -= p;
     }
+    /// cross product
     GLVertex cross(const GLVertex &p) const {
         GLfloat xc = y * p.z - z * p.y;
         GLfloat yc = z * p.x - x * p.z;
@@ -135,16 +168,19 @@ struct GLVertex {
         return GLVertex(xc, yc, zc);
     }
     
+    /// dot product
     GLfloat dot(const GLVertex &p) const {
         return x*p.x + y*p.y + z*p.z;
     }
     
+    /// the closest point on p1-p2 line
     GLVertex closestPoint(const GLVertex &p1, const GLVertex &p2) const {
         GLVertex v = p2 - p1;
         assert( v.norm() > 0.0 );
         double u = (*this - p1).dot(v) / v.dot(v);  // u = (p3-p1) dot v / (v dot v)
         return p1 + v*u;
     }
+    /// distance from this vertex to p1-p2 line, in the XY plane (used??)
     GLfloat xyDistanceToLine(const GLVertex &p1, const GLVertex &p2) const {
         // see for example
         // http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
@@ -164,7 +200,7 @@ struct GLVertex {
         }
     }
     
-    
+    /// rotate vertex by amount alfa around o->v axis 
     void rotate(const GLVertex& origin, const GLVertex& v, GLfloat alfa) {
         // rotate point p by alfa deg/rad around vector o->v
         // p = o + M*(p-o)

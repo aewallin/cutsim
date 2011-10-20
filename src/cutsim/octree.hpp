@@ -53,34 +53,40 @@ class Octree {
         virtual ~Octree();
         
     // bolean operations on tree
+        /// diff given Volume from tree
         void diff(const Volume* vol) { diff( this->root, vol); }
+        /// sum given Volume to tree
         void sum(const Volume* vol) { sum( this->root, vol); }
+        /// intersect tree with given Volume
         void intersect(const Volume* vol) { intersect( this->root, vol); }
         
 // debug, can be removed?
+        /// put all leaf-nodes in a list
         void get_leaf_nodes( std::vector<Octnode*>& nodelist) const { get_leaf_nodes( root,  nodelist); }
+        /// put all leaf-nodes in a list
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
+        /// put all invalid nodes in a list
         void get_invalid_leaf_nodes(std::vector<Octnode*>& nodelist) const;
+        /// put all invalid nodes in a list
         void get_invalid_leaf_nodes( Octnode* current, std::vector<Octnode*>& nodelist) const;
+        /// put all nodes in a list
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         
         /// initialize by recursively calling subdivide() on all nodes n times
         void init(const unsigned int n);
-
+        /// return max depth
         unsigned int get_max_depth() const;
+        /// return the maximum cube side-length, (i.e. at depth=0)
         double get_root_scale() const;
+        /// return the minimum cube side-length (i.e. at maximum depth)
         double leaf_scale() const;
-        
-        
         /// string output
         std::string str() const;
-        //void setGLData(GLData* gdata) { g=gdata; }
-        //void updateGL() { updateGL(root); }
-        //void set_surface_algorithm(IsoSurfaceAlgorithm* m) {surface_algorithm = m;}
-        
-        bool debug, debug_mc;
-        
-        /// the root scale
+        /// flag for debug mode
+        bool debug;
+        /// flag for debug-mode of marching-cubes
+        bool debug_mc;
+        /// the root scale, i.e. side-length of depth=0 cube
         double root_scale;
         /// the maximum tree-depth
         unsigned int max_depth;
@@ -88,19 +94,17 @@ class Octree {
         Octnode* root;
         
     protected:
-        /// run isosurface-algorithm on current Octnode, and push gl-data to GLData
-        //void updateGL(Octnode* current);
-        /// recursively traverse the tree subtracting vol
+        /// recursively traverse the tree subtracting Volume
         void diff(Octnode* current, const Volume* vol);
+        /// union Octnode with Volume
         void sum(Octnode* current, const Volume* vol);
+        /// intersect Octnode with Volume
         void intersect(Octnode* current, const Volume* vol);
         
-        /// remove vertices associated with the current node
-        //void remove_node_vertices(Octnode* current );
-    // DATA
 
+    // DATA
+        /// the GLData used to draw this tree
         GLData* g;
-        //IsoSurfaceAlgorithm* surface_algorithm;
     private:
         Octree() {  }
         

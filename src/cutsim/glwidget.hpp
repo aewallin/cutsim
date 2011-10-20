@@ -42,24 +42,30 @@
 
 namespace cutsim {
 
+/// OpenGL widget for displaying 3D graphics
 class GLWidget : public QGLViewer  {
     Q_OBJECT
     public:
+        /// create widget
         GLWidget( QWidget *parent=0, char *name=0 ) ;
         ~GLWidget() {}
         GLData* addGLData();
     signals:
 
     public slots:
+        /// slot called when we want to write a screen-shot to disk
         void slotWriteScreenshot();
+        /// slot called when GLData has new data that can be drawn
         void slotNewDataWaiting() { 
             if ( lastFrameTime.elapsed() > 17)  // 60fps = 1 frame per 17 milliseconds)
                 updateGL(); // only call if sufficient time elapsed since last draw()
         }
     protected:
+        /// draw the main 3D content to show
         virtual void draw();
-        //virtual void init() {}
+        /// after draw() has drawn the main scene, this function is called
         virtual void postDraw();
+        /// the user pressed a key
         virtual void keyPressEvent(QKeyEvent *e);
     private:
         void drawCornerAxis();
@@ -69,6 +75,7 @@ class GLWidget : public QGLViewer  {
         QTime lastFrameTime;
         /// used for number screenshots
         int file_number; 
+        /// flag to indicate of corner-axis should be drawn
         bool corner_axis;
 };
 

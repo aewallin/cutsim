@@ -41,36 +41,53 @@ namespace cutsim {
 /// the distance field at each corner vertex is stored.
 class Octnode {
     public:
+        /// node state, one of inside, outside, or undecided
         enum NodeState  {INSIDE, OUTSIDE, UNDECIDED };
+        /// the current state of this node
         NodeState state;
+        /// previous state of this node
         NodeState prev_state;
+        /// the color of this node
         Color color;
         /// create suboctant idx of parent with scale nodescale and depth nodedepth
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth, GLData* g);
         virtual ~Octnode();
         /// create all eight children of this node
         void subdivide(); 
+        /// for subdivision even though state is not undecided. called/used from Octree::init()
         void force_subdivide() { // this is only called from octree-init..
             setUndecided();
             subdivide();
         }
+        /// sum Volume to this node
         void sum(const Volume* vol);
+        /// diff Volume from this node
         void diff(const Volume* vol);
+        /// intersect this node with given Volume
         void intersect(const Volume* vol);
+        /// is this node outside?
         bool is_inside()    { return (state==INSIDE); }
+        /// is this node outside?
         bool is_outside()   { return (state==OUTSIDE); }
+        /// is this node undecided?
         bool is_undecided() { return (state==UNDECIDED); }
         
+        /// return true if all children of this node in given state s
         bool all_child_state(NodeState s) const;
+        /// delete all children of this node
         void delete_children();
 
     // manipulate the valid-flag
+        /// set valid-flag true
         void setValid();
+        /// set valid-flag false
         void setInvalid();
+        /// true if the GLData for this node is valid
         bool valid() const;
         
-        // surface nodes are neither inside nor outside
+        /// true if this node has child n
         inline bool hasChild(int n) { return (this->child[n] != NULL); }
+        /// true if this node has no children
         inline bool isLeaf() {return (childcount==0);}
     // DATA
         /// pointers to child nodes
@@ -95,29 +112,45 @@ class Octnode {
         Bbox bb;
     
     // for manipulating vertexSet
+        /// add id to the vertex set
         void addIndex(unsigned int id);
+        /// swap the id for an existing oldId to the given newId. This is called from GLData when GLData needs to move around vertices
         void swapIndex(unsigned int oldId, unsigned int newId);
+        /// remove given id from vertex set
         void removeIndex(unsigned int id);
+        /// is the vertex set empty?
         bool vertexSetEmpty() {return vertexSet.empty(); }
+        /// return begin() for vertex set
         unsigned int vertexSetTop() { return *(vertexSet.begin()); }
+        /// remove all vertices associated with this node. calls GLData to also remove nodes
         void clearVertexSet();
 
-    // string output
+        /// string output
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
+        /// string output
         std::string str() const;
+        /// string output
         std::string printF();
+        /// string output
         std::string spaces() const;
+        /// string output
         std::string type() const;
         
     protected: 
+        /// based on the f[]-values at the corners of this node, set the state to one of inside, outside, or undecided.
         void set_state();
+        /// set node to inside
         void setInside();
+        /// set node to outside
         void setOutside();
+        /// set node to undecided
         void setUndecided();
+        /// set given child valid
         void setChildValid( unsigned int id );
+        /// set the given child to invalid
         inline void setChildInvalid( unsigned int id );
 
-        // the vertex indices that this node produces
+        /// the vertex indices that this node has produced. These correspond to vertex id's in the GLData.
         std::set<unsigned int> vertexSet;
         /// return center of child with index n
         GLVertex* childcenter(int n); // return position of child centerpoint

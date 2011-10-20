@@ -38,6 +38,7 @@ namespace cutsim {
 ///
 class MarchingCubes : public IsoSurfaceAlgorithm {
 public:
+    /// create algorithm
     MarchingCubes(GLData* gl, Octree* tr) : IsoSurfaceAlgorithm(gl,tr) {
         g->setTriangles(); 
         g->setPolygonModeFill(); 
@@ -46,6 +47,8 @@ public:
 protected:
     void updateGL(Octnode* node);
     void mc_node(Octnode* node); 
+    /// based on the f[] values, generate a list of interpolated vertices, all on the edges of the node.
+    /// These vertices are later used for defining triangles.
     std::vector<GLVertex> interpolated_vertices(const Octnode* node, unsigned int edges) ;
     GLVertex interpolate(const Octnode* node, int idx1, int idx2);
 // DATA
