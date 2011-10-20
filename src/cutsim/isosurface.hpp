@@ -36,10 +36,12 @@ namespace cutsim {
 ///
 class IsoSurfaceAlgorithm {
 public:
+    /// create algorithm wich writes to given GLData and reads from given Octree
     IsoSurfaceAlgorithm(GLData* gl, Octree* tr) : g(gl), tree(tr) {}
     virtual ~IsoSurfaceAlgorithm() { }
     
     // return polygons corresponding to the octree node
+    /// update GLData
     virtual void updateGL() { 
         //update_calls=0;
         //valid_count=0;
@@ -51,7 +53,9 @@ public:
         //std::cout << valid_count << " valid_nodes\n";
     }
 protected:
+    /// update the GLData for the given Octnode. re-implement in sub-class
     virtual void updateGL( Octnode* node) =0 ;
+    /// when the given Octnode is deleted all associated GLData vertices are removed here.
     void remove_node_vertices(Octnode* current ) {
         while( !current->vertexSetEmpty() ) {
             unsigned int delId = current->vertexSetTop();
@@ -61,7 +65,7 @@ protected:
         assert( current->vertexSetEmpty() ); // when done, set should be empty
     }
     
-    // count the valid/invalid nodes
+    /// count the valid/invalid nodes, for debugging
     void debugValid() {
         std::vector<Octnode*> nodelist; // = new std::vector<Octnode*>();
         tree->get_all_nodes( tree->root,  nodelist);
@@ -75,8 +79,13 @@ protected:
     }
     
 // DATA
-    int update_calls, valid_count;
+    /// how many updateGL calls were made? for debug
+    int update_calls;
+    /// how many valid nodes? for debug
+    int valid_count;
+    /// the GLData to which we udpate vertices/polygons
     GLData* g;
+    /// the Octree which we traverse to update GLData
     Octree* tree;
 };
 

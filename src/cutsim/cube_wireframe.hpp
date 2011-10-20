@@ -27,8 +27,13 @@
 
 namespace cutsim {
 
+/// simple cube wireframe display of octree
+/// inside, outside, and undecided nodes/cubes can be colored with a different color
+/// we can choose to draw only inside, outside, or undecided nodes
+/// very simple algorith, all GLData is updated every time we run updateGL (this is slow!)
 class CubeWireFrame : public IsoSurfaceAlgorithm {
 public:
+    /// create algorithm
     CubeWireFrame(GLData* gl, Octree* tr ) : IsoSurfaceAlgorithm(gl,tr) {
         g->setLines(); // two indexes per line-segment
         inside_color.set(1,0,0);
@@ -39,11 +44,18 @@ public:
         draw_undecided=true;
     }
 protected:
+    /// color for inside nodes
     Color inside_color;
+    /// color for outside nodes
     Color outside_color;
+    /// color for undecided nodes
     Color undecided_color;
-    
-    bool draw_inside, draw_outside,draw_undecided;
+    /// flag for drawing inside nodes
+    bool draw_inside;
+    /// flag for drawing outside nodes
+    bool draw_outside;
+    /// flag for drawing undecided nodes
+    bool draw_undecided;
     // traverse tree and add/remove gl-elements to GLData
     void updateGL( Octnode* node) {
         if (node->valid()) {

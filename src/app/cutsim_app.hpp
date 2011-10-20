@@ -22,6 +22,7 @@
 class CutsimApplication : public QApplication {
     Q_OBJECT
 public:
+    /// create QApplication
     CutsimApplication( int &argc, char **argv, int = QT_VERSION ) :
         QApplication ( argc, argv ),
         mySplash ( NULL ) {
@@ -32,6 +33,7 @@ public:
             mySplash = NULL;
         }
     }
+    /// show a splash-screen (not used currently)
     void splashScreen ( const QPixmap &pixmap = QPixmap() ) {
         
         QPixmap* p = ( QPixmap* ) &pixmap;
@@ -44,7 +46,7 @@ public:
             splashMessage ( tr ( "Initializing Application..." ), Qt::AlignRight | Qt::AlignTop );
         }
     }
-    
+    /// show a splash-message
     void splashMessage ( const QString &message, 
                          int alignment = Qt::AlignLeft,
                          const QColor &color = Qt::black ) {
@@ -52,6 +54,7 @@ public:
             mySplash->showMessage ( message, alignment, color );
         
     }
+    /// finish showing splash screen
     void splashFinish ( QWidget* w, long millisecs ) {
         if ( mySplash ) {
             msleep ( millisecs );
@@ -60,6 +63,7 @@ public:
             mySplash = NULL;
         }
     }
+    /// sleep (?)
     void msleep ( unsigned long millisecs ) {
         QMutex mutex;
         QWaitCondition waitCondition;
@@ -69,7 +73,6 @@ public:
     }
     
 private:
-
     QSplashScreen* mySplash;
 };
 

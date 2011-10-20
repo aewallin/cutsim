@@ -42,11 +42,14 @@
 
 namespace cutsim {
 
+/// Task to diff a volume from the tree
 class DiffTask : public QObject, public QRunnable  {
     Q_OBJECT
 public:
+    /// create task for cutting Volume from Octree which is drawn with GLData
     DiffTask(Octree* t, GLData* g, const Volume* v) : tree(t), gld(g), vol(v) {
     }
+    /// run the task
     void run() {
         qDebug() << "DiffTask thread" << QThread::currentThread();
         std::clock_t start, stop;
@@ -58,6 +61,7 @@ public:
         emit signalDone();
     }
 signals:
+    /// emitted when the task is done
     void signalDone();
 private:
     Octree* tree;
@@ -65,12 +69,15 @@ private:
     const Volume* vol;
 };
 
+/// task for updating GLData of an Octree
 class UpdateGLTask : public QObject, public QRunnable  {
     Q_OBJECT
 public:
+    /// Create task for updating GLData based on given Octree. Use the given IsoSurfaceAlgorithm for the update
     UpdateGLTask(Octree* t, GLData* g, IsoSurfaceAlgorithm* ia) : 
         tree(t), gld(g), iso_algo(ia) {
     }
+    /// run the task
     void run() {
         qDebug() << "UpdateGLTask thread" << QThread::currentThread();
         std::clock_t start, stop;
@@ -83,6 +90,7 @@ public:
         emit signalDone();
     }
 signals:
+    /// emitted when current move done
     void signalDone();
 private:
     Octree* tree;
@@ -96,24 +104,38 @@ private:
 class Cutsim : public QObject {
     Q_OBJECT
 public:
+    /// create a cutting simulation
+    /// \param octree_size side length of the depth=0 octree cube
+    /// \param octree_max_depth maximum sub-division depth of the octree
+    /// \param gld the GLData used to draw this tree
     Cutsim(double octree_size, unsigned int octree_max_depth, GLData* gld);
     virtual ~Cutsim();
+    /// subtract/diff given Volume
     void diff_volume( const Volume* vol );
+    /// sum/union given Volume
     void sum_volume( const Volume* vol );
+    /// intersect/"and" given Volume
     void intersect_volume( const Volume* vol );
+    /// update the GL-data
     void updateGL(); 
 signals:
+    /// emitted when diff is done
     void signalDiffDone();
+    /// emitted when GL update is done
     void signalGLDone();
 public slots:
+    /// call to signal that diff-task is done
     void slotDiffDone() {
         qDebug() << " Cutsim::slotDiffDone() ";
         emit signalDiffDone();
     }
+    /// call to signal that gl-task is done
     void slotGLDone() {
         emit signalGLDone();
     }
+    /// diff the given Volume from the stock
     void slot_diff_volume( const Volume* vol) { diff_volume(vol);}
+    /// multithreaded diff (FIXME: broken)
     void slot_diff_volume_mt( const Volume* vol) { 
         DiffTask* dt = new DiffTask(tree, g, vol);
         connect( dt, SIGNAL( signalDone() ), this, SLOT( slotDiffDone() ) );
@@ -121,6 +143,7 @@ public slots:
         
         //QThreadPool::globalInstance()->waitForDone();
     }
+    /// multithreaded GL-update (broken...)
     void update_gl_mt( ) { 
         UpdateGLTask* ua = new UpdateGLTask(tree, g, iso_algo);
         connect( ua, SIGNAL( signalDone() ), this, SLOT( slotGLDone() ) );
@@ -128,7 +151,9 @@ public slots:
         
         //QThreadPool::globalInstance()->waitForDone();
     }
+    /// sum given Volume to tree
     void slot_sum_volume( const Volume* vol)  { sum_volume(vol);} 
+    /// intersect three with volume
     void slot_int_volume( const Volume* vol)  { intersect_volume(vol);}
 private:
     IsoSurfaceAlgorithm* iso_algo; // the isosurface-extraction algorithm to use

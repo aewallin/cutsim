@@ -20,29 +20,49 @@ class QMenu;
 class CutsimWindow : public QMainWindow {
     Q_OBJECT
 public:
+    /// create window
     CutsimWindow(QStringList ags);
     void findInterp();
     void chooseToolTable();
+    /// return helpAction
     QAction* getHelpMenu() { return helpAction; };
-    QString getArg(int n) {if(n<=args.count())return args[n];else return "n--";};
-    QStringList* getArgs() {return &args;};
+    /// return the n'th argument given to the constructor
+    QString getArg(int n) {if(n<=args.count())return args[n];else return "n--";}
+    /// return all arguments
+    QStringList* getArgs() {return &args;}
 public slots:
+    /// set progress value (0..100)
     void slotSetProgress(int n) { myProgress->setValue(n); }
+    /// show a debug message
     void debugMessage(QString s) { debugText->appendLine(s); }
+    /// add a Qstring line to the g-code window
     void appendGcodeLine(QString s) { gcodeText->appendLine(s); }
+    /// add a Qstring line to the canon-line window
     void appendCanonLine(QString s) { canonText->appendLine(s); }
+    /// position tool
     void slotSetToolPosition(double x, double y, double z);
+    /// change the tool
     void slotToolChange(int t);
+    /// slot called by worker tasks when a diff-operation is done
     void slotDiffDone();
+    /// slot called by GL-thread when GL is updated
     void slotGLDone();
 signals:
+    /// signal other objects (g2m) with the path to the g-code file
     void setGcodeFile(QString f);
+    /// signal to g2m with the path to the rs274 binary
     void setRS274(QString s);
+    /// signal to g2m the path to the tootable
     void setToolTable(QString s);
+    /// signal to g2m to start interpreting
     void interpret();
+    /// play signal to Gplayer
     void play();
+    /// pause signal to Gplayer
     void pause();
+    /// stop signal to Gplayer
     void stop();
+    /// emitted when the current move is done and we can request a enw one
     void signalMoveDone();
 private slots:
     void newFile() { statusBar()->showMessage(tr("Invoked File|New")); }

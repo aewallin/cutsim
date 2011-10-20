@@ -26,12 +26,14 @@ namespace cutsim {
     
 
 
-/// axis-aligned bounding-box
+/// axis-aligned bounding-box, stores max and min x,y,z coordinates
+/// in points minpt and maxpt and provides methods for clearing ad setting these
 class Bbox {
     public:
-        //typedef P3<double> Point;
+        /// default ctor;
         Bbox();
-        Bbox(double b1, double b2, double b3, double b4, double b5, double b6);
+        /// create box 
+        Bbox(double minx, double maxx, double miny, double maxy, double minz, double maxz);
         virtual ~Bbox() {};
         /// index into maxpt and minpt returning a vector
         /// [minx maxx miny maxy minz maxz]
@@ -45,10 +47,7 @@ class Bbox {
         /// Add a Point to the Bbox.
         /// This enlarges the Bbox so that p is contained within it.
         void addPoint(const GLVertex& p);
-        /// Add each vertex of a Triangle to the Bbox.
-        /// This enlarges the Bbox so that the Triangle is contained within it.
-        /// Calls addPoint() for each vertex of the Triangle.
-        //void addTriangle(const Triangle& t);
+        /// string output
         friend std::ostream &operator<<(std::ostream& stream, const Bbox b);
 //DATA
         /// the maximum point

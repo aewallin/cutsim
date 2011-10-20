@@ -26,8 +26,11 @@
 
 namespace g2m {
 
+/// the current plane, XY, YZ, or XZ
 enum CANON_PLANE {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ};
+/// the status of the spindle
 enum SPINDLE_STATUS {OFF,CW,CCW,BRAKE};
+/// motion type
 enum MOTION_TYPE { NOT_DEFINED, MOTIONLESS, HELICAL, STRAIGHT_FEED, TRAVERSE };
 
 
