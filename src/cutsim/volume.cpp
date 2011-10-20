@@ -60,6 +60,7 @@ RectVolume::RectVolume() {
     v3 = GLVertex(0,0,1);
 }
 
+// FIXME??
 void RectVolume::calcBB() {
     bb.clear();
     GLVertex maxp;
