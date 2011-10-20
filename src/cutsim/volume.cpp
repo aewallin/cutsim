@@ -53,6 +53,24 @@ void SphereVolume::calcBB() {
 
 //************* Rectangle **************/
 
+RectVolume::RectVolume() {
+    corner = GLVertex(0,0,0); 
+    v1 = GLVertex(1,0,0); 
+    v2 = GLVertex(0,1,0);
+    v3 = GLVertex(0,0,1);
+}
+
+void RectVolume::calcBB() {
+    bb.clear();
+    GLVertex maxp;
+    GLVertex minp;
+    double bignum = 1e6;
+    maxp = GLVertex(bignum,bignum,bignum);
+    minp = GLVertex( -bignum,-bignum,-bignum);
+    bb.addPoint( maxp  );
+    bb.addPoint( minp );
+}
+
 double RectVolume::dist(const GLVertex& p) const {
     // translate to origo
     double max_x = corner.x + v1.x;
