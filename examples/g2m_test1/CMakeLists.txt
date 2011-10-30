@@ -29,7 +29,7 @@ endif()
 
 find_library(CUTSIM_LIBRARY 
             NAMES cutsim
-            PATHS /usr/local/lib/cutsim /usr/lib/cutsim
+            PATHS /usr/local/lib/libcutsim /usr/lib/libcutsim
             DOC "The cutsim library"
 )
 MESSAGE(STATUS "CUTSIM_LIBRARY is now: " ${CUTSIM_LIBRARY})
